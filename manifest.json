@@ -1,0 +1,22 @@
+{
+  "name": "CRM by Romanychev 😎",
+  "short_name": "Romanychev CRM",
+  "description": "CRM для мастерской по ремонту бытовой техники",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090c0f",
+  "theme_color": "#ff7048",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
