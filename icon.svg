@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="CRM by Romanychev">
+  <defs>
+    <linearGradient id="bg" x1="74" y1="58" x2="438" y2="458" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#182128"/>
+      <stop offset="0.48" stop-color="#0d1318"/>
+      <stop offset="1" stop-color="#080b0e"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="116" y1="116" x2="398" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff986f"/>
+      <stop offset="0.52" stop-color="#ff7048"/>
+      <stop offset="1" stop-color="#ee4e29"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(256 164) rotate(90) scale(264)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff7048" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ff7048" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <rect x="12" y="12" width="488" height="488" rx="106" fill="none" stroke="#ffffff" stroke-opacity=".055" stroke-width="3"/>
+  <rect width="512" height="512" rx="116" fill="url(#glow)"/>
+  <g>
+    <path d="M256 76 405 162v188L256 436 107 350V162L256 76Z" fill="#10171c" stroke="url(#brand)" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M344 139c-31-9-66-.4-89 23-22 22-31 54-25 84l-94 94a31 31 0 0 0 44 44l94-94c30 6 62-3 84-25 23-23 32-58 23-89l-55 55-46-12-12-46 55-55 21-29Z" fill="url(#brand)"/>
+    <circle cx="158" cy="362" r="12" fill="#10171c"/>
+    <path d="M365 324v37M346.5 342.5h37" stroke="#ff9b77" stroke-width="11" stroke-linecap="round" opacity=".92"/>
+  </g>
+</svg>
