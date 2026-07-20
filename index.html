@@ -131,9 +131,9 @@
         .photo-gallery { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; }
         .photo-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 2px solid var(--border); cursor: pointer; flex-shrink: 0; }
         .photo-full { width: 100%; border-radius: 8px; margin: 8px 0; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: flex-end; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: flex-start; padding: 20px 0; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--card); border-radius: 16px 16px 0 0; padding: 16px; width: 100%; max-width: 750px; max-height: 95vh; overflow-y: auto; }
+        .modal { background: var(--card); border-radius: 16px; padding: 16px; width: 100%; max-width: 750px; max-height: calc(100vh - 20px); overflow-y: auto; }
         .modal h3 { margin-bottom: 10px; color: var(--accent); font-size: 17px; }
         .search-box { margin-bottom: 8px; }
         .filter-chips { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -143,6 +143,10 @@
         .empty-icon { font-size: 48px; margin-bottom: 10px; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; z-index: 200; animation: toastIn 0.3s, toastOut 0.3s 1.5s forwards; font-size: 14px; }
         .toast-warning { background: var(--yellow); color: #000; }
+        .undo-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display:flex; align-items:center; gap:12px; background:var(--card); color:var(--text); border:1px solid var(--border); padding:8px 10px 8px 14px; border-radius:24px; box-shadow:0 8px 30px rgba(0,0,0,.45); z-index:250; font-size:13px; }
+        .undo-toast button { width:auto; margin:0; padding:6px 12px; background:var(--yellow); color:#000; border-radius:14px; }
+        .draft-banner { border-left:3px solid var(--yellow); }
+        .custom-service-item { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; }
         @keyframes toastIn { from { opacity: 0; bottom: 0; } to { opacity: 1; bottom: 20px; } }
         @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
         .service-catalog { max-height: calc(95vh - 170px); overflow-y: auto; }
@@ -483,10 +487,6 @@
             font-size: 18px;
             flex-shrink: 0;
         }
-        .quick-summary { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-bottom:8px; }
-        .quick-summary .summary-item { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
-        .quick-summary .summary-value { color:var(--accent); font-size:18px; font-weight:bold; }
-        .quick-summary .summary-label { color:var(--sub); font-size:10px; margin-top:2px; }
         .backup-ok { color:var(--green); }
         .backup-due { color:var(--yellow); }
     </style>
@@ -503,7 +503,7 @@
     <button class="tab active" onclick="switchTab('new')">➕ Заявка</button>
     <button class="tab" onclick="switchTab('orders')">📋 Заявки</button>
     <button class="tab" onclick="switchTab('warehouse')">📦 Склад</button>
-    <button class="tab" onclick="switchTab('expenses')">💰 Расходы</button>
+    <button class="tab" onclick="switchTab('expenses')">💰 Финансы</button>
     <button class="tab" onclick="switchTab('stats')">📊 Отчёт</button>
     <button class="tab" onclick="switchTab('clients')">👥 Клиенты</button>
     <button class="tab" onclick="switchTab('print')">🖨️ Акт</button>
@@ -512,7 +512,7 @@
 
 <!-- Новая заявка -->
 <div id="page-new" class="page active">
-    <div id="quick-summary" class="quick-summary"></div>
+    <div id="draft-banner" class="card draft-banner" style="display:none;"></div>
     <div class="card">
         <div class="form-group"><label>👤 Имя клиента *</label><input type="text" id="n-name" placeholder="Иван Иванов"></div>
         <div class="row"><div class="form-group"><label>📞 Телефон *</label><input type="tel" id="n-phone" placeholder="+7 900 123-45-67" inputmode="numeric"></div><div class="form-group"><label>📍 Адрес</label><input type="text" id="n-address" placeholder="ул. Примерная, д. 1"></div></div>
@@ -527,7 +527,7 @@
             <div id="services-total-display" style="text-align:center;font-weight:bold;margin-top:6px;font-size:14px;"></div>
         </div>
         
-        <div class="row"><div class="form-group"><label>💰 Итоговая сумма (₽)</label><input type="number" id="n-sum" placeholder="26000" inputmode="numeric"></div><div class="form-group"><label>💳 Предоплата (₽)</label><input type="number" id="n-prepay" placeholder="0" inputmode="numeric"></div></div>
+        <div class="row"><div class="form-group"><label>💰 Итоговая сумма (₽)</label><input type="number" id="n-sum" placeholder="26000" inputmode="numeric" onblur="autoAdjustServices()"></div><div class="form-group"><label>💳 Предоплата (₽)</label><input type="number" id="n-prepay" placeholder="0" inputmode="numeric"></div></div>
         <div class="row"><div class="form-group"><label>🎁 Скидка (₽)</label><input type="number" id="n-discount" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>🛡️ Гарантия (мес.)</label><input type="number" id="n-guarantee" placeholder="6" inputmode="numeric"></div></div>
         <div class="row"><div class="form-group"><label>🧾 Серые расходы</label><input type="number" id="n-gray" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>📄 Белые расходы</label><input type="number" id="n-white" placeholder="0" inputmode="numeric"></div></div>
         <div class="form-group">
@@ -545,7 +545,7 @@
 
 <!-- Заявки -->
 <div id="page-orders" class="page">
-    <div class="search-box"><input type="text" id="search-orders" placeholder="🔍 Поиск по имени, телефону, модели..." oninput="renderOrders()"></div>
+    <div class="search-box"><input type="text" id="search-orders" placeholder="🔍 Поиск по имени, телефону, технике, модели..." oninput="renderOrders()"></div>
     <div class="filter-chips">
         <span class="chip active" onclick="filterOrders('all',this)">Все</span>
         <span class="chip" onclick="filterOrders('Закрыта',this)">🔴 Закрыты</span>
@@ -561,16 +561,18 @@
     <div id="warehouse-container"></div>
 </div>
 
-<!-- Расходы -->
+<!-- Финансы -->
 <div id="page-expenses" class="page">
     <div class="search-box"><input type="text" id="search-expenses" placeholder="🔍 Поиск по категории или описанию..." oninput="renderExpenses()"></div>
     <div class="card"><h4 style="margin-bottom:8px;font-size:16px;">➕ Расход</h4><div class="row"><div class="form-group"><label>Сумма</label><input type="number" id="exp-amount" placeholder="1000" inputmode="numeric"></div><div class="form-group"><label>Категория</label><input type="text" id="exp-cat" placeholder="Прочее"></div></div><div class="form-group"><label>Описание</label><input type="text" id="exp-desc" placeholder="Что купили..."></div><button onclick="addExpense()">✅ Добавить</button></div>
+    <div class="card"><h4 style="margin-bottom:8px;font-size:16px;">➕ Дополнительный приход</h4><div class="row"><div class="form-group"><label>Сумма</label><input type="number" id="inc-amount" placeholder="500" inputmode="numeric"></div><div class="form-group"><label>Категория</label><input type="text" id="inc-cat" placeholder="Гарантия / бензин"></div></div><div class="form-group"><label>Описание</label><input type="text" id="inc-desc" placeholder="За что получил..."></div><button class="btn-green" onclick="addIncome()">✅ Добавить приход</button></div>
     <div id="expenses-container"></div>
+    <div id="incomes-container"></div>
 </div>
 
 <!-- Отчёт -->
 <div id="page-stats" class="page">
-    <div class="filter-chips"><span class="chip active" onclick="changePeriod('today',this)">Сегодня</span><span class="chip" onclick="changePeriod('week',this)">Неделя</span><span class="chip" onclick="changePeriod('month',this)">Месяц</span><span class="chip" onclick="changePeriod('all',this)">Всё</span></div>
+    <div class="filter-chips"><span class="chip" onclick="changePeriod('today',this)">Сегодня</span><span class="chip" onclick="changePeriod('week',this)">Неделя</span><span class="chip active" onclick="changePeriod('month',this)">Месяц</span><span class="chip" onclick="changePeriod('all',this)">Всё</span></div>
     <div id="stats-container"></div>
 </div>
 
@@ -594,6 +596,7 @@
 <div id="page-settings" class="page">
     <div class="card"><h4 style="margin-bottom:8px;font-size:16px;">👤 Исполнитель</h4><div class="form-group"><label>ФИО</label><input type="text" id="set-name" value="Романычев Д.В."></div><div class="form-group"><label>ИНН</label><input type="text" id="set-inn" value="" placeholder="123456789012"></div><div class="form-group"><label>Телефон</label><input type="text" id="set-phone" value=""></div><button onclick="saveSettings()">💾 Сохранить</button></div>
     <div class="card"><h4 style="margin-bottom:8px;font-size:16px;">🎨 Оформление</h4><button onclick="toggleTheme()">🌓 Сменить тему</button></div>
+    <div class="card"><h4 style="margin-bottom:8px;font-size:16px;">🛠️ Мои дополнительные услуги</h4><p style="font-size:12px;color:var(--sub);margin-bottom:8px;">Добавляй сюда свои услуги — они появятся в каталоге выбранного типа техники.</p><div class="form-group"><label>Тип техники</label><select id="custom-service-tech"><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Другое</option></select></div><div class="row"><div class="form-group"><label>Категория</label><input type="text" id="custom-service-cat" placeholder="Мои услуги"></div><div class="form-group"><label>Название</label><input type="text" id="custom-service-name" placeholder="Например, ремонт трубки"></div></div><div class="form-group"><label>Цена</label><input type="number" id="custom-service-price" placeholder="1500" inputmode="numeric"></div><button onclick="addCustomService()">➕ Добавить услугу</button><div id="custom-services-list" style="margin-top:8px;"></div></div>
     <div class="card"><h4 style="margin-bottom:8px;font-size:16px;">💾 Данные</h4>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button class="btn-green" onclick="quickBackup()" style="flex:1;">📥 Скачать бэкап</button>
@@ -606,6 +609,10 @@
         <label style="display:flex;align-items:center;gap:8px;margin-top:10px;text-transform:none;letter-spacing:0;font-size:12px;">
             <input type="checkbox" id="set-auto-backup" style="width:auto;" checked onchange="saveAutoBackupSetting()">
             Еженедельный бэкап в загрузки телефона
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;text-transform:none;letter-spacing:0;font-size:12px;">
+            <input type="checkbox" id="set-auto-price" style="width:auto;" checked onchange="saveAutoPriceSetting()">
+            Автоматически подгонять цены услуг под сумму заявки
         </label>
         <div id="backup-info" style="margin-top:6px;font-size:12px;color:var(--sub);"></div>
         <div id="storage-info" style="margin-top:8px;font-size:12px;color:var(--sub);"></div>
@@ -639,11 +646,15 @@ const DB = {
     orders() { return this.get('orders'); },
     warehouse() { return this.get('warehouse'); },
     expenses() { return this.get('expenses'); },
-    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true}; },
+    incomes() { return this.get('incomes'); },
+    customServices() { return this.get('service_custom'); },
+    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true, autoPriceAdjust:true}; },
     saveSettings(s) { this.set('settings', [s]); },
     saveOrders(d) { this.set('orders', d); },
     saveWarehouse(d) { this.set('warehouse', d); },
     saveExpenses(d) { this.set('expenses', d); },
+    saveIncomes(d) { this.set('incomes', d); },
+    saveCustomServices(d) { this.set('service_custom', d); },
     getStorageSize() {
         let total = 0;
         for (let key in localStorage) {
@@ -678,7 +689,7 @@ const DeviceBackup = {
     async restoreMissing() {
         try {
             const db = await this.open();
-            for (const key of ['orders','warehouse','expenses','settings']) {
+            for (const key of ['orders','warehouse','expenses','incomes','service_custom','settings']) {
                 const raw=localStorage.getItem('repair_' + key);
                 let valid=raw!==null;
                 if(valid){try{JSON.parse(raw);}catch{valid=false;}}
@@ -1093,6 +1104,18 @@ function toast(msg, isWarning = false) {
     setTimeout(()=>t.remove(), 2500);
 }
 
+let undoTimer=null;
+function showUndo(message,action){
+    document.querySelectorAll('.undo-toast').forEach(el=>el.remove());
+    clearTimeout(undoTimer);
+    const el=document.createElement('div');el.className='undo-toast';
+    const textEl=document.createElement('span');textEl.textContent=message;
+    const btn=document.createElement('button');btn.textContent='Отменить';
+    btn.onclick=()=>{clearTimeout(undoTimer);el.remove();action();};
+    el.append(textEl,btn);document.body.appendChild(el);
+    undoTimer=setTimeout(()=>el.remove(),6000);
+}
+
 // ==================== ТАБЫ ====================
 function switchTab(tab) {
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -1103,7 +1126,7 @@ function switchTab(tab) {
     if(tab==='orders')renderOrders();
     if(tab==='warehouse')renderWarehouse();
     if(tab==='expenses')renderExpenses();
-    if(tab==='stats')renderStats('today');
+    if(tab==='stats')renderStats('month');
     if(tab==='clients')renderClients();
     if(tab==='print')renderPrintSelect();
     if(tab==='settings'){loadSettings();updateStorageInfo();}
@@ -1129,6 +1152,7 @@ function previewPhotos(){
                 img.onclick=()=>showFullPhoto(compressed);
                 document.getElementById('photo-preview').appendChild(img);
                 updatePhotoProcessingState();
+                scheduleDraftSave();
             });
         };
         reader.readAsDataURL(files[i]);
@@ -1167,6 +1191,22 @@ function compressImage(dataUrl, maxWidth, quality, callback) {
 function showFullPhoto(src){
     document.getElementById('modal-content').innerHTML=`<img src="${src}" class="photo-full" onclick="closeModal()"><button onclick="closeModal()">Закрыть</button>`;
     document.getElementById('modal-overlay').classList.add('active');
+}
+
+function showOrderPhoto(orderId,index){
+    const order=DB.orders().find(o=>o.id===orderId), photo=order?.photos?.[index];
+    if(!photo)return;
+    document.getElementById('modal-content').innerHTML=`<img src="${photo}" class="photo-full"><div style="display:flex;gap:6px;"><button class="btn-red" onclick="deleteOrderPhoto('${orderId}',${index})">🗑️ Удалить фото</button><button class="btn-outline" onclick="closeModal()">Закрыть</button></div>`;
+    document.getElementById('modal-overlay').classList.add('active');
+}
+
+function deleteOrderPhoto(orderId,index){
+    if(!confirm('Удалить это фото из заявки?'))return;
+    const orders=DB.orders(), order=orders.find(o=>o.id===orderId);
+    if(!order||!order.photos)return;
+    const oldPhotos=order.photos.slice();order.photos.splice(index,1);
+    if(editingId===orderId)tempPhotos.splice(index,1);
+    DB.saveOrders(orders);closeModal();renderOrders();maybeAutoBackup();showUndo('Фото удалено',()=>{const current=DB.orders().find(o=>o.id===orderId);if(current){current.photos=oldPhotos;DB.saveOrders(DB.orders());if(editingId===orderId)tempPhotos=oldPhotos.slice();renderOrders();maybeAutoBackup();}});
 }
 
 async function compactPhotos() {
@@ -1211,6 +1251,16 @@ function updateStorageInfo() {
 // ==================== УСЛУГИ ====================
 let selectedServices=[];
 
+function getServiceCatalogForTech(tech){
+    const source=SERVICE_CATALOG[tech]||{};
+    const catalog=Object.fromEntries(Object.entries(source).map(([category,items])=>[category,items.map(item=>({...item}))]));
+    DB.customServices().filter(s=>s.tech===tech).forEach(s=>{
+        if(!catalog[s.category])catalog[s.category]=[];
+        catalog[s.category].push({name:s.name,price:s.price,customId:s.id});
+    });
+    return catalog;
+}
+
 function updateServiceCatalog(){
     document.getElementById('selected-services').innerHTML='';
     document.getElementById('services-total-display').innerHTML='';
@@ -1229,7 +1279,7 @@ function closeServiceModal(){
 function renderServiceCatalog(){
     const tech=document.getElementById('n-tech').value;
     const search=(document.getElementById('service-search')?.value||'').toLowerCase();
-    const catalog=SERVICE_CATALOG[tech]||{};
+    const catalog=getServiceCatalogForTech(tech);
     const container=document.getElementById('service-catalog');
     let html='';
     for(const[category,services]of Object.entries(catalog)){
@@ -1338,11 +1388,55 @@ function applyServices(){
     if(!document.getElementById('n-issue').value.trim()){
         document.getElementById('n-issue').value = selectedServices.map(s => s.name).join(', ');
     }
+    scheduleDraftSave();
     closeServiceModal();
+}
+
+function autoAdjustServices(){
+    if(DB.settings().autoPriceAdjust!==false && selectedServices.length) applyServices();
 }
 
 // ==================== ЗАЯВКИ ====================
 let editingId=null;
+let draftTimer=null;
+
+function getDraft(){
+    const draft={};
+    ['n-name','n-phone','n-address','n-tech','n-brand','n-issue','n-diagnosis','n-defects','n-sum','n-prepay','n-discount','n-gray','n-white','n-percent','n-guarantee','n-status'].forEach(id=>{const el=document.getElementById(id);if(el)draft[id]=el.value;});
+    draft.services=JSON.parse(JSON.stringify(selectedServices));
+    draft.photos=tempPhotos.slice(0,5);
+    draft.saved=U.nowISO();
+    return draft;
+}
+
+function scheduleDraftSave(){
+    if(editingId)return;
+    clearTimeout(draftTimer);
+    draftTimer=setTimeout(()=>{DB.set('draft',getDraft());renderDraftBanner();},500);
+}
+
+function clearDraft(){DB.set('draft',[]);renderDraftBanner();}
+
+function renderDraftBanner(){
+    const el=document.getElementById('draft-banner');if(!el)return;
+    const d=DB.get('draft');
+    if(!d||Array.isArray(d)||!d.saved){el.style.display='none';return;}
+    el.style.display='block';el.innerHTML=`<div style="font-weight:bold;margin-bottom:4px;">📝 Есть незавершённая заявка</div><div style="font-size:12px;color:var(--sub);margin-bottom:8px;">Сохранена ${U.dateTime(d.saved)}. Можно продолжить с того же места.</div><div style="display:flex;gap:6px;"><button class="btn-sm btn-yellow" onclick="restoreDraft()">Продолжить</button><button class="btn-sm btn-outline" onclick="clearDraft()">Удалить черновик</button></div>`;
+}
+
+function restoreDraft(){
+    const d=DB.get('draft');if(!d||Array.isArray(d))return;
+    Object.entries(d).forEach(([id,value])=>{const el=document.getElementById(id);if(el&&typeof value==='string')el.value=value;});
+    selectedServices=JSON.parse(JSON.stringify(d.services||[]));tempPhotos=d.photos||[];
+    document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
+    const total=selectedServices.reduce((s,ss)=>s+ss.price,0);document.getElementById('services-total-display').innerHTML=selectedServices.length?`📊 Итого услуг: <b>${U.money(total)}</b>`:'';
+    const container=document.getElementById('photo-preview');container.innerHTML='';tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>showFullPhoto(p);container.appendChild(img);});
+    renderDraftBanner();toast('📝 Черновик восстановлен');
+}
+
+function setupDraftAutosave(){
+    document.querySelectorAll('#page-new input,#page-new textarea,#page-new select').forEach(el=>{el.addEventListener('input',scheduleDraftSave);el.addEventListener('change',scheduleDraftSave);});
+}
 
 function clearForm(){
     ['n-name','n-phone','n-address','n-brand','n-issue','n-diagnosis','n-defects'].forEach(id=>document.getElementById(id).value='');
@@ -1355,10 +1449,11 @@ function clearForm(){
     document.getElementById('services-total-display').innerHTML='';
     document.getElementById('edit-indicator').style.display='none';
     document.getElementById('save-btn').textContent='✅ Сохранить заявку';
-    selectedServices=[];tempPhotos=[];pendingPhotoJobs=0;editingId=null;
+    selectedServices=[];tempPhotos=[];pendingPhotoJobs=0;editingId=null;clearDraft();
 }
 
 function saveOrder(){
+    autoAdjustServices();
     const name=document.getElementById('n-name').value.trim();
     const phone=document.getElementById('n-phone').value.trim().replace(/[^0-9+]/g, '');
     if(!name){alert('❌ Имя обязательно!');return;}
@@ -1406,7 +1501,7 @@ function saveOrder(){
     if(editingId) orders=orders.map(o=>o.id===editingId ? order : o);
     else orders.unshift(order);
     DB.saveOrders(orders);
-    clearForm();toast('✅ Заявка сохранена!');maybeAutoBackup();renderQuickSummary();
+    clearForm();toast('✅ Заявка сохранена!');maybeAutoBackup();
     if(document.getElementById('page-orders').classList.contains('active'))renderOrders();
     updateStorageInfo();
 }
@@ -1438,19 +1533,19 @@ function editOrder(id){
     document.getElementById('services-total-display').innerHTML=`📊 Итого услуг: <b>${U.money(total)}</b>`;
     tempPhotos=order.photos||[];
     const container=document.getElementById('photo-preview');container.innerHTML='';
-    tempPhotos.forEach(p=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>showFullPhoto(p);container.appendChild(img);});
+    tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>editingId?showOrderPhoto(editingId,i):showFullPhoto(p);container.appendChild(img);});
     switchTab('new');window.scrollTo(0,0);
 }
 
 function toggleStatus(id){
     const orders=DB.orders();const order=orders.find(o=>o.id===id);
-    if(order){order.status=order.status==='СД'?'Закрыта':'СД';order.completed=order.status==='Закрыта'?U.nowISO():null;DB.saveOrders(orders);renderOrders();renderQuickSummary();maybeAutoBackup();toast('✅ Статус изменён');}
+    if(order){order.status=order.status==='СД'?'Закрыта':'СД';order.completed=order.status==='Закрыта'?U.nowISO():null;DB.saveOrders(orders);renderOrders();maybeAutoBackup();toast('✅ Статус изменён');}
 }
 
-function deleteOrder(id){if(!confirm('Удалить?'))return;DB.saveOrders(DB.orders().filter(o=>o.id!==id));renderOrders();renderQuickSummary();maybeAutoBackup();toast('🗑️ Удалено');}
+function deleteOrder(id){if(!confirm('Удалить заявку?'))return;const orders=DB.orders(),index=orders.findIndex(o=>o.id===id);if(index<0)return;const removed=orders[index];orders.splice(index,1);DB.saveOrders(orders);renderOrders();maybeAutoBackup();showUndo('Заявка удалена',()=>{const restored=DB.orders();restored.splice(Math.min(index,restored.length),0,removed);DB.saveOrders(restored);renderOrders();maybeAutoBackup();});}
 
 function callPhone(phone){if(phone)window.location.href='tel:'+phone;else toast('❌ Нет номера');}
-function messagePhone(phone){const digits=(phone||'').replace(/\D/g,'');if(digits)window.open('https://wa.me/'+digits,'_blank');else toast('❌ Нет номера');}
+function messageTelegram(phone){const digits=(phone||'').replace(/\D/g,'');if(digits)window.open('https://t.me/+'+digits,'_blank');else toast('❌ Нет номера');}
 function openMap(address){if(address)window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(address),'_blank');else toast('❌ Нет адреса');}
 
 function duplicateOrder(id){
@@ -1496,7 +1591,8 @@ function renderOrders(){
         orders=orders.filter(o => 
             o.name.toLowerCase().includes(search) || 
             o.phone.includes(search) || 
-            o.brand.toLowerCase().includes(search) ||
+            o.brand.toLowerCase().includes(search) || 
+            o.tech.toLowerCase().includes(search) || 
             o.id.includes(search)
         );
     }
@@ -1514,17 +1610,17 @@ function renderOrders(){
             </div>
             <div class="card-body">
                 📞 ${o.phone} | 🔧 ${o.tech} ${o.brand}<br>
-                💰 <span class="highlight">${U.money(U.finalAmount(o))}</span>${o.prepay?` | Осталось: ${U.money(U.balance(o))}`:''}<br>
+                💰 <span class="highlight">${U.money(U.finalAmount(o))}</span><br>
                 🛡️ ${o.guarantee} мес.${U.guaranteeUntil(o)?` — до ${U.date(U.guaranteeUntil(o))}`:''}<br>
                 📅 ${U.dateTime(o.created)} ${profit!==null?`| 💎 ${U.money(profit)}`:''}
             </div>
-            ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map(p=>`<img src="${p}" class="photo-thumb" onclick="showFullPhoto('${p}')">`).join('')}</div>`:''}
+            ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map((p,i)=>`<img src="${p}" class="photo-thumb" onclick="showOrderPhoto('${o.id}',${i})">`).join('')}</div>`:''}
             <div class="card-footer">
                 <button class="btn-xs btn-blue" onclick="editOrder('${o.id}')">✏️</button>
                 <button class="btn-xs btn-green" onclick="toggleStatus('${o.id}')">${o.status==='СД'?'✅ Закрыть':'🔄 Открыть'}</button>
                 <button class="btn-xs btn-yellow" onclick="duplicateOrder('${o.id}')">📋 Копия</button>
                 <button class="btn-xs" style="background:var(--blue);color:#000;" onclick="callPhone('${o.phone}')">📞 Позвонить</button>
-                <button class="btn-xs btn-green" onclick="messagePhone('${o.phone}')">💬 WhatsApp</button>
+                <button class="btn-xs btn-blue" onclick="messageTelegram('${o.phone}')">✈️ Telegram</button>
                 ${o.address?`<button class="btn-xs btn-purple" onclick="openMap('${o.address.replace(/'/g,"\\'")}')">📍 Карта</button>`:''}
                 <button class="btn-xs btn-red" onclick="deleteOrder('${o.id}')">🗑️</button>
             </div>
@@ -1542,7 +1638,7 @@ function addWarehouseItem(){
     document.getElementById('wh-qty').value='';
     document.getElementById('wh-min').value='';
     document.getElementById('wh-price').value='';
-    renderWarehouse();renderQuickSummary();maybeAutoBackup();toast('✅ Добавлено');
+    renderWarehouse();maybeAutoBackup();toast('✅ Добавлено');
 }
 
 function warehouseAction(id,action){
@@ -1550,10 +1646,10 @@ function warehouseAction(id,action){
     const items=DB.warehouse();const item=items.find(i=>i.id===id);if(!item)return;
     if(action==='add')item.quantity+=parseInt(qty);
     else if(action==='remove'){if(item.quantity<parseInt(qty)){toast('❌ Недостаточно!');return;}item.quantity-=parseInt(qty);}
-    DB.saveWarehouse(items);renderWarehouse();renderQuickSummary();maybeAutoBackup();toast('✅ Готово');
+    DB.saveWarehouse(items);renderWarehouse();maybeAutoBackup();toast('✅ Готово');
 }
 
-function deleteWarehouseItem(id){if(!confirm('Удалить?'))return;DB.saveWarehouse(DB.warehouse().filter(i=>i.id!==id));renderWarehouse();renderQuickSummary();maybeAutoBackup();}
+function deleteWarehouseItem(id){if(!confirm('Удалить запчасть со склада?'))return;const items=DB.warehouse(),index=items.findIndex(i=>i.id===id);if(index<0)return;const removed=items[index];items.splice(index,1);DB.saveWarehouse(items);renderWarehouse();maybeAutoBackup();showUndo('Позиция удалена со склада',()=>{const restored=DB.warehouse();restored.splice(Math.min(index,restored.length),0,removed);DB.saveWarehouse(restored);renderWarehouse();maybeAutoBackup();});}
 
 function renderWarehouse(){
     const items=DB.warehouse();
@@ -1608,13 +1704,30 @@ function addExpense(){
 
 function deleteExpense(id){
     if(!confirm('Удалить этот расход?')) return;
-    DB.saveExpenses(DB.expenses().filter(e => e.id !== id));
+    const expenses=DB.expenses(),index=expenses.findIndex(e=>e.id===id);if(index<0)return;const removed=expenses[index];expenses.splice(index,1);DB.saveExpenses(expenses);
     renderExpenses();
     maybeAutoBackup();
-    toast('🗑️ Расход удалён');
+    showUndo('Расход удалён',()=>{const restored=DB.expenses();restored.splice(Math.min(index,restored.length),0,removed);DB.saveExpenses(restored);renderExpenses();maybeAutoBackup();});
+}
+
+function addIncome(){
+    const amount=parseInt(document.getElementById('inc-amount').value);
+    const category=document.getElementById('inc-cat').value.trim()||'Прочее';
+    const description=document.getElementById('inc-desc').value.trim()||'Без описания';
+    if(!amount||amount<=0){toast('❌ Введите сумму прихода!');return;}
+    const incomes=DB.incomes();incomes.unshift({id:U.uid(),amount,category,description,date:U.nowISO()});DB.saveIncomes(incomes);
+    document.getElementById('inc-amount').value='';document.getElementById('inc-cat').value='';document.getElementById('inc-desc').value='';
+    renderIncomes();maybeAutoBackup();toast('✅ Дополнительный приход добавлен');
+}
+
+function deleteIncome(id){
+    if(!confirm('Удалить этот приход?'))return;
+    const incomes=DB.incomes(),index=incomes.findIndex(i=>i.id===id);if(index<0)return;const removed=incomes[index];incomes.splice(index,1);DB.saveIncomes(incomes);renderIncomes();maybeAutoBackup();
+    showUndo('Приход удалён',()=>{const restored=DB.incomes();restored.splice(Math.min(index,restored.length),0,removed);DB.saveIncomes(restored);renderIncomes();maybeAutoBackup();});
 }
 
 function renderExpenses(){
+    renderIncomes();
     const expenses=DB.expenses();
     const search=(document.getElementById('search-expenses')?.value||'').toLowerCase();
     let filtered = expenses;
@@ -1671,7 +1784,8 @@ function renderStats(period){
     const revenue=closed.reduce((s,o)=>s+U.finalAmount(o),0);
     const profit=closed.reduce((s,o)=>s+(U.profit(o)||0),0);
     const otherExp=DB.expenses().filter(e=>e.date>=from&&e.date<=to).reduce((s,e)=>s+e.amount,0);
-    const netProfit=profit-otherExp;
+    const otherIncome=DB.incomes().filter(i=>i.date>=from&&i.date<=to).reduce((s,i)=>s+i.amount,0);
+    const netProfit=profit-otherExp+otherIncome;
     const avgCheck = closed.length > 0 ? Math.round(revenue / closed.length) : 0;
     
     const techStats = {};
@@ -1730,6 +1844,7 @@ function renderStats(period){
                 <div class="stat-item"><div class="stat-num" style="color:var(--green)">${U.money(profit)}</div><div class="stat-label">Прибыль</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:var(--yellow)">${U.money(avgCheck)}</div><div class="stat-label">Средний чек</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:var(--red)">${U.money(otherExp)}</div><div class="stat-label">Расходы</div></div>
+                <div class="stat-item"><div class="stat-num" style="color:var(--green)">${U.money(otherIncome)}</div><div class="stat-label">Доп. доход</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:${netProfit>=0?'var(--green)':'var(--red)'}">${U.money(netProfit)}</div><div class="stat-label">Чистыми</div></div>
             </div>
             ${techHtml}
@@ -1786,6 +1901,20 @@ function renderClients(){
     `).join('');
 }
 
+function openOrderFromClient(event,id){
+    event.stopPropagation();
+    if(confirm('Открыть заявку для изменения?')){closeModal();editOrder(id);}
+}
+
+function renderIncomes(){
+    const incomes=DB.incomes(),search=(document.getElementById('search-expenses')?.value||'').toLowerCase();
+    const filtered=search?incomes.filter(i=>i.category.toLowerCase().includes(search)||i.description.toLowerCase().includes(search)):incomes;
+    const container=document.getElementById('incomes-container');if(!container)return;
+    if(!filtered.length){container.innerHTML=incomes.length?'<div class="empty-state" style="padding:20px;"><div class="empty-icon">🔍</div>Приход не найден</div>':'';return;}
+    const total=filtered.reduce((s,i)=>s+i.amount,0);
+    container.innerHTML=`<div class="card"><div class="card-header"><span><b>💎 Дополнительные приходы</b></span><span style="color:var(--green);font-weight:bold;">+${U.money(total)}</span></div>${filtered.map(i=>`<div class="expense-item"><div class="info"><div class="desc">${i.description}</div><div class="date">${i.category} · ${U.dateTime(i.date)}</div></div><span style="font-weight:bold;color:var(--green);margin-right:8px;">+${U.money(i.amount)}</span><button class="delete-btn" onclick="deleteIncome('${i.id}')">🗑️</button></div>`).join('')}</div>`;
+}
+
 function openClientCard(phone){
     const orders = DB.orders().filter(o => o.phone === phone);
     if(!orders.length) return;
@@ -1803,7 +1932,7 @@ function openClientCard(phone){
     let ordersHtml = '';
     if(orders.length) {
         ordersHtml = orders.map(o => `
-            <div class="order-history-item" onclick="editOrder('${o.id}')">
+            <div class="order-history-item" onclick="openOrderFromClient(event,'${o.id}')">
                 <div class="top">
                     <span><b>${U.formatOrderId(o.id)}</b> ${o.tech || '—'} ${o.brand || ''}</span>
                     <span class="highlight">${U.money(U.finalAmount(o))}</span>
@@ -1825,7 +1954,7 @@ function openClientCard(phone){
                 <div style="display:flex;gap:4px;">
                     <button class="btn-xs btn-blue" onclick="editClient('${client.phone}')" style="min-width:60px;">✏️</button>
                     <button class="btn-xs" style="background:var(--blue);color:#000;" onclick="callPhone('${client.phone}')">📞</button>
-                    <button class="btn-xs btn-green" onclick="messagePhone('${client.phone}')">💬</button>
+                    <button class="btn-xs btn-blue" onclick="messageTelegram('${client.phone}')">✈️</button>
                     ${client.address!=='—'?`<button class="btn-xs btn-purple" onclick="openMap('${client.address.replace(/'/g,"\\'")}')">📍</button>`:''}
                 </div>
             </div>
@@ -2000,21 +2129,49 @@ function printAct(){
 }
 
 // ==================== НАСТРОЙКИ ====================
+function renderCustomServices(){
+    const list=document.getElementById('custom-services-list');if(!list)return;
+    const items=DB.customServices();
+    list.innerHTML=items.length?items.map(s=>`<div class="custom-service-item"><span>🔧 ${s.tech} · ${s.category}<br><b>${s.name}</b> — ${U.money(s.price)}</span><button class="btn-xs btn-red" onclick="deleteCustomService('${s.id}')">🗑️</button></div>`).join(''):'<div style="font-size:12px;color:var(--sub);padding:6px 0;">Дополнительных услуг пока нет</div>';
+}
+
+function addCustomService(){
+    const tech=document.getElementById('custom-service-tech').value;
+    const category=document.getElementById('custom-service-cat').value.trim()||'Мои услуги';
+    const name=document.getElementById('custom-service-name').value.trim();
+    const price=parseInt(document.getElementById('custom-service-price').value)||0;
+    if(!name){toast('❌ Введите название услуги!');return;}
+    if(price<0){toast('❌ Цена не может быть отрицательной!');return;}
+    const items=DB.customServices();items.unshift({id:U.uid(),tech,category,name,price});DB.saveCustomServices(items);
+    document.getElementById('custom-service-name').value='';document.getElementById('custom-service-price').value='';
+    renderCustomServices();toast('✅ Услуга добавлена');
+}
+
+function deleteCustomService(id){
+    if(!confirm('Удалить эту дополнительную услугу?'))return;
+    const items=DB.customServices(),index=items.findIndex(s=>s.id===id);if(index<0)return;
+    const removed=items.splice(index,1)[0];DB.saveCustomServices(items);renderCustomServices();
+    showUndo('Услуга удалена',()=>{const restored=DB.customServices();restored.splice(Math.min(index,restored.length),0,removed);DB.saveCustomServices(restored);renderCustomServices();toast('↩️ Услуга восстановлена');});
+}
+
 function loadSettings(){
     const s=DB.settings();
     document.getElementById('set-name').value=s.name||'Романычев Д.В.';
     document.getElementById('set-inn').value=s.inn||'';
     document.getElementById('set-phone').value=s.phone||'';
     document.getElementById('set-auto-backup').checked=s.autoBackup!==false;
+    document.getElementById('set-auto-price').checked=s.autoPriceAdjust!==false;
+    renderCustomServices();
     updateBackupInfo();
 }
 
 function saveSettings(){
-    DB.saveSettings({name:document.getElementById('set-name').value,inn:document.getElementById('set-inn').value,phone:document.getElementById('set-phone').value,autoBackup:document.getElementById('set-auto-backup').checked});
+    DB.saveSettings({name:document.getElementById('set-name').value,inn:document.getElementById('set-inn').value,phone:document.getElementById('set-phone').value,autoBackup:document.getElementById('set-auto-backup').checked,autoPriceAdjust:document.getElementById('set-auto-price').checked});
     toast('✅ Настройки сохранены');
 }
 
 function saveAutoBackupSetting(){saveSettings();}
+function saveAutoPriceSetting(){saveSettings();}
 
 function toggleTheme(){
     const dark=document.documentElement.style.getPropertyValue('--bg')==='#0d1117';
@@ -2024,7 +2181,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:2,orders:DB.orders(),warehouse:DB.warehouse(),expenses:DB.expenses(),settings:DB.settings(),date:U.nowISO()};
+    const data={version:3,orders:DB.orders(),warehouse:DB.warehouse(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`repair_${label}_${new Date().toISOString().split('T')[0]}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     localStorage.setItem('repair_last_backup',U.nowISO());updateBackupInfo();
@@ -2064,7 +2221,7 @@ function restoreFromFile(){
             if(!data.orders)throw new Error();
             if(!confirm(`Восстановить данные от ${U.dateTime(data.date)}?`))return;
             downloadBackup('before_restore');
-            DB.saveOrders(data.orders||[]);DB.saveWarehouse(data.warehouse||[]);DB.saveExpenses(data.expenses||[]);
+            DB.saveOrders(data.orders||[]);DB.saveWarehouse(data.warehouse||[]);DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.set('draft',data.draft||[]);
             if(data.settings)DB.saveSettings(data.settings);
             closeModal();toast('✅ Восстановлено!');location.reload();
         }catch{toast('❌ Ошибка файла!');}
@@ -2076,17 +2233,9 @@ function closeModal(){document.getElementById('modal-overlay').classList.remove(
 document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.getElementById('service-modal-overlay').addEventListener('click',function(e){if(e.target===this)closeServiceModal();});
 
-function renderQuickSummary(){
-    const orders=DB.orders(),active=orders.filter(o=>o.status==='СД').length;
-    const balance=orders.filter(o=>o.status==='Закрыта').reduce((s,o)=>s+U.balance(o),0);
-    const low=DB.warehouse().filter(i=>i.quantity<=i.min).length;
-    const el=document.getElementById('quick-summary');if(!el)return;
-    el.innerHTML=`<div class="summary-item"><div class="summary-value">${active}</div><div class="summary-label">В РАБОТЕ</div></div><div class="summary-item"><div class="summary-value">${U.money(balance)}</div><div class="summary-label">ОСТАЛОСЬ ПОЛУЧИТЬ</div></div><div class="summary-item"><div class="summary-value">${orders.length}</div><div class="summary-label">ВСЕГО ЗАЯВОК</div></div><div class="summary-item"><div class="summary-value">${low}</div><div class="summary-label">ЗАКАНЧИВАЕТСЯ НА СКЛАДЕ</div></div>`;
-}
-
 function migrateStoredData(){
     // Старые версии выдавали складу и расходам номера заявок, из-за чего ID могли повторяться.
-    for(const type of ['warehouse','expenses']){
+    for(const type of ['warehouse','expenses','incomes','service_custom']){
         const items=DB.get(type);const seen=new Set();let changed=false;
         items.forEach(item=>{if(!item.id||seen.has(item.id)){item.id=U.uid();changed=true;}seen.add(item.id);});
         if(changed)DB.set(type,items);
@@ -2136,8 +2285,10 @@ async function initializeApp(){
     await DeviceBackup.restoreMissing();
     migrateStoredData();
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
-    ['orders','warehouse','expenses','settings'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
-    updateServiceCatalog();updateStorageInfo();renderClients();renderQuickSummary();updateBackupInfo();
+    setupDraftAutosave();
+    ['orders','warehouse','expenses','incomes','service_custom','settings','draft'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
+    renderDraftBanner();
+    updateServiceCatalog();updateStorageInfo();renderClients();updateBackupInfo();
 }
 initializeApp();
 </script>
