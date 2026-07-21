@@ -188,7 +188,7 @@
         .movement-row { display:grid; grid-template-columns:auto 1fr auto; gap:9px; align-items:start; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; }
         .movement-row:last-child { border-bottom:0; }
         .movement-icon { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:9px; background:var(--input); color:var(--accent); }
-        .movement-icon.in { color:var(--green); }.movement-icon.out { color:var(--red); }.movement-icon.return { color:var(--blue); }
+        .movement-icon.in { color:var(--green); }.movement-icon.out { color:var(--red); }.movement-icon.return { color:var(--blue); }.movement-icon.cancelled { color:var(--sub); }.movement-qty.cancelled { color:var(--sub); text-decoration:line-through; }
         .movement-copy b { display:block; color:var(--text); }.movement-copy small { display:block; margin-top:3px; color:var(--sub); font-size:10px; line-height:1.35; }
         .movement-qty { text-align:right; white-space:nowrap; font-weight:750; }
         .movement-qty.in { color:var(--green); }.movement-qty.out { color:var(--red); }.movement-qty.return { color:var(--blue); }
@@ -197,6 +197,9 @@
         .date-fields { display:none; }
         .date-fields.show { display:flex; }
         .field-hint { margin-top:3px; color:var(--sub); font-size:10px; line-height:1.35; }
+        .data-warning { display:flex; flex-direction:column; gap:5px; margin:9px 0; padding:10px 11px; border:1px solid rgba(227,179,65,.5); border-radius:11px; background:rgba(227,179,65,.1); color:var(--text); }
+        .data-warning b { font-size:12px; color:var(--yellow); }
+        .data-warning small { color:var(--sub); font-size:10px; line-height:1.35; }
         .service-check { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 4px; margin-right: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .service-check.checked { background: var(--accent); border-color: var(--accent); }
         .service-check.checked::after { content: '✓'; color: #000; font-weight: bold; font-size: 14px; }
@@ -820,6 +823,13 @@
                 <button type="button" onclick="showMaterialModal('припой')">Припой</button>
                 <button type="button" onclick="showMaterialModal('промыв')">Промывочная химия</button>
             </div>
+            <div class="material-quick refrigerant-quick">
+                <span class="field-hint" style="width:100%;margin:0 0 2px;">Фреон — выбери тип, затем укажи расход в граммах</span>
+                <button type="button" onclick="showMaterialModal('R290')">R290</button>
+                <button type="button" onclick="showMaterialModal('R134a')">R134a</button>
+                <button type="button" onclick="showMaterialModal('R600a')">R600a</button>
+                <button type="button" onclick="showMaterialModal('R410A')">R410A</button>
+            </div>
             <button class="btn-center btn-outline" type="button" onclick="showMaterialModal()"><span class="button-label"><svg class="ui-icon"><use href="#i-warehouse"></use></svg>Выбрать со склада</span></button>
             <div id="selected-materials" class="material-list"></div>
             <div id="materials-total-display" class="material-summary"></div>
@@ -865,7 +875,7 @@
     <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="search-warehouse" placeholder="Название или категория" oninput="renderWarehouse()"></div>
     <div class="stock-filter"><select id="warehouse-filter" onchange="renderWarehouse()"><option value="all">Все позиции</option><option value="low">Только мало осталось</option></select></div>
     <button class="btn-outline" type="button" onclick="showWarehouseHistory()"><span class="button-label"><svg class="ui-icon"><use href="#i-calendar"></use></svg>История движения склада</span></button>
-    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-box"></use></svg></span>Новая позиция</div><div class="row"><div class="form-group"><label>Название</label><input type="text" id="wh-name" placeholder="Двигатель стиральной машины"></div><div class="form-group"><label>Категория</label><input type="text" id="wh-cat" placeholder="Запчасти"></div></div><div class="row"><div class="form-group"><label>Кол-во</label><input type="number" id="wh-qty" placeholder="1" step="0.01" inputmode="decimal"></div><div class="form-group"><label>Мин.</label><input type="number" id="wh-min" placeholder="3" step="0.01" inputmode="decimal"></div><div class="form-group"><label>Цена за единицу</label><input type="number" id="wh-price" placeholder="0" step="0.01" inputmode="decimal"><div class="field-hint">Цена больше нуля создаст расход покупки.</div></div></div><div class="row"><div class="form-group"><label>Единица</label><select id="wh-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>см</option><option>м</option><option>условно</option></select></div><div class="form-group"><label>Учёт расхода</label><select id="wh-track"><option value="exact">Точный</option><option value="approx">Примерный</option><option value="presence">Только наличие</option></select></div></div><button onclick="addWarehouseItem()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить на склад</span></button></div>
+    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-box"></use></svg></span>Новая позиция</div><div class="material-quick refrigerant-quick"><span class="field-hint" style="width:100%;margin:0 0 2px;">Быстрый шаблон фреона (остаток вводится в кг)</span><button type="button" onclick="selectRefrigerantPreset('R290')">R290</button><button type="button" onclick="selectRefrigerantPreset('R134a')">R134a</button><button type="button" onclick="selectRefrigerantPreset('R600a')">R600a</button><button type="button" onclick="selectRefrigerantPreset('R410A')">R410A</button></div><div class="row"><div class="form-group"><label>Название</label><input type="text" id="wh-name" placeholder="Двигатель стиральной машины"></div><div class="form-group"><label>Категория</label><input type="text" id="wh-cat" placeholder="Запчасти"></div></div><div class="row"><div class="form-group"><label>Кол-во</label><input type="number" id="wh-qty" placeholder="1" step="0.001" inputmode="decimal"></div><div class="form-group"><label>Мин.</label><input type="number" id="wh-min" placeholder="3" step="0.001" inputmode="decimal"></div><div class="form-group"><label>Цена за единицу</label><input type="number" id="wh-price" placeholder="0" step="0.01" inputmode="decimal"><div class="field-hint">Цена больше нуля создаст расход покупки. Для фреона цена за кг.</div></div></div><div class="row"><div class="form-group"><label>Единица</label><select id="wh-unit"><option selected>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>см</option><option>м</option><option>условно</option></select></div><div class="form-group"><label>Учёт расхода</label><select id="wh-track"><option value="exact">Точный</option><option value="approx">Примерный</option><option value="presence">Только наличие</option></select></div></div><button onclick="addWarehouseItem()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить на склад</span></button></div>
     <div id="warehouse-container"></div>
 </div>
 
@@ -987,7 +997,7 @@
 <div class="modal-overlay" id="warehouse-history-overlay">
     <div class="modal" id="warehouse-history-modal">
         <h3><svg class="ui-icon"><use href="#i-calendar"></use></svg>История движения склада</h3>
-        <div class="history-toolbar"><input type="search" id="history-search" placeholder="Найти позицию или заявку" oninput="renderWarehouseHistory()"><select id="history-filter" onchange="renderWarehouseHistory()"><option value="all">Все движения</option><option value="purchase">Покупки и приходы</option><option value="order_out">Списания по заявкам</option><option value="order_return">Возвраты в склад</option><option value="manual">Ручные корректировки</option><option value="opening">Начальные остатки</option></select></div>
+        <div class="history-toolbar"><input type="search" id="history-search" placeholder="Найти позицию или заявку" oninput="renderWarehouseHistory()"><select id="history-filter" onchange="renderWarehouseHistory()"><option value="all">Все движения</option><option value="purchase">Покупки и приходы</option><option value="order_out">Списания по заявкам</option><option value="order_return">Возвраты в склад</option><option value="manual">Ручные корректировки</option><option value="opening">Начальные остатки</option><option value="cancelled">Отменённые приходы</option></select></div>
         <div id="warehouse-history-list" class="service-catalog"></div>
         <button class="btn-outline" type="button" onclick="closeWarehouseHistory()">Закрыть</button>
     </div>
@@ -1509,6 +1519,25 @@ function convertQuantityBetweenUnits(value,fromUnit,toUnit){
     return qty*a.factor/b.factor;
 }
 
+const REFRIGERANT_LABELS={R290:'R290',R134A:'R134a',R600A:'R600a',R410A:'R410A'};
+function inferRefrigerant(value){
+    const explicit=typeof value==='object'&&value?value.refrigerant:value;
+    const source=String(explicit||'').replace(/\s/g,'').toUpperCase();
+    for(const key of Object.keys(REFRIGERANT_LABELS)){
+        const short=key.slice(1),shortNoSuffix=short.endsWith('A')?short.slice(0,-1):short;
+        if(source===key||source===short||source===shortNoSuffix||source===`R${shortNoSuffix}`)return REFRIGERANT_LABELS[key];
+    }
+    const text=typeof value==='object'&&value?String(value.name||''):String(value||'');
+    const upper=text.toUpperCase();
+    for(const key of Object.keys(REFRIGERANT_LABELS)){
+        const short=key.slice(1),shortNoSuffix=short.endsWith('A')?short.slice(0,-1):short;
+        if(upper.includes(key)||upper.includes(`R${shortNoSuffix}`)||upper.includes(`ФРЕОН${short}`)||upper.includes(`ФРЕОН${shortNoSuffix}`)||upper.includes(`ХЛАДАГЕНТ${short}`)||upper.includes(`ХЛАДАГЕНТ${shortNoSuffix}`))return REFRIGERANT_LABELS[key];
+    }
+    return null;
+}
+function isRefrigerantItem(item){return Boolean(inferRefrigerant(item));}
+function warehouseMaterialUnit(item){return isRefrigerantItem(item)?'г':(item?.unit||'шт.');}
+
 // ==================== УТИЛИТЫ ====================
 const U = {
     orderId: () => {
@@ -1753,6 +1782,7 @@ function normaliseMaterial(material){
         id:item.id||U.uid(),
         warehouseId:item.warehouseId||null,
         name:item.name||'Материал',
+        refrigerant:inferRefrigerant(item)||null,
         qty:item.qty===undefined||item.qty===null?'':String(item.qty),
         unit:item.unit||'шт.',
         unitCost:Number(item.unitCost)||0,
@@ -1774,7 +1804,7 @@ function suggestMaterialsForService(serviceName){
         const item=items.find(entry=>(entry.name||'').toLowerCase().includes(suggestion.query));
         if(!item||selectedMaterials.some(material=>material.warehouseId===item.id))return;
         const tracking=suggestion.tracking||item.tracking||'exact';
-        selectedMaterials.push(normaliseMaterial({warehouseId:item.id,name:item.name,qty:tracking==='presence'?'':1,unit:item.unit||'шт.',unitCost:item.price||0,tracking,writeOff:tracking!=='presence'}));
+        selectedMaterials.push(normaliseMaterial({warehouseId:item.id,name:item.name,refrigerant:inferRefrigerant(item),qty:tracking==='presence'?'':1,unit:warehouseMaterialUnit(item),unitCost:item.price||0,tracking,writeOff:tracking!=='presence'}));
         added=true;
     });
     if(added){renderSelectedMaterials();toast('📦 Материалы предложены из склада');}
@@ -1793,14 +1823,14 @@ function renderMaterialCatalog(){
     const container=document.getElementById('material-catalog');if(!container)return;
     const search=(document.getElementById('material-search')?.value||'').trim().toLowerCase();
     let items=DB.warehouse();
-    if(search)items=items.filter(item=>`${item.name||''} ${item.category||''}`.toLowerCase().includes(search));
+    if(search)items=items.filter(item=>`${item.name||''} ${item.category||''} ${inferRefrigerant(item)||''}`.toLowerCase().includes(search));
     items=items.slice().sort((a,b)=>`${a.category||''} ${a.name||''}`.localeCompare(`${b.category||''} ${b.name||''}`,'ru'));
     if(!items.length){container.innerHTML='<div class="empty-state">На складе ничего не найдено. Добавь материал вручную в заявке или создай позицию на складе.</div>';return;}
     container.innerHTML=items.map(item=>{
         const selected=selectedMaterials.some(material=>material.warehouseId===item.id);
         const track=item.tracking||'exact',unit=item.unit||'шт.',qty=Number(item.quantity)||0;
         return `<div class="service-item" onclick="toggleMaterialFromWarehouse('${item.id}')">
-            <div style="display:flex;align-items:center;min-width:0;"><div class="service-check ${selected?'checked':''}"></div><div style="min-width:0;"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</b><small style="color:var(--sub);">${item.category||'Без категории'} · ${materialTrackLabel(track)}</small></div></div>
+            <div style="display:flex;align-items:center;min-width:0;"><div class="service-check ${selected?'checked':''}"></div><div style="min-width:0;"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</b><small style="color:var(--sub);">${item.category||'Без категории'}${inferRefrigerant(item)?` · ${inferRefrigerant(item)} · остаток в кг`:''} · ${materialTrackLabel(track)}</small></div></div>
             <span style="white-space:nowrap;color:${qty<=Number(item.min||0)?'var(--red)':'var(--green)'};">${qty} ${unit}</span></div>`;
     }).join('');
 }
@@ -1812,7 +1842,7 @@ function toggleMaterialFromWarehouse(id){
     else {
         const tracking=item.tracking||'exact';
         selectedMaterials.push(normaliseMaterial({
-            warehouseId:item.id,name:item.name,qty:tracking==='presence'?'':1,unit:item.unit||'шт.',unitCost:item.price||0,tracking,writeOff:tracking!=='presence'
+            warehouseId:item.id,name:item.name,refrigerant:inferRefrigerant(item),qty:tracking==='presence'?'':1,unit:warehouseMaterialUnit(item),unitCost:item.price||0,tracking,writeOff:tracking!=='presence'
         }));
     }
     renderMaterialCatalog();renderSelectedMaterials();scheduleDraftSave();
@@ -1848,12 +1878,12 @@ function renderSelectedMaterials(){
         const available=stock?`${Number(stock.quantity)||0} ${stock.unit||'шт.'} на складе${unitNote}`:'Материал вне склада';
         const noteMode=material.tracking==='presence';
         return `<div class="material-row ${noteMode?'material-mode-note':''}">
-            <div class="material-row-head"><div class="material-row-title"><b>${material.name}</b><small>${available} · ${materialTrackLabel(material.tracking)}</small></div><button type="button" class="material-remove" onclick="removeSelectedMaterial(${index})" aria-label="Убрать материал">${iconSvg('delete')}</button></div>
-            <div class="material-controls"><input type="number" step="0.01" min="0" value="${material.qty}" placeholder="Кол-во" onchange="updateSelectedMaterial(${index},'qty',this.value)"><select onchange="updateSelectedMaterial(${index},'unit',this.value)"><option ${material.unit==='шт.'?'selected':''}>шт.</option><option ${material.unit==='г'?'selected':''}>г</option><option ${material.unit==='кг'?'selected':''}>кг</option><option ${material.unit==='мл'?'selected':''}>мл</option><option ${material.unit==='л'?'selected':''}>л</option><option ${material.unit==='см'?'selected':''}>см</option><option ${material.unit==='м'?'selected':''}>м</option><option ${material.unit==='условно'?'selected':''}>условно</option></select><select onchange="updateSelectedMaterial(${index},'tracking',this.value)"><option value="exact" ${material.tracking==='exact'?'selected':''}>Точно</option><option value="approx" ${material.tracking==='approx'?'selected':''}>Примерно</option><option value="presence" ${material.tracking==='presence'?'selected':''}>Отметить</option></select></div>
+            <div class="material-row-head"><div class="material-row-title"><b>${material.name}</b><small>${material.refrigerant?`${material.refrigerant} · `:''}${available} · ${materialTrackLabel(material.tracking)}</small></div><button type="button" class="material-remove" onclick="removeSelectedMaterial(${index})" aria-label="Убрать материал">${iconSvg('delete')}</button></div>
+            <div class="material-controls"><input type="number" step="0.001" min="0" value="${material.qty}" placeholder="Кол-во" onchange="updateSelectedMaterial(${index},'qty',this.value)"><select onchange="updateSelectedMaterial(${index},'unit',this.value)"><option ${material.unit==='шт.'?'selected':''}>шт.</option><option ${material.unit==='г'?'selected':''}>г</option><option ${material.unit==='кг'?'selected':''}>кг</option><option ${material.unit==='мл'?'selected':''}>мл</option><option ${material.unit==='л'?'selected':''}>л</option><option ${material.unit==='см'?'selected':''}>см</option><option ${material.unit==='м'?'selected':''}>м</option><option ${material.unit==='условно'?'selected':''}>условно</option></select><select onchange="updateSelectedMaterial(${index},'tracking',this.value)"><option value="exact" ${material.tracking==='exact'?'selected':''}>Точно</option><option value="approx" ${material.tracking==='approx'?'selected':''}>Примерно</option><option value="presence" ${material.tracking==='presence'?'selected':''}>Отметить</option></select></div>
             ${material.warehouseId?`<label class="material-stock-toggle"><input type="checkbox" ${material.writeOff&&!noteMode?'checked':''} ${noteMode?'disabled':''} onchange="updateSelectedMaterial(${index},'writeOff',this.checked)">Списать со склада после закрытия</label>`:''}
         </div>`;
     }).join('');
-    const cost=selectedMaterials.reduce((sum,material)=>sum+(Number(material.qty)||0)*(Number(material.unitCost)||0),0);
+    const cost=U.materialCost({materials:selectedMaterials});
     total.textContent=cost>0?`Себестоимость материалов по складу: ${U.money(cost)}. В твою текущую формулу «На руки» не добавлена автоматически.`:'Материалы сохранятся в заявке. Непосчитанные материалы не повлияют на склад.';
 }
 
@@ -1864,7 +1894,7 @@ function addWarehouseMovement(data){
 
 function addWarehousePurchase(item,quantity,unitPrice,note='Покупка'){
     const qty=Number(quantity)||0,price=Number(unitPrice)||0;if(qty<=0)return;
-    const movement=addWarehouseMovement({type:price>0?'purchase':'manual_in',warehouseId:item.id,name:item.name,category:item.category||'Без категории',qty,unit:item.unit||'шт.',unitPrice:price,amount:Math.round(qty*price*100)/100,note});
+    const movement=addWarehouseMovement({type:price>0?'purchase':'manual_in',warehouseId:item.id,name:item.name,refrigerant:inferRefrigerant(item),category:item.category||'Без категории',qty,unit:item.unit||'шт.',unitPrice:price,amount:Math.round(qty*price*100)/100,note});
     if(price>0){
         const expenses=DB.expenses();expenses.unshift({id:U.uid(),amount:Math.round(qty*price*100)/100,category:'Закупка склада',description:`Приход на склад: ${item.name} — ${qty} ${item.unit||'шт.'}`,date:movement.date,source:'warehouse_purchase',movementId:movement.id,warehouseId:item.id});DB.saveExpenses(expenses);
     }
@@ -1872,13 +1902,56 @@ function addWarehousePurchase(item,quantity,unitPrice,note='Покупка'){
 
 function addWarehouseManualMovement(item,type,quantity,note){
     const qty=Number(quantity)||0;if(qty<=0)return;
-    addWarehouseMovement({type,warehouseId:item.id,name:item.name,category:item.category||'Без категории',qty,unit:item.unit||'шт.',unitPrice:Number(item.price)||0,amount:Math.round(qty*(Number(item.price)||0)*100)/100,note});
+    addWarehouseMovement({type,warehouseId:item.id,name:item.name,refrigerant:inferRefrigerant(item),category:item.category||'Без категории',qty,unit:item.unit||'шт.',unitPrice:Number(item.price)||0,amount:Math.round(qty*(Number(item.price)||0)*100)/100,note});
+}
+
+function isActiveExpense(expense){return !expense?.cancelled;}
+function warehousePurchaseExpenses(warehouseId){return DB.expenses().filter(expense=>isActiveExpense(expense)&&expense.source==='warehouse_purchase'&&expense.warehouseId===warehouseId);}
+function orphanWarehousePurchaseExpenses(){
+    const ids=new Set(DB.warehouse().map(item=>item.id));
+    return DB.expenses().filter(expense=>isActiveExpense(expense)&&expense.source==='warehouse_purchase'&&expense.warehouseId&&!ids.has(expense.warehouseId));
+}
+
+function cancelWarehousePurchaseRecords(predicate,reason='Приход отменён'){
+    const expenses=DB.expenses(),movements=DB.warehouseMovements(),expenseSnapshots=[],movementSnapshots=[],now=U.nowISO();
+    expenses.forEach(expense=>{
+        if(expense.source!=='warehouse_purchase'||expense.cancelled||!predicate(expense))return;
+        expenseSnapshots.push({id:expense.id,data:JSON.parse(JSON.stringify(expense))});
+        expense.cancelled=true;expense.cancelledAt=now;expense.cancelReason=reason;
+    });
+    movements.forEach(movement=>{
+        if(movement.type!=='purchase'||movement.cancelled||!predicate(movement))return;
+        movementSnapshots.push({id:movement.id,data:JSON.parse(JSON.stringify(movement))});
+        movement.cancelled=true;movement.cancelledAt=now;movement.cancelReason=reason;
+    });
+    if(expenseSnapshots.length)DB.saveExpenses(expenses);
+    if(movementSnapshots.length)DB.saveWarehouseMovements(movements);
+    return {expenses:expenseSnapshots,movements:movementSnapshots};
+}
+
+function restoreWarehousePurchaseRecords(snapshot){
+    if(!snapshot)return;
+    const expenses=DB.expenses(),movements=DB.warehouseMovements();
+    (snapshot.expenses||[]).forEach(item=>{const index=expenses.findIndex(expense=>expense.id===item.id),data=JSON.parse(JSON.stringify(item.data));if(index>=0)expenses[index]=data;else expenses.push(data);});
+    (snapshot.movements||[]).forEach(item=>{const index=movements.findIndex(movement=>movement.id===item.id),data=JSON.parse(JSON.stringify(item.data));if(index>=0)movements[index]=data;else movements.push(data);});
+    if((snapshot.expenses||[]).length)DB.saveExpenses(expenses);
+    if((snapshot.movements||[]).length)DB.saveWarehouseMovements(movements);
+}
+
+function repairOrphanWarehouseExpenses(){
+    const orphan=orphanWarehousePurchaseExpenses();
+    if(!orphan.length){toast('✅ Несвязанных складских расходов не найдено');return;}
+    const total=orphan.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    if(!confirm(`Найдено ${orphan.length} складских расходов на ${U.money(total)}, у которых уже нет позиции на складе. Отменить их в статистике?`))return;
+    const expenseIds=new Set(orphan.map(expense=>expense.id)),movementIds=new Set(orphan.map(expense=>expense.movementId).filter(Boolean));
+    cancelWarehousePurchaseRecords(record=>expenseIds.has(record.id)||movementIds.has(record.id)||movementIds.has(record.movementId),'Позиция склада была удалена ранее');
+    renderWarehouse();renderExpenses();maybeAutoBackup();toast('✅ Несвязанные расходы отменены');
 }
 
 function createOpeningWarehouseMovements(items){
     const date=U.nowISO();
     return (items||[]).filter(item=>(Number(item.quantity)||0)>0).map(item=>({
-        id:U.uid(),date,type:'opening',warehouseId:item.id,name:item.name,
+        id:U.uid(),date,type:'opening',warehouseId:item.id,name:item.name,refrigerant:inferRefrigerant(item),
         category:item.category||'Без категории',qty:Number(item.quantity)||0,unit:item.unit||'шт.',
         unitPrice:Number(item.price)||0,amount:0,note:'Начальный остаток до включения истории склада'
     }));
@@ -1895,8 +1968,10 @@ function getAppliedMaterialDetails(order){
         const stockUnit=stock?.unit||material.unit||'шт.';
         const converted=convertQuantityBetweenUnits(qty,material.unit,stockUnit);
         if(converted===null){incompatible.push({material,stockUnit});return;}
-        const current=entries.get(material.warehouseId)||{qty:0,unit:stockUnit,unitCost:Number(material.unitCost)||0,name:material.name};
-        current.qty+=converted;current.unit=stockUnit;current.unitCost=Number(material.unitCost)||current.unitCost;current.name=material.name||current.name;entries.set(material.warehouseId,current);
+        const current=entries.get(material.warehouseId)||{qty:0,unit:stockUnit,inputQty:0,inputUnit:material.unit,unitCost:Number(material.unitCost)||0,name:material.name};
+        current.qty+=converted;
+        if(current.inputUnit===material.unit&&current.inputQty!==null)current.inputQty+=qty;else{current.inputQty=null;current.inputUnit=null;}
+        current.unit=stockUnit;current.unitCost=Number(material.unitCost)||current.unitCost;current.name=material.name||current.name;entries.set(material.warehouseId,current);
     });
     return {entries,incompatible};
 }
@@ -1918,7 +1993,7 @@ function syncWarehouseForOrder(previous,next){
         if(!item||Math.abs(delta)<0.000001)continue;
         item.quantity=Math.round(((Number(item.quantity)||0)-delta)*1000)/1000;
         const source=delta>0?afterEntry:beforeEntry;
-        movementAdds.push({id:U.uid(),date:U.nowISO(),type:delta>0?'order_out':'order_return',warehouseId:item.id,name:item.name,category:item.category||'Без категории',qty:Math.abs(delta),unit:source.unit||item.unit||'шт.',unitPrice:Number(source.unitCost)||Number(item.price)||0,amount:Math.round(Math.abs(delta)*(Number(source.unitCost)||Number(item.price)||0)*100)/100,orderId:next?.id||previous?.id||'',orderNumber:U.formatOrderId(next?.id||previous?.id||''),orderClient:next?.name||previous?.name||'',note:delta>0?'Списание по закрытой заявке':'Возврат после открытия заявки'});
+        movementAdds.push({id:U.uid(),date:U.nowISO(),type:delta>0?'order_out':'order_return',warehouseId:item.id,name:item.name,refrigerant:inferRefrigerant(item),category:item.category||'Без категории',qty:Math.abs(delta),unit:source.unit||item.unit||'шт.',inputQty:source.inputQty,inputUnit:source.inputUnit,unitPrice:Number(source.unitCost)||Number(item.price)||0,amount:Math.round(Math.abs(delta)*(Number(source.unitCost)||Number(item.price)||0)*100)/100,orderId:next?.id||previous?.id||'',orderNumber:U.formatOrderId(next?.id||previous?.id||''),orderClient:next?.name||previous?.name||'',note:delta>0?'Списание по закрытой заявке':'Возврат после открытия заявки'});
     }
     DB.saveWarehouse(items);
     if(movementAdds.length){const movements=DB.warehouseMovements();DB.saveWarehouseMovements([...movementAdds,...movements]);}
@@ -2388,10 +2463,34 @@ function renderOrders(){
 }
 
 // ==================== СКЛАД ====================
+function selectRefrigerantPreset(type){
+    const label=inferRefrigerant(type)||type;
+    const name=document.getElementById('wh-name'),category=document.getElementById('wh-cat'),unit=document.getElementById('wh-unit'),track=document.getElementById('wh-track');
+    if(name)name.value=`Фреон ${label}`;
+    if(category)category.value='Фреон';
+    if(unit)unit.value='кг';
+    if(track)track.value='exact';
+    document.getElementById('wh-qty')?.focus();
+}
+
 function addWarehouseItem(){
-    const item={id:U.uid(),name:document.getElementById('wh-name').value.trim(),category:document.getElementById('wh-cat').value.trim()||'Без категории',quantity:parseFloat(document.getElementById('wh-qty').value)||0,min:parseFloat(document.getElementById('wh-min').value)||0,price:parseFloat(document.getElementById('wh-price').value)||0,unit:document.getElementById('wh-unit').value,tracking:document.getElementById('wh-track').value};
+    const name=document.getElementById('wh-name').value.trim(),refrigerant=inferRefrigerant(name);
+    let unit=document.getElementById('wh-unit').value;
+    if(refrigerant&&canonicalUnit(unit)!=='кг'){unit='кг';toast(`ℹ️ Для ${refrigerant} единица на складе сохранена в кг`);}
+    const item={id:U.uid(),name,category:document.getElementById('wh-cat').value.trim()||'Без категории',refrigerant,quantity:parseFloat(document.getElementById('wh-qty').value)||0,min:parseFloat(document.getElementById('wh-min').value)||0,price:parseFloat(document.getElementById('wh-price').value)||0,unit,tracking:document.getElementById('wh-track').value};
     if(!item.name){toast('❌ Введите название!');return;}
-    const items=DB.warehouse();items.unshift(item);DB.saveWarehouse(items);
+    const items=DB.warehouse();
+    if(refrigerant){
+        const existing=items.find(entry=>inferRefrigerant(entry)===refrigerant&&canonicalUnit(entry.unit)==='кг');
+        if(existing&&confirm(`Фреон ${refrigerant} уже есть на складе. Объединить общий вес с существующей позицией?`)){
+            existing.quantity=Math.round(((Number(existing.quantity)||0)+item.quantity)*1000)/1000;
+            if(item.price>0)existing.price=item.price;
+            DB.saveWarehouse(items);addWarehousePurchase(existing,item.quantity,item.price,'Пополнение общего остатка фреона');
+            ['wh-name','wh-cat','wh-qty','wh-min','wh-price'].forEach(id=>document.getElementById(id).value='');
+            renderWarehouse();maybeAutoBackup();toast(`✅ Остаток ${refrigerant} объединён`);return;
+        }
+    }
+    items.unshift(item);DB.saveWarehouse(items);
     addWarehousePurchase(item,item.quantity,item.price,'Первоначальный приход на склад');
     document.getElementById('wh-name').value='';
     document.getElementById('wh-cat').value='';
@@ -2424,11 +2523,18 @@ function deleteWarehouseItem(id){
     if(!confirm('Удалить запчасть со склада?'))return;
     const items=DB.warehouse(),index=items.findIndex(i=>i.id===id);if(index<0)return;
     const removed=items[index],remaining=Number(removed.quantity)||0;
+    const linked=warehousePurchaseExpenses(id);let cancelledPurchases=null;
+    if(linked.length){
+        const total=linked.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+        const cancel=confirm(`У этой позиции есть закупочные расходы на ${U.money(total)}. Нажми «ОК», если приход был ошибочным — связанные расходы будут отменены. «Отмена» оставит расходы в истории.`);
+        if(cancel)cancelledPurchases=cancelWarehousePurchaseRecords(record=>record.warehouseId===id,'Приход отменён вместе с удалением позиции');
+    }
     items.splice(index,1);DB.saveWarehouse(items);
     if(remaining>0)addWarehouseManualMovement(removed,'manual_out',remaining,'Позиция удалена со склада');
     renderWarehouse();maybeAutoBackup();
     showUndo('Позиция удалена со склада',()=>{
         const restored=DB.warehouse();restored.splice(Math.min(index,restored.length),0,removed);DB.saveWarehouse(restored);
+        restoreWarehousePurchaseRecords(cancelledPurchases);
         if(remaining>0)addWarehouseManualMovement(removed,'manual_in',remaining,'Отмена удаления позиции');
         renderWarehouse();maybeAutoBackup();
     });
@@ -2452,6 +2558,8 @@ function updateWarehouseFilter(items){
 function renderWarehouse(){
     const items=DB.warehouse();
     updateWarehouseFilter(items);
+    const orphanCount=orphanWarehousePurchaseExpenses().length;
+    const warning=orphanCount?`<div class="data-warning"><b>⚠️ Найдены расходы без позиции склада</b><small>${orphanCount} закупочных записей не связаны с текущим складом. Проверь их, чтобы они не искажали статистику.</small><button class="btn-sm btn-yellow" type="button" onclick="repairOrphanWarehouseExpenses()">Проверить и отменить</button></div>`:'';
     const search=(document.getElementById('search-warehouse')?.value||'').toLowerCase();
     const filter=document.getElementById('warehouse-filter')?.value||'all';
     let filtered=items.filter(item=>{
@@ -2461,15 +2569,16 @@ function renderWarehouse(){
     });
     const container=document.getElementById('warehouse-container');
     if(!filtered.length){
-        container.innerHTML=items.length?`<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Ничего не найдено</div>`:`<div class="empty-state"><div class="empty-icon">${iconSvg('warehouse')}</div>Склад пуст</div>`;
+        container.innerHTML=warning+(items.length?`<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Ничего не найдено</div>`:`<div class="empty-state"><div class="empty-icon">${iconSvg('warehouse')}</div>Склад пуст</div>`);
         return;
     }
     const groups={};filtered.forEach(item=>{const category=item.category||'Без категории';(groups[category]??=[]).push(item);});
-    container.innerHTML=Object.entries(groups).sort(([a],[b])=>a.localeCompare(b,'ru')).map(([category,group])=>{
+    container.innerHTML=warning+Object.entries(groups).sort(([a],[b])=>a.localeCompare(b,'ru')).map(([category,group])=>{
         const low=group.filter(item=>(Number(item.quantity)||0)<=Number(item.min||0)).length,collapsed=warehouseCollapsed.has(category),encoded=encodeURIComponent(category);
         return `<section class="stock-group card ${collapsed?'is-collapsed':''}"><div class="stock-group-head" onclick="toggleWarehouseGroup('${encoded}')"><div class="stock-group-title">${iconSvg('folder')}<span><b>${category}</b><small> · ${group.length} поз.${low?` · мало: ${low}`:''}</small></span></div><button type="button" aria-label="Свернуть категорию">${collapsed?'▸':'▾'}</button></div><div class="stock-group-items">${group.map(item=>{
             const quantity=Number(item.quantity)||0,min=Number(item.min)||0,isLow=quantity<=min,unit=item.unit||'шт.',tracking=item.tracking||'exact';
-            return `<div class="card ${isLow?'warehouse-item-low':'warehouse-item-ok'}" style="margin:6px 0;"><div class="warehouse-card-head"><span class="warehouse-card-icon">${iconSvg('box')}</span><div class="warehouse-card-copy"><b>${item.name}</b><small>${U.money(item.price)} · минимум ${min} ${unit} · ${materialTrackLabel(tracking)}</small></div><div class="warehouse-stock"><b style="color:${isLow?'var(--red)':'var(--green)'};">${quantity} ${unit}</b><small>${isLow?'мало':'в наличии'}</small></div></div><div class="compact-actions"><button class="compact-action" onclick="warehouseAction('${item.id}','add')">${iconSvg('plus')}<span>Добавить</span></button><button class="compact-action" onclick="warehouseAction('${item.id}','remove')">${iconSvg('minus')}<span>Убрать</span></button><button class="compact-action delete" onclick="deleteWarehouseItem('${item.id}')">${iconSvg('delete')}<span>Удалить</span></button></div></div>`;
+            const refrigerant=inferRefrigerant(item);
+            return `<div class="card ${isLow?'warehouse-item-low':'warehouse-item-ok'}" style="margin:6px 0;"><div class="warehouse-card-head"><span class="warehouse-card-icon">${iconSvg('box')}</span><div class="warehouse-card-copy"><b>${item.name}</b><small>${refrigerant?`${refrigerant} · `:''}${U.money(item.price)} за ${unit} · минимум ${min} ${unit} · ${materialTrackLabel(tracking)}</small></div><div class="warehouse-stock"><b style="color:${isLow?'var(--red)':'var(--green)'};">${quantity} ${unit}</b><small>${isLow?'мало':'в наличии'}</small></div></div><div class="compact-actions"><button class="compact-action" onclick="warehouseAction('${item.id}','add')">${iconSvg('plus')}<span>Добавить</span></button><button class="compact-action" onclick="warehouseAction('${item.id}','remove')">${iconSvg('minus')}<span>Убрать</span></button><button class="compact-action delete" onclick="deleteWarehouseItem('${item.id}')">${iconSvg('delete')}<span>Удалить</span></button></div></div>`;
         }).join('')}</div></section>`;
     }).join('');
 }
@@ -2484,14 +2593,16 @@ function showWarehouseHistory(){
 function movementTypeLabel(type){
     return type==='purchase'?'Покупка':type==='manual_in'?'Ручной приход':type==='opening'?'Начальный остаток':type==='order_out'?'Списание по заявке':type==='order_return'?'Возврат в склад':'Ручное списание';
 }
+function formatWarehouseQty(value){return (Number(value)||0).toLocaleString('ru-RU',{maximumFractionDigits:3});}
 
 function movementFilterMatch(movement,filter){
     if(filter==='all')return true;
-    if(filter==='purchase')return movement.type==='purchase'||movement.type==='manual_in';
+    if(filter==='purchase')return !movement.cancelled&&(movement.type==='purchase'||movement.type==='manual_in');
     if(filter==='order_out')return movement.type==='order_out';
     if(filter==='order_return')return movement.type==='order_return';
     if(filter==='opening')return movement.type==='opening';
     if(filter==='manual')return movement.type==='manual_out'||movement.type==='adjustment';
+    if(filter==='cancelled')return movement.cancelled===true;
     return true;
 }
 
@@ -2499,18 +2610,20 @@ function renderWarehouseHistory(){
     const container=document.getElementById('warehouse-history-list');if(!container)return;
     const search=(document.getElementById('history-search')?.value||'').trim().toLowerCase(),filter=document.getElementById('history-filter')?.value||'all';
     const movements=DB.warehouseMovements().filter(movement=>{
-        const haystack=`${movement.name||''} ${movement.orderNumber||''} ${movement.orderClient||''} ${movement.note||''}`.toLowerCase();
+        const haystack=`${movement.name||''} ${movement.orderNumber||''} ${movement.orderClient||''} ${movement.note||''} ${movement.cancelReason||''}`.toLowerCase();
         return movementFilterMatch(movement,filter)&&(!search||haystack.includes(search));
     }).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
     if(!movements.length){container.innerHTML='<div class="empty-state"><div class="empty-icon">'+iconSvg('calendar')+'</div>История пока пуста</div>';return;}
     const groups={};
     movements.forEach(movement=>{
-        const key=movement.orderId?`Заявка ${movement.orderNumber||U.formatOrderId(movement.orderId)}${movement.orderClient?' · '+movement.orderClient:''}`:movementTypeLabel(movement.type);
+        const key=movement.orderId?`Заявка ${movement.orderNumber||U.formatOrderId(movement.orderId)}${movement.orderClient?' · '+movement.orderClient:''}`:(movement.cancelled?'Отменённые приходы':movementTypeLabel(movement.type));
         (groups[key]??=[]).push(movement);
     });
     container.innerHTML=Object.entries(groups).map(([group,items])=>`<section class="card" style="margin:8px 0;"><div class="card-title" style="font-size:14px;margin-bottom:4px;"><span class="card-title-icon">${iconSvg(items[0].orderId?'clipboard':'folder')}</span>${group}</div>${items.map(movement=>{
-        const isIn=movement.type==='purchase'||movement.type==='manual_in'||movement.type==='opening',isReturn=movement.type==='order_return',kind=isIn?'in':isReturn?'return':'out',sign=isIn?'+':isReturn?'↩':'−';
-        return `<div class="movement-row"><span class="movement-icon ${kind}">${iconSvg(isIn?'plus':isReturn?'refresh':'minus')}</span><div class="movement-copy"><b>${movement.name||'Позиция'}</b><small>${movementTypeLabel(movement.type)} · ${U.dateTime(movement.date)}${movement.note?' · '+movement.note:''}${movement.amount?` · ${U.money(movement.amount)}`:''}</small></div><span class="movement-qty ${kind}">${sign}${movement.qty||0} ${movement.unit||'шт.'}</span></div>`;
+        const isCancelled=movement.cancelled===true,isIn=movement.type==='purchase'||movement.type==='manual_in'||movement.type==='opening',isReturn=movement.type==='order_return',kind=isCancelled?'cancelled':isIn?'in':isReturn?'return':'out',sign=isCancelled?'×':isIn?'+':isReturn?'↩':'−';
+        const converted=movement.inputQty!==null&&movement.inputQty!==undefined&&movement.inputUnit&&canonicalUnit(movement.inputUnit)!==canonicalUnit(movement.unit);
+        const qtyText=converted?`${sign}${formatWarehouseQty(movement.inputQty)} ${movement.inputUnit} → ${formatWarehouseQty(movement.qty)} ${movement.unit||'шт.'}`:`${sign}${formatWarehouseQty(movement.qty)} ${movement.unit||'шт.'}`;
+        return `<div class="movement-row"><span class="movement-icon ${kind}">${iconSvg(isCancelled?'minus':isIn?'plus':isReturn?'refresh':'minus')}</span><div class="movement-copy"><b>${movement.name||'Позиция'}</b><small>${isCancelled?'Приход отменён':movementTypeLabel(movement.type)} · ${U.dateTime(movement.date)}${movement.note?' · '+movement.note:''}${movement.cancelReason?' · '+movement.cancelReason:''}${movement.amount?` · ${U.money(movement.amount)}`:''}</small></div><span class="movement-qty ${kind}">${qtyText}</span></div>`;
     }).join('')}</section>`).join('');
 }
 
@@ -2530,8 +2643,18 @@ function addExpense(){
 }
 
 function deleteExpense(id){
+    const expenses=DB.expenses(),index=expenses.findIndex(e=>e.id===id);if(index<0)return;const removed=expenses[index];
+    if(removed.source==='warehouse_purchase'&&!removed.cancelled){
+        const itemExists=DB.warehouse().some(item=>item.id===removed.warehouseId);
+        if(itemExists){toast('⚠️ Этот расход связан с приходом на склад. Исправляй приход через склад, чтобы остаток и финансы не разошлись.',true);return;}
+        if(!confirm('Позиция уже удалена со склада. Отменить и этот связанный расход?'))return;
+        const cancelled=cancelWarehousePurchaseRecords(record=>record.id===removed.id||record.id===removed.movementId||record.movementId===removed.movementId,'Расход отменён из раздела финансов');
+        renderExpenses();maybeAutoBackup();
+        showUndo('Складской расход отменён',()=>{restoreWarehousePurchaseRecords(cancelled);renderExpenses();maybeAutoBackup();});
+        return;
+    }
     if(!confirm('Удалить этот расход?')) return;
-    const expenses=DB.expenses(),index=expenses.findIndex(e=>e.id===id);if(index<0)return;const removed=expenses[index];expenses.splice(index,1);DB.saveExpenses(expenses);
+    expenses.splice(index,1);DB.saveExpenses(expenses);
     renderExpenses();
     maybeAutoBackup();
     showUndo('Расход удалён',()=>{const restored=DB.expenses();restored.splice(Math.min(index,restored.length),0,removed);DB.saveExpenses(restored);renderExpenses();maybeAutoBackup();});
@@ -2553,7 +2676,7 @@ function updateExpensesFilter(expenses){
 }
 
 function renderExpenses(){
-    const expenses=DB.expenses();
+    const expenses=DB.expenses().filter(isActiveExpense);
     updateExpensesFilter(expenses);
     const search=(document.getElementById('search-expenses')?.value||'').toLowerCase();
     const filter=document.getElementById('expenses-filter')?.value||'all';
@@ -2588,7 +2711,7 @@ function renderStats(period){
     const revenue=closed.reduce((s,o)=>s+U.finalAmount(o),0);
     const profit=closed.reduce((s,o)=>s+(U.profit(o)||0),0);
     const materialSpend=closed.reduce((s,o)=>s+U.materialCost(o),0);
-    const otherExp=DB.expenses().filter(e=>e.date>=from&&e.date<=to).reduce((s,e)=>s+e.amount,0);
+    const otherExp=DB.expenses().filter(e=>isActiveExpense(e)&&e.date>=from&&e.date<=to).reduce((s,e)=>s+e.amount,0);
     const netProfit=profit-otherExp;
     const avgCheck = closed.length > 0 ? Math.round(revenue / closed.length) : 0;
     
@@ -3012,7 +3135,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:7,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:8,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -3110,6 +3233,8 @@ function migrateStoredData(){
     warehouse.forEach(item=>{
         if(!item.unit){item.unit='шт.';warehouseChanged=true;}
         if(!item.tracking){item.tracking='exact';warehouseChanged=true;}
+        const refrigerant=inferRefrigerant(item);
+        if(refrigerant&&item.refrigerant!==refrigerant){item.refrigerant=refrigerant;warehouseChanged=true;}
     });
     if(warehouseChanged)DB.saveWarehouse(warehouse);
     const movementRaw=localStorage.getItem('repair_warehouse_movements');
