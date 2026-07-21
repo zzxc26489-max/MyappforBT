@@ -153,6 +153,41 @@
         .service-catalog { max-height: calc(95vh - 170px); overflow-y: auto; }
         .service-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; }
         .service-item:active { background: var(--input); }
+        .material-quick { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 8px; }
+        .material-quick button { width:auto; margin:0; padding:7px 10px; border:1px solid var(--border); border-radius:18px; background:var(--input); color:var(--text); box-shadow:none; font-size:11px; font-weight:650; }
+        .material-list { display:flex; flex-direction:column; gap:7px; margin-top:9px; }
+        .material-row { padding:10px; border:1px solid var(--border); border-radius:11px; background:var(--input); }
+        .material-row-head { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; }
+        .material-row-title { min-width:0; }
+        .material-row-title b { display:block; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .material-row-title small { display:block; margin-top:3px; color:var(--sub); font-size:10px; }
+        .material-remove { width:auto!important; min-width:32px; min-height:32px; margin:0!important; padding:6px!important; background:rgba(248,81,73,.09)!important; border:1px solid rgba(248,81,73,.25)!important; color:var(--red)!important; box-shadow:none!important; }
+        .material-controls { display:grid; grid-template-columns:1fr .9fr 1.25fr; gap:6px; margin-top:8px; }
+        .material-controls input,.material-controls select { min-width:0; padding:8px; font-size:12px; }
+        .material-mode-note .material-controls input { opacity:.55; }
+        .material-stock-toggle { display:flex; align-items:center; gap:7px; margin-top:8px; color:var(--sub); font-size:11px; text-transform:none; letter-spacing:0; font-weight:500; }
+        .material-stock-toggle input { width:auto; }
+        .material-summary { margin-top:7px; color:var(--sub); font-size:11px; text-align:center; }
+        .manual-material { margin-top:8px; padding:9px 10px; border:1px dashed var(--border); border-radius:10px; }
+        .manual-material summary { cursor:pointer; color:var(--sub); font-size:12px; font-weight:650; }
+        .manual-material[open] summary { margin-bottom:10px; color:var(--accent); }
+        .stock-filter { margin:8px 0; }
+        .stock-filter select { min-height:40px; padding:8px 10px; }
+        .stock-group { margin:10px 0; overflow:hidden; }
+        .stock-group-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 11px; cursor:pointer; }
+        .stock-group-head button { width:auto; min-width:32px; height:32px; margin:0; padding:5px; background:var(--input); color:var(--sub); box-shadow:none; }
+        .stock-group-title { display:flex; align-items:center; gap:8px; min-width:0; }
+        .stock-group-title b { font-size:14px; }
+        .stock-group-title small { color:var(--sub); font-size:10px; }
+        .stock-group-items { padding:0 10px 10px; }
+        .stock-group.is-collapsed .stock-group-items { display:none; }
+        .stock-group.is-collapsed .stock-group-head { border-bottom:0; }
+        .price-category { margin:10px 0 0; padding-top:9px; border-top:1px solid var(--border); }
+        .price-category:first-of-type { margin-top:0; padding-top:0; border-top:0; }
+        .price-category-title { color:var(--sub); font-size:11px; font-weight:750; text-transform:uppercase; letter-spacing:.45px; margin:0 2px 6px; }
+        .date-fields { display:none; }
+        .date-fields.show { display:flex; }
+        .field-hint { margin-top:3px; color:var(--sub); font-size:10px; line-height:1.35; }
         .service-check { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 4px; margin-right: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .service-check.checked { background: var(--accent); border-color: var(--accent); }
         .service-check.checked::after { content: '✓'; color: #000; font-weight: bold; font-size: 14px; }
@@ -673,7 +708,12 @@
         html[data-theme="light"] .card,html[data-theme="light"] .stat-card,html[data-theme="light"] .more-item,html[data-theme="light"] .order-card { background:#fff; box-shadow:0 8px 22px rgba(27,35,42,.08); }
         html[data-theme="light"] .order-action,html[data-theme="light"] .compact-action,html[data-theme="light"] .client-actions button,html[data-theme="light"] .money-box,html[data-theme="light"] .btn-outline { background:#f4f6f8; }
         html[data-theme="light"] .price-row { background:#fff; }
+        html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme="light"] select,html[data-theme="light"] .chip,html[data-theme="light"] .tab,html[data-theme="light"] .material-quick button,html[data-theme="light"] .material-row,html[data-theme="light"] .stock-group-head button { background:#fff; color:#20262c; }
+        html[data-theme="light"] option { background:#fff; color:#20262c; }
+        html[data-theme="light"] .order-action,html[data-theme="light"] .compact-action,html[data-theme="light"] .client-actions button,html[data-theme="light"] .material-remove,html[data-theme="light"] .delete-icon-btn { background:#f4f6f8!important; }
         html[data-theme="light"] input:focus,html[data-theme="light"] textarea:focus,html[data-theme="light"] select:focus { background:#fff; }
+        html[data-theme="light"] .modal-overlay { background:rgba(29,35,42,.42); }
+        html[data-theme="light"] .modal { background:#fff; }
         .install-banner { bottom:calc(77px + env(safe-area-inset-bottom)); }
         .toast,.undo-toast { bottom:calc(87px + env(safe-area-inset-bottom)); }
         @keyframes toastIn { from { opacity:0; transform:translate(-50%,15px); } to { opacity:1; transform:translate(-50%,0); } }
@@ -752,9 +792,10 @@
     <div class="card">
         <div class="form-group"><label>Имя клиента *</label><input type="text" id="n-name" placeholder="Иван Иванов"></div>
         <div class="row"><div class="form-group"><label>Телефон *</label><input type="tel" id="n-phone" placeholder="+7 900 123-45-67" inputmode="numeric"></div><div class="form-group"><label>Адрес</label><input type="text" id="n-address" placeholder="ул. Примерная, д. 1"></div></div>
-        <div class="row"><div class="form-group"><label>Тип техники</label><select id="n-tech" onchange="updateServiceCatalog()"><option value="">— Выберите —</option><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Другое</option></select></div><div class="form-group"><label>Бренд / Модель</label><input type="text" id="n-brand" placeholder="Samsung, LG..."></div></div>
+        <div class="row"><div class="form-group"><label>Тип техники</label><select id="n-tech" onchange="updateServiceCatalog()"><option value="">— Выберите —</option><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Холодильная витрина</option><option>Морозильный ларь</option><option>Холодильный стол</option><option>Коммерческий холодильник</option><option>Другое коммерческое оборудование</option><option>Другое</option></select></div><div class="form-group"><label>Бренд / Модель</label><input type="text" id="n-brand" placeholder="Samsung, LG..."></div></div>
         <div class="form-group"><label>Неисправность со слов клиента</label><textarea id="n-issue" placeholder="Описание неисправности..."></textarea></div>
         <div class="form-group"><label>Результат диагностики</label><textarea id="n-diagnosis" placeholder="Фактическая причина поломки..."></textarea></div>
+        <div class="form-group"><label>Комментарий мастера</label><textarea id="n-comment" placeholder="Что сделано, важные нюансы, отказ от ремонта..."></textarea><div class="field-hint">Внутренняя заметка: не заменяет услуги и не попадает в акт автоматически.</div></div>
         <div class="form-group"><label>Внешние дефекты</label><input type="text" id="n-defects" placeholder="Царапины, сколы ДО ремонта"></div>
         
         <div class="form-group"><label>Выбранные услуги</label>
@@ -762,17 +803,35 @@
             <div id="selected-services" style="margin-top:6px;font-size:13px;"></div>
             <div id="services-total-display" style="text-align:center;font-weight:bold;margin-top:6px;font-size:14px;"></div>
         </div>
+        <div class="form-group"><label>Запчасти и материалы</label>
+            <div class="material-quick">
+                <button type="button" onclick="showMaterialModal('фильтр')">Фильтр-осушитель</button>
+                <button type="button" onclick="showMaterialModal('шредер')">Клапан Шредера</button>
+                <button type="button" onclick="showMaterialModal('компрессор')">Компрессор</button>
+                <button type="button" onclick="showMaterialModal('припой')">Припой</button>
+                <button type="button" onclick="showMaterialModal('промыв')">Промывочная химия</button>
+            </div>
+            <button class="btn-center btn-outline" type="button" onclick="showMaterialModal()"><span class="button-label"><svg class="ui-icon"><use href="#i-warehouse"></use></svg>Выбрать со склада</span></button>
+            <div id="selected-materials" class="material-list"></div>
+            <div id="materials-total-display" class="material-summary"></div>
+            <details class="manual-material"><summary>Добавить материал без склада</summary>
+                <div class="row"><div class="form-group"><label>Название</label><input type="text" id="manual-material-name" placeholder="Например, промывочная жидкость"></div><div class="form-group"><label>Себестоимость</label><input type="number" id="manual-material-cost" placeholder="0" inputmode="decimal"></div></div>
+                <div class="row"><div class="form-group"><label>Кол-во</label><input type="number" id="manual-material-qty" placeholder="1" step="0.01" inputmode="decimal"></div><div class="form-group"><label>Единица</label><select id="manual-material-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>см</option><option>м</option><option>условно</option></select></div></div>
+                <button type="button" class="btn-sm btn-outline" onclick="addManualMaterial()">Добавить материал</button>
+            </details>
+        </div>
         
         <div class="row"><div class="form-group"><label>Итоговая сумма (₽)</label><input type="number" id="n-sum" placeholder="26000" inputmode="numeric" onblur="autoAdjustServices()"></div><div class="form-group"><label>Предоплата (₽)</label><input type="number" id="n-prepay" placeholder="0" inputmode="numeric"></div></div>
         <div class="row"><div class="form-group"><label>Скидка (₽)</label><input type="number" id="n-discount" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Гарантия (мес.)</label><input type="number" id="n-guarantee" placeholder="6" inputmode="numeric"></div></div>
         <div class="row"><div class="form-group"><label>Серые расходы</label><input type="number" id="n-gray" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Белые расходы</label><input type="number" id="n-white" placeholder="0" inputmode="numeric"></div></div>
         <div class="form-group">
             <label>Ваш %</label>
-            <input type="number" id="n-percent" placeholder="50" inputmode="numeric" style="font-weight:bold;color:var(--accent);">
+            <input type="number" id="n-percent" value="50" placeholder="50" inputmode="numeric" style="font-weight:bold;color:var(--accent);">
         </div>
         <div class="form-group"><label>Фото</label><input type="file" id="n-photos" accept="image/*" multiple onchange="previewPhotos()"></div>
         <div id="photo-preview" class="photo-gallery"></div>
-        <div class="form-group"><label>Статус</label><select id="n-status"><option value="Закрыта">Закрыта</option><option value="СД">СД</option></select></div>
+        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option></select></div>
+        <div class="row date-fields" id="order-date-fields"><div class="form-group"><label>Дата создания</label><input type="date" id="n-created-date"></div><div class="form-group"><label>Дата закрытия</label><input type="date" id="n-completed-date"></div></div>
         <div id="edit-indicator" style="display:none;background:var(--yellow);color:#000;padding:7px 9px;border-radius:8px;margin-bottom:8px;font-size:12px;"><svg class="ui-icon" style="display:inline-block;width:15px;height:15px;vertical-align:-3px;"><use href="#i-edit"></use></svg> Редактирование заявки</div>
         <button id="save-btn" onclick="saveOrder()"><span class="button-label"><svg class="ui-icon"><use href="#i-save"></use></svg>Сохранить заявку</span></button>
         <button class="btn-outline" onclick="clearForm()"><span class="button-label"><svg class="ui-icon"><use href="#i-refresh"></use></svg>Очистить форму</span></button>
@@ -786,7 +845,7 @@
     <div class="filter-chips">
         <span class="chip active" onclick="filterOrders('all',this)">Все</span>
         <span class="chip" onclick="filterOrders('Закрыта',this)">Закрыты</span>
-        <span class="chip" onclick="filterOrders('СД',this)">СД</span>
+        <span class="chip" onclick="filterOrders('В работе',this)">В работе</span>
     </div>
     <div id="orders-container"></div>
 </div>
@@ -795,7 +854,8 @@
 <div id="page-warehouse" class="page">
     <div class="page-heading"><div><h1>Склад</h1><p>Запчасти и расходные материалы</p></div></div>
     <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="search-warehouse" placeholder="Название или категория" oninput="renderWarehouse()"></div>
-    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-box"></use></svg></span>Новая позиция</div><div class="row"><div class="form-group"><label>Название</label><input type="text" id="wh-name" placeholder="Двигатель стиральной машины"></div><div class="form-group"><label>Категория</label><input type="text" id="wh-cat" placeholder="Запчасти"></div></div><div class="row"><div class="form-group"><label>Кол-во</label><input type="number" id="wh-qty" placeholder="1" inputmode="numeric"></div><div class="form-group"><label>Мин.</label><input type="number" id="wh-min" placeholder="3" inputmode="numeric"></div><div class="form-group"><label>Цена</label><input type="number" id="wh-price" placeholder="0" inputmode="numeric"></div></div><button onclick="addWarehouseItem()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить на склад</span></button></div>
+    <div class="stock-filter"><select id="warehouse-filter" onchange="renderWarehouse()"><option value="all">Все позиции</option><option value="low">Только мало осталось</option></select></div>
+    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-box"></use></svg></span>Новая позиция</div><div class="row"><div class="form-group"><label>Название</label><input type="text" id="wh-name" placeholder="Двигатель стиральной машины"></div><div class="form-group"><label>Категория</label><input type="text" id="wh-cat" placeholder="Запчасти"></div></div><div class="row"><div class="form-group"><label>Кол-во</label><input type="number" id="wh-qty" placeholder="1" step="0.01" inputmode="decimal"></div><div class="form-group"><label>Мин.</label><input type="number" id="wh-min" placeholder="3" step="0.01" inputmode="decimal"></div><div class="form-group"><label>Цена</label><input type="number" id="wh-price" placeholder="0" inputmode="decimal"></div></div><div class="row"><div class="form-group"><label>Единица</label><select id="wh-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>см</option><option>м</option><option>условно</option></select></div><div class="form-group"><label>Учёт расхода</label><select id="wh-track"><option value="exact">Точный</option><option value="approx">Примерный</option><option value="presence">Только наличие</option></select></div></div><button onclick="addWarehouseItem()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить на склад</span></button></div>
     <div id="warehouse-container"></div>
 </div>
 
@@ -816,6 +876,7 @@
 <div id="page-expenses" class="page">
     <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Финансы</h1><p>Личные расходы вне заявок</p></div></div>
     <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="search-expenses" placeholder="Категория или описание" oninput="renderExpenses()"></div>
+    <div class="stock-filter"><select id="expenses-filter" onchange="renderExpenses()"><option value="all">Все категории</option></select></div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-finance"></use></svg></span>Новый расход</div><div class="row"><div class="form-group"><label>Сумма</label><input type="number" id="exp-amount" placeholder="1000" inputmode="numeric"></div><div class="form-group"><label>Категория</label><input type="text" id="exp-cat" placeholder="Прочее"></div></div><div class="form-group"><label>Описание</label><input type="text" id="exp-desc" placeholder="Что купили..."></div><button onclick="addExpense()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить расход</span></button></div>
     <div id="expenses-container"></div>
 </div>
@@ -837,18 +898,18 @@
 <!-- Прайс-лист -->
 <div id="page-price" class="page">
     <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Прайс-лист</h1><p>Все услуги и твои позиции</p></div></div>
-    <div class="card">
-        <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-price"></use></svg></span>Добавить свою услугу</div>
-        <div class="form-group"><label>Тип техники</label><select id="custom-service-tech"><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Другое</option></select></div>
+    <div class="price-toolbar">
+        <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="price-search" placeholder="Найти услугу" oninput="renderPriceList()"></div>
+        <select id="price-tech-filter" onchange="renderPriceList()"><option value="all" selected>Вся техника</option><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Холодильная витрина</option><option>Морозильный ларь</option><option>Холодильный стол</option><option>Коммерческий холодильник</option><option>Другое коммерческое оборудование</option><option>Дополнительные работы</option><option>Другое</option></select>
+    </div>
+    <div id="price-services-list"></div>
+    <details class="card manual-material">
+        <summary><span class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-price"></use></svg></span>Добавить свою услугу</span></summary>
+        <div class="form-group"><label>Тип техники</label><select id="custom-service-tech"><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Холодильная витрина</option><option>Морозильный ларь</option><option>Холодильный стол</option><option>Коммерческий холодильник</option><option>Другое коммерческое оборудование</option><option>Другое</option></select></div>
         <div class="row"><div class="form-group"><label>Категория</label><input type="text" id="custom-service-cat" placeholder="Мои услуги"></div><div class="form-group"><label>Название</label><input type="text" id="custom-service-name" placeholder="Например, ремонт трубки"></div></div>
         <div class="form-group"><label>Цена</label><input type="number" id="custom-service-price" placeholder="1500" inputmode="numeric"></div>
         <button onclick="addCustomService()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить услугу</span></button>
-    </div>
-    <div class="price-toolbar">
-        <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="price-search" placeholder="Найти услугу" oninput="renderPriceList()"></div>
-        <select id="price-tech-filter" onchange="renderPriceList()"><option value="all">Вся техника</option><option selected>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Дополнительные работы</option><option>Другое</option></select>
-    </div>
-    <div id="price-services-list"></div>
+    </details>
 </div>
 
 <!-- Печать акта -->
@@ -869,7 +930,7 @@
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-theme"></use></svg></span>Оформление</div><button onclick="toggleTheme()"><span class="button-label"><svg class="ui-icon"><use href="#i-theme"></use></svg>Сменить тему</span></button></div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-save"></use></svg></span>Данные</div>
         <div class="settings-actions">
-            <button class="btn-green" onclick="quickBackup()"><span class="button-label"><svg class="ui-icon"><use href="#i-download"></use></svg>Скачать бэкап</span></button>
+            <button class="btn-green" onclick="quickBackup()"><span class="button-label"><svg class="ui-icon"><use href="#i-download"></use></svg>Скачать бэкап CRM BT</span></button>
             <button class="btn-blue" onclick="showRestoreModal()"><span class="button-label"><svg class="ui-icon"><use href="#i-upload"></use></svg>Восстановить</span></button>
         </div>
         <div class="settings-actions" style="margin-top:7px;">
@@ -899,6 +960,16 @@
         <div class="sum-display" id="service-sum-display"></div>
         <button onclick="applyServices()"><span class="button-label"><svg class="ui-icon"><use href="#i-check"></use></svg>Применить и подогнать цены</span></button>
         <button class="btn-outline" onclick="closeServiceModal()">Отмена</button>
+    </div>
+</div>
+
+<!-- Модальное окно материалов -->
+<div class="modal-overlay" id="material-modal-overlay">
+    <div class="modal" id="material-modal">
+        <h3><svg class="ui-icon"><use href="#i-warehouse"></use></svg>Склад в заявку</h3>
+        <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="material-search" placeholder="Найти запчасть или расходник" oninput="renderMaterialCatalog()"></div>
+        <div id="material-catalog" class="service-catalog"></div>
+        <button class="btn-outline" type="button" onclick="closeMaterialModal()">Готово</button>
     </div>
 </div>
 
@@ -1026,7 +1097,8 @@ const SERVICE_CATALOG = {
         ],
         'Капиллярная система': [
             {name:'Чистка капиллярной трубки', price:2000},
-            {name:'Замена капиллярной трубки', price:4000}
+            {name:'Замена капиллярной трубки', price:4000},
+            {name:'Припайка клапана Шредера', price:1200}
         ],
         'Фильтр-осушитель': [
             {name:'Замена фильтра-осушителя', price:2500}
@@ -1281,6 +1353,101 @@ const SERVICE_CATALOG = {
         ]
     },
 
+    'Холодильная витрина': {
+        'Диагностика и контур': [
+            {name:'Выезд и диагностика витрины', price:2200},
+            {name:'Проверка герметичности', price:1400},
+            {name:'Опрессовка системы', price:1800},
+            {name:'Вакуумация системы', price:1600},
+            {name:'Поиск утечки хладагента', price:4500},
+            {name:'Устранение утечки хладагента', price:7000}
+        ],
+        'Компрессор и заправка': [
+            {name:'Проверка компрессора', price:900},
+            {name:'Замена компрессора', price:12000},
+            {name:'Заправка фреоном', price:4500},
+            {name:'Замена фильтра-осушителя', price:3200},
+            {name:'Припайка клапана Шредера', price:1600}
+        ],
+        'Вентиляция и автоматика': [
+            {name:'Замена вентилятора', price:3200},
+            {name:'Проверка контроллера', price:1200},
+            {name:'Ремонт платы управления', price:5000},
+            {name:'Замена датчика температуры', price:2200}
+        ]
+    },
+
+    'Морозильный ларь': {
+        'Диагностика и контур': [
+            {name:'Выезд и диагностика ларя', price:2000},
+            {name:'Проверка герметичности', price:1300},
+            {name:'Опрессовка системы', price:1700},
+            {name:'Поиск утечки хладагента', price:4000},
+            {name:'Устранение утечки хладагента', price:6500}
+        ],
+        'Компрессор и заправка': [
+            {name:'Проверка компрессора', price:800},
+            {name:'Замена компрессора', price:11000},
+            {name:'Заправка фреоном', price:4200},
+            {name:'Замена фильтра-осушителя', price:3000},
+            {name:'Припайка клапана Шредера', price:1500}
+        ],
+        'Прочее': [
+            {name:'Замена терморегулятора', price:2500},
+            {name:'Ремонт электрики', price:3000}
+        ]
+    },
+
+    'Холодильный стол': {
+        'Диагностика и контур': [
+            {name:'Выезд и диагностика холодильного стола', price:2500},
+            {name:'Проверка герметичности', price:1500},
+            {name:'Опрессовка системы', price:2000},
+            {name:'Поиск утечки хладагента', price:5000},
+            {name:'Устранение утечки хладагента', price:7500}
+        ],
+        'Компрессор и заправка': [
+            {name:'Проверка компрессора', price:1000},
+            {name:'Замена компрессора', price:13000},
+            {name:'Заправка фреоном', price:5000},
+            {name:'Замена фильтра-осушителя', price:3500},
+            {name:'Припайка клапана Шредера', price:1700}
+        ],
+        'Вентиляция и автоматика': [
+            {name:'Замена вентилятора', price:3500},
+            {name:'Замена датчика температуры', price:2400},
+            {name:'Ремонт платы управления', price:5500}
+        ]
+    },
+
+    'Коммерческий холодильник': {
+        'Диагностика и контур': [
+            {name:'Выезд и диагностика', price:2200},
+            {name:'Опрессовка системы', price:1800},
+            {name:'Поиск утечки хладагента', price:4500},
+            {name:'Устранение утечки хладагента', price:7000}
+        ],
+        'Компрессор и заправка': [
+            {name:'Замена компрессора', price:12000},
+            {name:'Заправка фреоном', price:4500},
+            {name:'Замена фильтра-осушителя', price:3200},
+            {name:'Припайка клапана Шредера', price:1600}
+        ]
+    },
+
+    'Другое коммерческое оборудование': {
+        'Диагностика': [
+            {name:'Выезд и диагностика оборудования', price:2500},
+            {name:'Диагностика холодильного контура', price:2200}
+        ],
+        'Холодильный контур': [
+            {name:'Опрессовка системы', price:2000},
+            {name:'Вакуумация системы', price:1800},
+            {name:'Заправка фреоном', price:5000},
+            {name:'Поиск утечки хладагента', price:5000}
+        ]
+    },
+
     'Дополнительные работы': {
         'Монтаж/Демонтаж': [
             {name:'Демонтаж встроенной техники', price:1500},
@@ -1320,10 +1487,22 @@ const U = {
         return dt.toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + 
                dt.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
     },
+    toDateInput(d) {
+        const dt=d?new Date(d):new Date();
+        if(Number.isNaN(dt.getTime()))return '';
+        const pad=n=>String(n).padStart(2,'0');
+        return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+    },
+    dateInputToISO(value, fallback) {
+        if(!value)return fallback||this.nowISO();
+        const dt=new Date(`${value}T12:00:00`);
+        return Number.isNaN(dt.getTime())?(fallback||this.nowISO()):dt.toISOString();
+    },
     money: (n) => (n||0).toLocaleString('ru-RU') + ' ₽',
     nowISO: () => new Date().toISOString(),
     finalAmount(o) { return Math.max(0, (o.sum||0) - (o.discount||0)); },
     balance(o) { return Math.max(0, this.finalAmount(o) - (o.prepay||0)); },
+    materialCost(o) { return (o.materials||[]).reduce((sum,m)=>sum+(Number(m.qty)||0)*(Number(m.unitCost)||0),0); },
     guaranteeUntil(o) {
         if (!o.guarantee || o.status !== 'Закрыта') return null;
         const d = new Date(o.completed || o.created);
@@ -1523,6 +1702,145 @@ function updateStorageInfo() {
 
 // ==================== УСЛУГИ ====================
 let selectedServices=[];
+let selectedMaterials=[];
+
+function materialTrackLabel(track){return track==='presence'?'только наличие':track==='approx'?'примерный учёт':'точный учёт';}
+
+function normaliseMaterial(material){
+    const item=material||{};
+    return {
+        id:item.id||U.uid(),
+        warehouseId:item.warehouseId||null,
+        name:item.name||'Материал',
+        qty:item.qty===undefined||item.qty===null?'':String(item.qty),
+        unit:item.unit||'шт.',
+        unitCost:Number(item.unitCost)||0,
+        tracking:item.tracking||'exact',
+        writeOff:item.writeOff===true
+    };
+}
+
+const SERVICE_MATERIAL_SUGGESTIONS={
+    'Замена фильтра-осушителя':[{query:'фильтр',tracking:'exact'}],
+    'Припайка клапана Шредера':[{query:'шредер',tracking:'exact'},{query:'припой',tracking:'approx'}],
+    'Чистка капиллярной трубки':[{query:'промыв',tracking:'presence'}]
+};
+
+function suggestMaterialsForService(serviceName){
+    const suggestions=SERVICE_MATERIAL_SUGGESTIONS[serviceName]||[];
+    const items=DB.warehouse();let added=false;
+    suggestions.forEach(suggestion=>{
+        const item=items.find(entry=>(entry.name||'').toLowerCase().includes(suggestion.query));
+        if(!item||selectedMaterials.some(material=>material.warehouseId===item.id))return;
+        const tracking=suggestion.tracking||item.tracking||'exact';
+        selectedMaterials.push(normaliseMaterial({warehouseId:item.id,name:item.name,qty:tracking==='presence'?'':1,unit:item.unit||'шт.',unitCost:item.price||0,tracking,writeOff:tracking!=='presence'}));
+        added=true;
+    });
+    if(added){renderSelectedMaterials();toast('📦 Материалы предложены из склада');}
+}
+
+function showMaterialModal(query=''){
+    const search=document.getElementById('material-search');
+    if(search)search.value=query;
+    document.getElementById('material-modal-overlay').classList.add('active');
+    renderMaterialCatalog();
+}
+
+function closeMaterialModal(){document.getElementById('material-modal-overlay').classList.remove('active');}
+
+function renderMaterialCatalog(){
+    const container=document.getElementById('material-catalog');if(!container)return;
+    const search=(document.getElementById('material-search')?.value||'').trim().toLowerCase();
+    let items=DB.warehouse();
+    if(search)items=items.filter(item=>`${item.name||''} ${item.category||''}`.toLowerCase().includes(search));
+    items=items.slice().sort((a,b)=>`${a.category||''} ${a.name||''}`.localeCompare(`${b.category||''} ${b.name||''}`,'ru'));
+    if(!items.length){container.innerHTML='<div class="empty-state">На складе ничего не найдено. Добавь материал вручную в заявке или создай позицию на складе.</div>';return;}
+    container.innerHTML=items.map(item=>{
+        const selected=selectedMaterials.some(material=>material.warehouseId===item.id);
+        const track=item.tracking||'exact',unit=item.unit||'шт.',qty=Number(item.quantity)||0;
+        return `<div class="service-item" onclick="toggleMaterialFromWarehouse('${item.id}')">
+            <div style="display:flex;align-items:center;min-width:0;"><div class="service-check ${selected?'checked':''}"></div><div style="min-width:0;"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</b><small style="color:var(--sub);">${item.category||'Без категории'} · ${materialTrackLabel(track)}</small></div></div>
+            <span style="white-space:nowrap;color:${qty<=Number(item.min||0)?'var(--red)':'var(--green)'};">${qty} ${unit}</span></div>`;
+    }).join('');
+}
+
+function toggleMaterialFromWarehouse(id){
+    const item=DB.warehouse().find(entry=>entry.id===id);if(!item)return;
+    const index=selectedMaterials.findIndex(material=>material.warehouseId===id);
+    if(index>=0)selectedMaterials.splice(index,1);
+    else {
+        const tracking=item.tracking||'exact';
+        selectedMaterials.push(normaliseMaterial({
+            warehouseId:item.id,name:item.name,qty:tracking==='presence'?'':1,unit:item.unit||'шт.',unitCost:item.price||0,tracking,writeOff:tracking!=='presence'
+        }));
+    }
+    renderMaterialCatalog();renderSelectedMaterials();scheduleDraftSave();
+}
+
+function addManualMaterial(){
+    const name=document.getElementById('manual-material-name').value.trim();
+    if(!name){toast('❌ Укажи материал');return;}
+    const qty=document.getElementById('manual-material-qty').value;
+    selectedMaterials.push(normaliseMaterial({name,qty,unit:document.getElementById('manual-material-unit').value,unitCost:document.getElementById('manual-material-cost').value,tracking:'presence',writeOff:false}));
+    ['manual-material-name','manual-material-qty','manual-material-cost'].forEach(id=>document.getElementById(id).value='');
+    renderSelectedMaterials();scheduleDraftSave();
+}
+
+function updateSelectedMaterial(index,key,value){
+    const material=selectedMaterials[index];if(!material)return;
+    if(key==='writeOff')material.writeOff=Boolean(value);
+    else material[key]=value;
+    if(material.tracking==='presence')material.writeOff=false;
+    renderSelectedMaterials();scheduleDraftSave();
+}
+
+function removeSelectedMaterial(index){selectedMaterials.splice(index,1);renderSelectedMaterials();scheduleDraftSave();}
+
+function renderSelectedMaterials(){
+    const container=document.getElementById('selected-materials');const total=document.getElementById('materials-total-display');
+    if(!container||!total)return;
+    if(!selectedMaterials.length){container.innerHTML='';total.textContent='';return;}
+    container.innerHTML=selectedMaterials.map((raw,index)=>{
+        const material=normaliseMaterial(raw);selectedMaterials[index]=material;
+        const stock=material.warehouseId?DB.warehouse().find(item=>item.id===material.warehouseId):null;
+        const available=stock?`${Number(stock.quantity)||0} ${stock.unit||'шт.'} на складе`:'Материал вне склада';
+        const noteMode=material.tracking==='presence';
+        return `<div class="material-row ${noteMode?'material-mode-note':''}">
+            <div class="material-row-head"><div class="material-row-title"><b>${material.name}</b><small>${available} · ${materialTrackLabel(material.tracking)}</small></div><button type="button" class="material-remove" onclick="removeSelectedMaterial(${index})" aria-label="Убрать материал">${iconSvg('delete')}</button></div>
+            <div class="material-controls"><input type="number" step="0.01" min="0" value="${material.qty}" placeholder="Кол-во" onchange="updateSelectedMaterial(${index},'qty',this.value)"><select onchange="updateSelectedMaterial(${index},'unit',this.value)"><option ${material.unit==='шт.'?'selected':''}>шт.</option><option ${material.unit==='г'?'selected':''}>г</option><option ${material.unit==='кг'?'selected':''}>кг</option><option ${material.unit==='мл'?'selected':''}>мл</option><option ${material.unit==='л'?'selected':''}>л</option><option ${material.unit==='см'?'selected':''}>см</option><option ${material.unit==='м'?'selected':''}>м</option><option ${material.unit==='условно'?'selected':''}>условно</option></select><select onchange="updateSelectedMaterial(${index},'tracking',this.value)"><option value="exact" ${material.tracking==='exact'?'selected':''}>Точно</option><option value="approx" ${material.tracking==='approx'?'selected':''}>Примерно</option><option value="presence" ${material.tracking==='presence'?'selected':''}>Отметить</option></select></div>
+            ${material.warehouseId?`<label class="material-stock-toggle"><input type="checkbox" ${material.writeOff&&!noteMode?'checked':''} ${noteMode?'disabled':''} onchange="updateSelectedMaterial(${index},'writeOff',this.checked)">Списать со склада после закрытия</label>`:''}
+        </div>`;
+    }).join('');
+    const cost=selectedMaterials.reduce((sum,material)=>sum+(Number(material.qty)||0)*(Number(material.unitCost)||0),0);
+    total.textContent=cost>0?`Себестоимость материалов по складу: ${U.money(cost)}. В твою текущую формулу «На руки» не добавлена автоматически.`:'Материалы сохранятся в заявке. Непосчитанные материалы не повлияют на склад.';
+}
+
+function getAppliedMaterialQuantities(order){
+    if(!order||order.status!=='Закрыта')return new Map();
+    const entries=new Map();
+    (order.materials||[]).map(normaliseMaterial).forEach(material=>{
+        if(!material.warehouseId||!material.writeOff||material.tracking==='presence')return;
+        const qty=Number(material.qty)||0;if(qty<=0)return;
+        entries.set(material.warehouseId,(entries.get(material.warehouseId)||0)+qty);
+    });
+    return entries;
+}
+
+function syncWarehouseForOrder(previous,next){
+    const before=getAppliedMaterialQuantities(previous),after=getAppliedMaterialQuantities(next);
+    const ids=new Set([...before.keys(),...after.keys()]);if(!ids.size)return true;
+    const items=DB.warehouse();
+    for(const id of ids){
+        const delta=(after.get(id)||0)-(before.get(id)||0),item=items.find(entry=>entry.id===id);
+        if(!item||Math.abs(delta)<0.000001)continue;
+        if(delta>0&&(Number(item.quantity)||0)+0.000001<delta){toast(`❌ На складе недостаточно: ${item.name}`,true);return false;}
+    }
+    ids.forEach(id=>{
+        const delta=(after.get(id)||0)-(before.get(id)||0),item=items.find(entry=>entry.id===id);
+        if(item&&Math.abs(delta)>=0.000001)item.quantity=Math.round(((Number(item.quantity)||0)-delta)*1000)/1000;
+    });
+    DB.saveWarehouse(items);return true;
+}
 
 function getServiceCatalogForTech(tech){
     const source=SERVICE_CATALOG[tech]||{};
@@ -1574,7 +1892,7 @@ function renderServiceCatalog(){
 function toggleService(name,price){
     const idx=selectedServices.findIndex(s=>s.name===name);
     if(idx>=0)selectedServices.splice(idx,1);
-    else selectedServices.push({name,price,qty:1});
+    else {selectedServices.push({name,price,qty:1});suggestMaterialsForService(name);}
     renderServiceCatalog();
 }
 
@@ -1673,10 +1991,25 @@ function autoAdjustServices(){
 let editingId=null;
 let draftTimer=null;
 
+function updateOrderDateFields(){
+    const status=document.getElementById('n-status')?.value;
+    const row=document.getElementById('order-date-fields');
+    const created=document.getElementById('n-created-date');
+    const completed=document.getElementById('n-completed-date');
+    if(!row||!created||!completed)return;
+    row.classList.add('show');
+    if(!created.value)created.value=U.toDateInput();
+    const closed=status==='Закрыта';
+    completed.disabled=!closed;
+    if(closed&&!completed.value)completed.value=U.toDateInput();
+    if(!closed)completed.value='';
+}
+
 function getDraft(){
     const draft={};
-    ['n-name','n-phone','n-address','n-tech','n-brand','n-issue','n-diagnosis','n-defects','n-sum','n-prepay','n-discount','n-gray','n-white','n-percent','n-guarantee','n-status'].forEach(id=>{const el=document.getElementById(id);if(el)draft[id]=el.value;});
+    ['n-name','n-phone','n-address','n-tech','n-brand','n-issue','n-diagnosis','n-comment','n-defects','n-sum','n-prepay','n-discount','n-gray','n-white','n-percent','n-guarantee','n-status','n-created-date','n-completed-date'].forEach(id=>{const el=document.getElementById(id);if(el)draft[id]=el.value;});
     draft.services=JSON.parse(JSON.stringify(selectedServices));
+    draft.materials=JSON.parse(JSON.stringify(selectedMaterials));
     draft.photos=tempPhotos.slice(0,5);
     draft.saved=U.nowISO();
     return draft;
@@ -1700,10 +2033,11 @@ function renderDraftBanner(){
 function restoreDraft(){
     const d=DB.get('draft');if(!d||Array.isArray(d))return;
     Object.entries(d).forEach(([id,value])=>{const el=document.getElementById(id);if(el&&typeof value==='string')el.value=value;});
-    selectedServices=JSON.parse(JSON.stringify(d.services||[]));tempPhotos=d.photos||[];
+    selectedServices=JSON.parse(JSON.stringify(d.services||[]));selectedMaterials=(d.materials||[]).map(normaliseMaterial);tempPhotos=d.photos||[];
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);document.getElementById('services-total-display').innerHTML=selectedServices.length?`Итого услуг: <b>${U.money(total)}</b>`:'';
     const container=document.getElementById('photo-preview');container.innerHTML='';tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>showFullPhoto(p);container.appendChild(img);});
+    updateOrderDateFields();renderSelectedMaterials();
     renderDraftBanner();toast('📝 Черновик восстановлен');
 }
 
@@ -1712,17 +2046,20 @@ function setupDraftAutosave(){
 }
 
 function clearForm(){
-    ['n-name','n-phone','n-address','n-brand','n-issue','n-diagnosis','n-defects'].forEach(id=>document.getElementById(id).value='');
-    ['n-sum','n-prepay','n-discount','n-gray','n-white','n-percent','n-guarantee'].forEach(id=>document.getElementById(id).value='');
+    ['n-name','n-phone','n-address','n-brand','n-issue','n-diagnosis','n-comment','n-defects'].forEach(id=>document.getElementById(id).value='');
+    ['n-sum','n-prepay','n-discount','n-gray','n-white','n-guarantee'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('n-percent').value='50';
     document.getElementById('n-tech').value='';
-    document.getElementById('n-status').value='Закрыта';
+    document.getElementById('n-status').value='В работе';
+    document.getElementById('n-created-date').value=U.toDateInput();
+    document.getElementById('n-completed-date').value='';
     document.getElementById('n-photos').value='';
     document.getElementById('photo-preview').innerHTML='';
     document.getElementById('selected-services').innerHTML='';
     document.getElementById('services-total-display').innerHTML='';
     document.getElementById('edit-indicator').style.display='none';
     document.getElementById('save-btn').innerHTML=`<span class="button-label">${iconSvg('save')}Сохранить заявку</span>`;
-    selectedServices=[];tempPhotos=[];pendingPhotoJobs=0;editingId=null;clearDraft();
+    selectedServices=[];selectedMaterials=[];renderSelectedMaterials();tempPhotos=[];pendingPhotoJobs=0;editingId=null;updateOrderDateFields();clearDraft();
 }
 
 function saveOrder(){
@@ -1732,10 +2069,14 @@ function saveOrder(){
     if(!name){alert('❌ Имя обязательно!');return;}
     if(!phone || phone.length < 10){alert('❌ Введите корректный номер телефона!');return;}
     
+    const existing=editingId?DB.orders().find(order=>order.id===editingId):null;
     const id = editingId || U.orderId();
     const sum = parseInt(document.getElementById('n-sum').value) || 0;
     const gray = parseInt(document.getElementById('n-gray').value) || 0;
     const white = parseInt(document.getElementById('n-white').value) || 0;
+    const status=document.getElementById('n-status').value;
+    const created=U.dateInputToISO(document.getElementById('n-created-date').value,existing?.created||U.nowISO());
+    const completed=status==='Закрыта'?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
     
     if(gray > sum){
         toast('⚠️ Серые расходы не могут превышать сумму заявки!', true);
@@ -1743,6 +2084,10 @@ function saveOrder(){
     }
     if(white > sum){
         toast('⚠️ Белые расходы не могут превышать сумму заявки!', true);
+        return;
+    }
+    if(completed&&new Date(completed)<new Date(created)){
+        toast('⚠️ Дата закрытия не может быть раньше даты создания',true);
         return;
     }
     
@@ -1754,8 +2099,10 @@ function saveOrder(){
         brand:document.getElementById('n-brand').value.trim(),
         issue:document.getElementById('n-issue').value.trim(),
         diagnosis:document.getElementById('n-diagnosis').value.trim(),
+        comment:document.getElementById('n-comment').value.trim(),
         defects:document.getElementById('n-defects').value.trim(),
         services:JSON.parse(JSON.stringify(selectedServices)),
+        materials:selectedMaterials.map(normaliseMaterial),
         sum: sum,
         prepay:parseInt(document.getElementById('n-prepay').value)||0,
         discount:parseInt(document.getElementById('n-discount').value)||0,
@@ -1763,13 +2110,12 @@ function saveOrder(){
         expense_white: white,
         percent:parseInt(document.getElementById('n-percent').value)||50,
         guarantee:parseInt(document.getElementById('n-guarantee').value)||6,
-        status:document.getElementById('n-status').value,
-        photos:tempPhotos.length>0 ? tempPhotos : (editingId ? (DB.orders().find(o=>o.id===editingId)?.photos||[]) : []),
-        created:editingId ? (DB.orders().find(o=>o.id===editingId)?.created||U.nowISO()) : U.nowISO(),
-        completed:document.getElementById('n-status').value==='Закрыта'
-            ? (editingId && DB.orders().find(o=>o.id===editingId)?.status==='Закрыта' ? DB.orders().find(o=>o.id===editingId).completed : U.nowISO())
-            : null
+        status,
+        photos:tempPhotos.length>0 ? tempPhotos : (existing?.photos||[]),
+        created,
+        completed
     };
+    if(!syncWarehouseForOrder(existing,order))return;
     let orders=DB.orders();
     if(editingId) orders=orders.map(o=>o.id===editingId ? order : o);
     else orders.unshift(order);
@@ -1791,19 +2137,23 @@ function editOrder(id){
     document.getElementById('n-brand').value=order.brand||'';
     document.getElementById('n-issue').value=order.issue||'';
     document.getElementById('n-diagnosis').value=order.diagnosis||'';
+    document.getElementById('n-comment').value=order.comment||'';
     document.getElementById('n-defects').value=order.defects||'';
     document.getElementById('n-sum').value=order.sum||'';
     document.getElementById('n-prepay').value=order.prepay||'';
     document.getElementById('n-discount').value=order.discount||'';
     document.getElementById('n-gray').value=order.expense_gray||'';
     document.getElementById('n-white').value=order.expense_white||'';
-    document.getElementById('n-percent').value=order.percent||'';
+    document.getElementById('n-percent').value=order.percent||50;
     document.getElementById('n-guarantee').value=order.guarantee||'';
-    document.getElementById('n-status').value=order.status||'Закрыта';
+    document.getElementById('n-status').value=order.status==='СД'?'В работе':(order.status||'В работе');
+    document.getElementById('n-created-date').value=U.toDateInput(order.created);
+    document.getElementById('n-completed-date').value=order.completed?U.toDateInput(order.completed):'';
     selectedServices=JSON.parse(JSON.stringify(order.services||[]));
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);
     document.getElementById('services-total-display').innerHTML=`Итого услуг: <b>${U.money(total)}</b>`;
+    selectedMaterials=(order.materials||[]).map(normaliseMaterial);renderSelectedMaterials();updateOrderDateFields();
     tempPhotos=order.photos||[];
     const container=document.getElementById('photo-preview');container.innerHTML='';
     tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>editingId?showOrderPhoto(editingId,i):showFullPhoto(p);container.appendChild(img);});
@@ -1812,7 +2162,12 @@ function editOrder(id){
 
 function toggleStatus(id){
     const orders=DB.orders();const order=orders.find(o=>o.id===id);
-    if(order){order.status=order.status==='СД'?'Закрыта':'СД';order.completed=order.status==='Закрыта'?U.nowISO():null;DB.saveOrders(orders);renderOrders();maybeAutoBackup();toast('✅ Статус изменён');}
+    if(!order)return;
+    const previous=JSON.parse(JSON.stringify(order));
+    order.status=(order.status==='В работе'||order.status==='СД')?'Закрыта':'В работе';
+    order.completed=order.status==='Закрыта'?U.nowISO():null;
+    if(!syncWarehouseForOrder(previous,order)){Object.assign(order,previous);return;}
+    DB.saveOrders(orders);renderOrders();maybeAutoBackup();toast(order.status==='Закрыта'?'✅ Заявка закрыта':'🛠️ Заявка снова в работе');
 }
 
 function deleteOrder(id){if(!confirm('Удалить заявку?'))return;const orders=DB.orders(),index=orders.findIndex(o=>o.id===id);if(index<0)return;const removed=orders[index];orders.splice(index,1);DB.saveOrders(orders);renderOrders();maybeAutoBackup();showUndo('Заявка удалена',()=>{const restored=DB.orders();restored.splice(Math.min(index,restored.length),0,removed);DB.saveOrders(restored);renderOrders();maybeAutoBackup();});}
@@ -1831,19 +2186,21 @@ function duplicateOrder(id){
     document.getElementById('n-brand').value=order.brand||'';
     document.getElementById('n-issue').value=order.issue||'';
     document.getElementById('n-diagnosis').value=order.diagnosis||'';
+    document.getElementById('n-comment').value=order.comment||'';
     document.getElementById('n-defects').value=order.defects||'';
     document.getElementById('n-sum').value=order.sum||'';
     document.getElementById('n-prepay').value=order.prepay||'';
     document.getElementById('n-discount').value=order.discount||'';
     document.getElementById('n-gray').value=order.expense_gray||'';
     document.getElementById('n-white').value=order.expense_white||'';
-    document.getElementById('n-percent').value=order.percent||'';
+    document.getElementById('n-percent').value=order.percent||50;
     document.getElementById('n-guarantee').value=order.guarantee||'';
-    document.getElementById('n-status').value='Закрыта';
+    document.getElementById('n-status').value='В работе';
     selectedServices=JSON.parse(JSON.stringify(order.services||[]));
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);
     document.getElementById('services-total-display').innerHTML=`Итого услуг: <b>${U.money(total)}</b>`;
+    selectedMaterials=[];renderSelectedMaterials();updateOrderDateFields();
     switchTab('new');
     toast('📋 Заявка скопирована');
 }
@@ -1898,11 +2255,12 @@ function renderOrders(){
     const container=document.getElementById('orders-container');
     if(!orders.length){container.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div>Нет заявок</div>';return;}
     container.innerHTML=orders.map(o=>{
-        const profit=U.profit(o),warranty=U.guaranteeUntil(o);
-        return `<article class="order-card ${o.status==='СД'?'order-active':'order-closed'}">
+        const inWork=o.status==='В работе'||o.status==='СД';
+        const profit=U.profit(o),warranty=U.guaranteeUntil(o),materialsCost=U.materialCost(o);
+        return `<article class="order-card ${inWork?'order-active':'order-closed'}">
             <div class="order-top">
                 <div class="order-person"><span class="order-number">${U.formatOrderId(o.id)}</span><b>${o.name}</b></div>
-                <div class="order-meta"><span>${U.date(o.created)}</span><span class="badge ${o.status==='СД'?'badge-sd':'badge-closed'}">${o.status}</span></div>
+                <div class="order-meta"><span>${U.date(o.created)}</span><span class="badge ${inWork?'badge-sd':'badge-closed'}">${inWork?'В работе':o.status}</span></div>
             </div>
             <div class="order-device">
                 <div class="device-icon">${techIconSvg(o.tech)}</div>
@@ -1917,11 +2275,13 @@ function renderOrders(){
             <div class="order-details">
                 <span>${iconSvg('phone')} ${o.phone}</span>${o.address?`<span class="address-link" onclick="openMap('${o.address.replace(/'/g,"\\'")}')">${iconSvg('map')} ${o.address}</span>`:''}
                 <span>${iconSvg('shield')} ${o.guarantee||0} мес.${warranty?` · до ${U.date(warranty)}`:''}</span>
+                ${(o.materials||[]).length?`<span>${iconSvg('warehouse')} ${(o.materials||[]).length} поз. материалов${materialsCost?` · ${U.money(materialsCost)}`:''}</span>`:''}
             </div>
+            ${o.comment?`<div class="card-body" style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);"><b style="color:var(--text);font-size:11px;">Комментарий мастера:</b> ${o.comment}</div>`:''}
             ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map((p,i)=>`<img src="${p}" class="photo-thumb" onclick="showOrderPhoto('${o.id}',${i})">`).join('')}</div>`:''}
             <div class="order-actions">
                 <button class="order-action edit" onclick="editOrder('${o.id}')"><span>${iconSvg('edit')}</span><small>Изменить</small></button>
-                <button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg(o.status==='СД'?'check':'reopen')}</span><small>${o.status==='СД'?'Закрыть':'Открыть'}</small></button>
+                <button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg(inWork?'check':'reopen')}</span><small>${inWork?'Закрыть':'В работу'}</small></button>
                 <button class="order-action copy" onclick="duplicateOrder('${o.id}')"><span>${iconSvg('copy')}</span><small>Копия</small></button>
                 <button class="order-action call" onclick="callPhone('${o.phone}')"><span>${iconSvg('phone')}</span><small>Позвонить</small></button>
                 <button class="order-action telegram" onclick="messageTelegram('${o.phone}')"><span>${iconSvg('telegram')}</span><small>Telegram</small></button>
@@ -1933,7 +2293,7 @@ function renderOrders(){
 
 // ==================== СКЛАД ====================
 function addWarehouseItem(){
-    const item={id:U.uid(),name:document.getElementById('wh-name').value.trim(),category:document.getElementById('wh-cat').value.trim()||'Без категории',quantity:parseInt(document.getElementById('wh-qty').value)||0,min:parseInt(document.getElementById('wh-min').value)||0,price:parseInt(document.getElementById('wh-price').value)||0};
+    const item={id:U.uid(),name:document.getElementById('wh-name').value.trim(),category:document.getElementById('wh-cat').value.trim()||'Без категории',quantity:parseFloat(document.getElementById('wh-qty').value)||0,min:parseFloat(document.getElementById('wh-min').value)||0,price:parseFloat(document.getElementById('wh-price').value)||0,unit:document.getElementById('wh-unit').value,tracking:document.getElementById('wh-track').value};
     if(!item.name){toast('❌ Введите название!');return;}
     const items=DB.warehouse();items.unshift(item);DB.saveWarehouse(items);
     document.getElementById('wh-name').value='';
@@ -1945,46 +2305,53 @@ function addWarehouseItem(){
 }
 
 function warehouseAction(id,action){
-    const qty=prompt('Количество:');if(!qty||isNaN(qty)||parseInt(qty)<=0)return;
+    const qty=prompt('Количество:');if(!qty||isNaN(qty)||parseFloat(qty)<=0)return;
     const items=DB.warehouse();const item=items.find(i=>i.id===id);if(!item)return;
-    if(action==='add')item.quantity+=parseInt(qty);
-    else if(action==='remove'){if(item.quantity<parseInt(qty)){toast('❌ Недостаточно!');return;}item.quantity-=parseInt(qty);}
+    const amount=parseFloat(qty);
+    if(action==='add')item.quantity=Math.round(((Number(item.quantity)||0)+amount)*1000)/1000;
+    else if(action==='remove'){if((Number(item.quantity)||0)<amount){toast('❌ Недостаточно!');return;}item.quantity=Math.round(((Number(item.quantity)||0)-amount)*1000)/1000;}
     DB.saveWarehouse(items);renderWarehouse();maybeAutoBackup();toast('✅ Готово');
 }
 
 function deleteWarehouseItem(id){if(!confirm('Удалить запчасть со склада?'))return;const items=DB.warehouse(),index=items.findIndex(i=>i.id===id);if(index<0)return;const removed=items[index];items.splice(index,1);DB.saveWarehouse(items);renderWarehouse();maybeAutoBackup();showUndo('Позиция удалена со склада',()=>{const restored=DB.warehouse();restored.splice(Math.min(index,restored.length),0,removed);DB.saveWarehouse(restored);renderWarehouse();maybeAutoBackup();});}
 
+let warehouseCollapsed=new Set(JSON.parse(localStorage.getItem('repair_warehouse_collapsed')||'[]'));
+
+function toggleWarehouseGroup(encoded){
+    const category=decodeURIComponent(encoded);
+    if(warehouseCollapsed.has(category))warehouseCollapsed.delete(category);else warehouseCollapsed.add(category);
+    localStorage.setItem('repair_warehouse_collapsed',JSON.stringify([...warehouseCollapsed]));renderWarehouse();
+}
+
+function updateWarehouseFilter(items){
+    const select=document.getElementById('warehouse-filter');if(!select)return;
+    const current=select.value||'all',categories=[...new Set(items.map(item=>item.category||'Без категории'))].sort((a,b)=>a.localeCompare(b,'ru'));
+    select.innerHTML=`<option value="all">Все позиции</option><option value="low">Только мало осталось</option>${categories.map(category=>`<option value="cat:${encodeURIComponent(category)}">${category}</option>`).join('')}`;
+    select.value=[...select.options].some(option=>option.value===current)?current:'all';
+}
+
 function renderWarehouse(){
     const items=DB.warehouse();
+    updateWarehouseFilter(items);
     const search=(document.getElementById('search-warehouse')?.value||'').toLowerCase();
-    let filtered = items;
-    if(search) {
-        filtered = items.filter(i => 
-            i.name.toLowerCase().includes(search) || 
-            i.category.toLowerCase().includes(search)
-        );
-    }
+    const filter=document.getElementById('warehouse-filter')?.value||'all';
+    let filtered=items.filter(item=>{
+        const name=(item.name||'').toLowerCase(),category=(item.category||'Без категории').toLowerCase();
+        const isLow=(Number(item.quantity)||0)<=Number(item.min||0);
+        return (!search||name.includes(search)||category.includes(search))&&(filter==='all'||(filter==='low'&&isLow)||(filter.startsWith('cat:')&&category===decodeURIComponent(filter.slice(4)).toLowerCase()));
+    });
     const container=document.getElementById('warehouse-container');
     if(!filtered.length){
-        container.innerHTML=items.length ? 
-            `<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Ничего не найдено</div>` :
-            `<div class="empty-state"><div class="empty-icon">${iconSvg('warehouse')}</div>Склад пуст</div>`;
+        container.innerHTML=items.length?`<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Ничего не найдено</div>`:`<div class="empty-state"><div class="empty-icon">${iconSvg('warehouse')}</div>Склад пуст</div>`;
         return;
     }
-    container.innerHTML=filtered.map(i => {
-        const isLow = i.quantity <= i.min;
-        return `<div class="card ${isLow ? 'warehouse-item-low' : 'warehouse-item-ok'}">
-            <div class="warehouse-card-head">
-                <span class="warehouse-card-icon">${iconSvg('box')}</span>
-                <div class="warehouse-card-copy"><b>${i.name}</b><small>${i.category} · ${U.money(i.price)} · минимум ${i.min} шт.</small></div>
-                <div class="warehouse-stock"><b style="color:${isLow ? 'var(--red)' : 'var(--green)'};">${i.quantity} шт.</b><small>${isLow?'мало':'в наличии'}</small></div>
-            </div>
-            <div class="compact-actions">
-                <button class="compact-action" onclick="warehouseAction('${i.id}','add')">${iconSvg('plus')}<span>Добавить</span></button>
-                <button class="compact-action" onclick="warehouseAction('${i.id}','remove')">${iconSvg('minus')}<span>Убрать</span></button>
-                <button class="compact-action delete" onclick="deleteWarehouseItem('${i.id}')">${iconSvg('delete')}<span>Удалить</span></button>
-            </div>
-        </div>`;
+    const groups={};filtered.forEach(item=>{const category=item.category||'Без категории';(groups[category]??=[]).push(item);});
+    container.innerHTML=Object.entries(groups).sort(([a],[b])=>a.localeCompare(b,'ru')).map(([category,group])=>{
+        const low=group.filter(item=>(Number(item.quantity)||0)<=Number(item.min||0)).length,collapsed=warehouseCollapsed.has(category),encoded=encodeURIComponent(category);
+        return `<section class="stock-group card ${collapsed?'is-collapsed':''}"><div class="stock-group-head" onclick="toggleWarehouseGroup('${encoded}')"><div class="stock-group-title">${iconSvg('folder')}<span><b>${category}</b><small> · ${group.length} поз.${low?` · мало: ${low}`:''}</small></span></div><button type="button" aria-label="Свернуть категорию">${collapsed?'▸':'▾'}</button></div><div class="stock-group-items">${group.map(item=>{
+            const quantity=Number(item.quantity)||0,min=Number(item.min)||0,isLow=quantity<=min,unit=item.unit||'шт.',tracking=item.tracking||'exact';
+            return `<div class="card ${isLow?'warehouse-item-low':'warehouse-item-ok'}" style="margin:6px 0;"><div class="warehouse-card-head"><span class="warehouse-card-icon">${iconSvg('box')}</span><div class="warehouse-card-copy"><b>${item.name}</b><small>${U.money(item.price)} · минимум ${min} ${unit} · ${materialTrackLabel(tracking)}</small></div><div class="warehouse-stock"><b style="color:${isLow?'var(--red)':'var(--green)'};">${quantity} ${unit}</b><small>${isLow?'мало':'в наличии'}</small></div></div><div class="compact-actions"><button class="compact-action" onclick="warehouseAction('${item.id}','add')">${iconSvg('plus')}<span>Добавить</span></button><button class="compact-action" onclick="warehouseAction('${item.id}','remove')">${iconSvg('minus')}<span>Убрать</span></button><button class="compact-action delete" onclick="deleteWarehouseItem('${item.id}')">${iconSvg('delete')}<span>Удалить</span></button></div></div>`;
+        }).join('')}</div></section>`;
     }).join('');
 }
 
@@ -2011,47 +2378,41 @@ function deleteExpense(id){
     showUndo('Расход удалён',()=>{const restored=DB.expenses();restored.splice(Math.min(index,restored.length),0,removed);DB.saveExpenses(restored);renderExpenses();maybeAutoBackup();});
 }
 
+let expenseCollapsed=new Set(JSON.parse(localStorage.getItem('repair_expense_collapsed')||'[]'));
+
+function toggleExpenseGroup(encoded){
+    const category=decodeURIComponent(encoded);
+    if(expenseCollapsed.has(category))expenseCollapsed.delete(category);else expenseCollapsed.add(category);
+    localStorage.setItem('repair_expense_collapsed',JSON.stringify([...expenseCollapsed]));renderExpenses();
+}
+
+function updateExpensesFilter(expenses){
+    const select=document.getElementById('expenses-filter');if(!select)return;
+    const current=select.value||'all',categories=[...new Set(expenses.map(expense=>expense.category||'Прочее'))].sort((a,b)=>a.localeCompare(b,'ru'));
+    select.innerHTML=`<option value="all">Все категории</option>${categories.map(category=>`<option value="cat:${encodeURIComponent(category)}">${category}</option>`).join('')}`;
+    select.value=[...select.options].some(option=>option.value===current)?current:'all';
+}
+
 function renderExpenses(){
     const expenses=DB.expenses();
+    updateExpensesFilter(expenses);
     const search=(document.getElementById('search-expenses')?.value||'').toLowerCase();
-    let filtered = expenses;
-    if(search) {
-        filtered = expenses.filter(e => 
-            e.category.toLowerCase().includes(search) || 
-            e.description.toLowerCase().includes(search)
-        );
-    }
+    const filter=document.getElementById('expenses-filter')?.value||'all';
+    const filtered=expenses.filter(expense=>{
+        const category=(expense.category||'Прочее').toLowerCase(),description=(expense.description||'').toLowerCase();
+        return (!search||category.includes(search)||description.includes(search))&&(filter==='all'||(filter.startsWith('cat:')&&category===decodeURIComponent(filter.slice(4)).toLowerCase()));
+    });
     const container=document.getElementById('expenses-container');
     if(!filtered.length){
-        container.innerHTML=expenses.length ? 
-            `<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Ничего не найдено</div>` :
-            `<div class="empty-state"><div class="empty-icon">${iconSvg('finance')}</div>Нет расходов</div>`;
+        container.innerHTML=expenses.length?`<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Ничего не найдено</div>`:`<div class="empty-state"><div class="empty-icon">${iconSvg('finance')}</div>Нет расходов</div>`;
         return;
     }
     const byCat={};
-    filtered.forEach(e=>{
-        if(!byCat[e.category]) byCat[e.category]={total:0,items:[]};
-        byCat[e.category].total += e.amount;
-        byCat[e.category].items.push(e);
-    });
-    container.innerHTML=Object.entries(byCat).map(([cat,data]) => `
-        <div class="card">
-            <div class="expense-card-header">
-                <div class="expense-card-title"><span class="folder-icon">${iconSvg('folder')}</span><b>${cat}</b></div>
-                <span class="highlight">${U.money(data.total)}</span>
-            </div>
-            ${data.items.map(e => `
-                <div class="expense-item">
-                    <div class="info">
-                        <div class="desc">${e.description}</div>
-                        <div class="date">${U.dateTime(e.date)}</div>
-                    </div>
-                    <span class="amount">-${U.money(e.amount)}</span>
-                    <button class="delete-icon-btn" onclick="deleteExpense('${e.id}')" aria-label="Удалить расход">${iconSvg('delete')}</button>
-                </div>
-            `).join('')}
-        </div>
-    `).join('');
+    filtered.forEach(expense=>{const category=expense.category||'Прочее';if(!byCat[category])byCat[category]={total:0,items:[]};byCat[category].total+=Number(expense.amount)||0;byCat[category].items.push(expense);});
+    container.innerHTML=Object.entries(byCat).sort(([a],[b])=>a.localeCompare(b,'ru')).map(([category,data])=>{
+        const collapsed=expenseCollapsed.has(category),encoded=encodeURIComponent(category);
+        return `<section class="stock-group card ${collapsed?'is-collapsed':''}"><div class="stock-group-head" onclick="toggleExpenseGroup('${encoded}')"><div class="expense-card-title"><span class="folder-icon">${iconSvg('folder')}</span><b>${category}</b></div><div style="display:flex;align-items:center;gap:8px;"><span class="highlight">${U.money(data.total)}</span><button type="button" aria-label="Свернуть категорию">${collapsed?'▸':'▾'}</button></div></div><div class="stock-group-items">${data.items.map(expense=>`<div class="expense-item"><div class="info"><div class="desc">${expense.description}</div><div class="date">${U.dateTime(expense.date)}</div></div><span class="amount">-${U.money(expense.amount)}</span><button class="delete-icon-btn" onclick="deleteExpense('${expense.id}')" aria-label="Удалить расход">${iconSvg('delete')}</button></div>`).join('')}</div></section>`;
+    }).join('');
 }
 
 // ==================== СТАТИСТИКА ====================
@@ -2064,9 +2425,10 @@ function renderStats(period){
     const allOrders=DB.orders();
     const orders=allOrders.filter(o=>o.created>=from&&o.created<=to);
     const closed=allOrders.filter(o=>o.status==='Закрыта'&&(o.completed||o.created)>=from&&(o.completed||o.created)<=to);
-    const active=orders.filter(o=>o.status==='СД');
+    const active=orders.filter(o=>o.status==='В работе'||o.status==='СД');
     const revenue=closed.reduce((s,o)=>s+U.finalAmount(o),0);
     const profit=closed.reduce((s,o)=>s+(U.profit(o)||0),0);
+    const materialSpend=closed.reduce((s,o)=>s+U.materialCost(o),0);
     const otherExp=DB.expenses().filter(e=>e.date>=from&&e.date<=to).reduce((s,e)=>s+e.amount,0);
     const netProfit=profit-otherExp;
     const avgCheck = closed.length > 0 ? Math.round(revenue / closed.length) : 0;
@@ -2126,6 +2488,7 @@ function renderStats(period){
                 <div class="stat-item"><div class="stat-num" style="color:var(--blue)">${U.money(revenue)}</div><div class="stat-label">Выручка</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:var(--green)">${U.money(profit)}</div><div class="stat-label">Прибыль</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:var(--yellow)">${U.money(avgCheck)}</div><div class="stat-label">Средний чек</div></div>
+                <div class="stat-item"><div class="stat-num" style="color:var(--purple)">${U.money(materialSpend)}</div><div class="stat-label">Материалы</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:var(--red)">${U.money(otherExp)}</div><div class="stat-label">Расходы</div></div>
                 <div class="stat-item"><div class="stat-num" style="color:${netProfit>=0?'var(--green)':'var(--red)'}">${U.money(netProfit)}</div><div class="stat-label">Чистыми</div></div>
             </div>
@@ -2412,21 +2775,23 @@ function renderPriceList(){
     let items=getAllPriceServices();
     if(techFilter!=='all')items=items.filter(item=>item.tech===techFilter);
     if(search)items=items.filter(item=>`${item.tech} ${item.category} ${item.name}`.toLowerCase().includes(search));
-    items.sort((a,b)=>Number(b.custom)-Number(a.custom)||a.tech.localeCompare(b.tech,'ru')||a.category.localeCompare(b.category,'ru')||a.name.localeCompare(b.name,'ru'));
+    items.sort((a,b)=>a.tech.localeCompare(b.tech,'ru')||a.category.localeCompare(b.category,'ru')||Number(b.custom)-Number(a.custom)||a.name.localeCompare(b.name,'ru'));
     if(!items.length){container.innerHTML=`<div class="empty-state"><div class="empty-icon">${iconSvg('search')}</div>Услуги не найдены</div>`;return;}
-    const groups={};items.forEach(item=>(groups[item.tech]??=[]).push(item));
-    container.innerHTML=Object.entries(groups).map(([tech,services])=>`
+    const groups={};items.forEach(item=>((groups[item.tech]??={})[item.category]??=[]).push(item));
+    container.innerHTML=Object.entries(groups).map(([tech,categories])=>{
+        const total=Object.values(categories).reduce((sum,services)=>sum+services.length,0);
+        return `
         <section class="price-group">
-            <div class="price-group-title"><span class="device-icon">${techIconSvg(tech)}</span><span>${tech}<br><small style="color:var(--sub);font-weight:500;">${services.length} услуг</small></span></div>
-            ${services.map(service=>`<div class="price-row">
+            <div class="price-group-title"><span class="device-icon">${techIconSvg(tech)}</span><span>${tech}<br><small style="color:var(--sub);font-weight:500;">${total} услуг</small></span></div>
+            ${Object.entries(categories).sort(([a],[b])=>a.localeCompare(b,'ru')).map(([category,services])=>`<div class="price-category"><div class="price-category-title">${category}</div>${services.map(service=>`<div class="price-row">
                 <div class="price-row-copy"><b>${service.name}</b><small>${service.category}${service.custom?' · твоя услуга':' · базовая'}</small></div>
                 <span class="price-value">${U.money(service.price)}</span>
                 ${service.custom
                     ?`<button class="delete-icon-btn" onclick="deleteCustomService('${service.id}')" aria-label="Удалить услугу">${iconSvg('delete')}</button>`
                     :`<span class="price-tag" title="Базовая услуга">${iconSvg('lock')}</span>`}
-            </div>`).join('')}
+            </div>`).join('')}</div>`).join('')}
         </section>
-    `).join('');
+    `;}).join('');
 }
 
 function addCustomService(){
@@ -2472,9 +2837,11 @@ function toggleTheme(){
     const isLight=document.documentElement.dataset.theme==='light';
     if(!isLight){
         document.documentElement.dataset.theme='light';
+        document.documentElement.style.colorScheme='light';
         document.documentElement.style.setProperty('--bg','#f3f5f7');document.documentElement.style.setProperty('--card','#ffffff');document.documentElement.style.setProperty('--text','#20262c');document.documentElement.style.setProperty('--sub','#68727c');document.documentElement.style.setProperty('--input','#f7f8fa');document.documentElement.style.setProperty('--border','#d9dee3');
     }else{
         document.documentElement.dataset.theme='dark';
+        document.documentElement.style.colorScheme='dark';
         document.documentElement.style.setProperty('--bg','#090c0f');document.documentElement.style.setProperty('--card','#12171c');document.documentElement.style.setProperty('--text','#f2f4f6');document.documentElement.style.setProperty('--sub','#9098a1');document.documentElement.style.setProperty('--input','#171d22');document.documentElement.style.setProperty('--border','#293138');
     }
     localStorage.setItem('repair_theme',document.documentElement.dataset.theme);
@@ -2482,9 +2849,9 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:4,orders:DB.orders(),warehouse:DB.warehouse(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:5,orders:DB.orders(),warehouse:DB.warehouse(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`repair_${label}_${new Date().toISOString().split('T')[0]}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     localStorage.setItem('repair_last_backup',U.nowISO());updateBackupInfo();
 }
 
@@ -2496,7 +2863,7 @@ function quickBackup(){
 function maybeAutoBackup(){
     const s=DB.settings();if(s.autoBackup===false)return;
     const last=localStorage.getItem('repair_last_backup');
-    if(!last||Date.now()-new Date(last).getTime()>=7*86400000){downloadBackup('auto_backup');toast('🛡️ Еженедельный бэкап сохранён на телефон');}
+    if(!last||Date.now()-new Date(last).getTime()>=7*86400000){downloadBackup('auto');toast('🛡️ Еженедельный бэкап сохранён на телефон');}
 }
 
 function updateBackupInfo(){
@@ -2533,6 +2900,7 @@ function restoreFromFile(){
 function closeModal(){document.getElementById('modal-overlay').classList.remove('active');}
 document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.getElementById('service-modal-overlay').addEventListener('click',function(e){if(e.target===this)closeServiceModal();});
+document.getElementById('material-modal-overlay').addEventListener('click',function(e){if(e.target===this)closeMaterialModal();});
 
 function migrateStoredData(){
     // Старые версии выдавали складу и расходам номера заявок, из-за чего ID могли повторяться.
@@ -2542,7 +2910,17 @@ function migrateStoredData(){
         if(changed)DB.set(type,items);
     }
     const orders=DB.orders();let changed=false;
-    orders.forEach(o=>{if(o.status==='Закрыта'&&!o.completed){o.completed=o.created;changed=true;}});
+    orders.forEach(o=>{
+        if(o.status==='СД'){o.status='В работе';changed=true;}
+        if(o.status==='Закрыта'&&!o.completed){o.completed=o.created;changed=true;}
+        if(!Array.isArray(o.materials)&&o.materials!==undefined){o.materials=[];changed=true;}
+    });
+    const warehouse=DB.warehouse();let warehouseChanged=false;
+    warehouse.forEach(item=>{
+        if(!item.unit){item.unit='шт.';warehouseChanged=true;}
+        if(!item.tracking){item.tracking='exact';warehouseChanged=true;}
+    });
+    if(warehouseChanged)DB.saveWarehouse(warehouse);
     if(changed)DB.saveOrders(orders);
 }
 
@@ -2590,13 +2968,14 @@ async function initializeApp(){
     await DeviceBackup.restoreMissing();
     if(localStorage.getItem('repair_theme')==='light'){
         document.documentElement.dataset.theme='light';
+        document.documentElement.style.colorScheme='light';
         document.documentElement.style.setProperty('--bg','#f3f5f7');document.documentElement.style.setProperty('--card','#ffffff');document.documentElement.style.setProperty('--text','#20262c');document.documentElement.style.setProperty('--sub','#68727c');document.documentElement.style.setProperty('--input','#f7f8fa');document.documentElement.style.setProperty('--border','#d9dee3');
-    }
+    }else document.documentElement.style.colorScheme='dark';
     migrateStoredData();
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     setupDraftAutosave();
     ['orders','warehouse','expenses','incomes','service_custom','settings','draft'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
-    renderDraftBanner();
+    updateOrderDateFields();renderSelectedMaterials();renderDraftBanner();
     updateServiceCatalog();updateStorageInfo();renderOrders();renderClients();updateBackupInfo();
 }
 initializeApp();
