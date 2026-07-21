@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crm-romanychev-v8';
+const CACHE_NAME = 'crm-romanychev-v9';
 const urlsToCache = [
     './',
     './index.html',
