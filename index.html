@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CRM by Romanychev 😎</title>
-    
+
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="CRM by Romanychev">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#090c0f">
-    
+
     <style>
         :root {
             --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #f78166;
@@ -23,24 +23,24 @@
             --font-size: 14px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            max-width: 750px; margin: 0 auto; padding: 8px; 
-            font-size: var(--font-size); 
-            -webkit-tap-highlight-color: transparent; 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text);
+            max-width: 750px; margin: 0 auto; padding: 8px;
+            font-size: var(--font-size);
+            -webkit-tap-highlight-color: transparent;
         }
         .tabs { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 0 4px; flex-wrap: nowrap; border-bottom: 1px solid var(--border); }
-        .tab { 
-            padding: 8px 14px; 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            color: var(--sub); 
-            border-radius: 20px; 
-            cursor: pointer; 
-            font-size: 12px; 
-            white-space: nowrap; 
-            transition: 0.2s; 
+        .tab {
+            padding: 8px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--sub);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: 0.2s;
             font-weight: 500;
         }
         .tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
@@ -50,14 +50,14 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .form-group { margin-bottom: 8px; }
         label { display: block; font-size: 11px; color: var(--sub); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        input, textarea, select { 
-            width: 100%; padding: 10px 12px; 
-            background: var(--input); 
-            border: 1px solid var(--border); 
-            color: var(--text); 
-            border-radius: 8px; 
-            font-size: 14px; 
-            font-family: inherit; 
+        input, textarea, select {
+            width: 100%; padding: 10px 12px;
+            background: var(--input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
         }
         input::placeholder, textarea::placeholder {
             color: var(--sub);
@@ -67,18 +67,18 @@
         textarea { height: 55px; resize: vertical; font-size: 14px; }
         .row { display: flex; gap: 6px; }
         .row > * { flex: 1; }
-        button { 
-            padding: 10px 16px; 
-            background: var(--accent); 
-            border: none; 
-            color: #000; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.15s; 
-            width: 100%; 
-            margin: 3px 0; 
+        button {
+            padding: 10px 16px;
+            background: var(--accent);
+            border: none;
+            color: #000;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.15s;
+            width: 100%;
+            margin: 3px 0;
         }
         button:active { transform: scale(0.97); }
         .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
@@ -227,10 +227,60 @@
         .sum-display { font-size: 16px; font-weight: bold; text-align: center; padding: 10px; background: var(--input); border-radius: 8px; margin: 10px 0; }
         .sum-match { color: var(--green); }
         .sum-mismatch { color: var(--red); }
+        .receipt-lines-editor { display:flex; flex-direction:column; gap:7px; margin-top:8px; }
+        .receipt-line-editor { padding:10px; border:1px solid var(--border); border-radius:11px; background:var(--input); }
+        .receipt-line-editor .row { align-items:end; }
+        .receipt-line-editor .form-group { margin-bottom:0; min-width:0; }
+        .receipt-line-editor input,.receipt-line-editor select { min-height:42px; padding:9px 10px; font-size:12px; }
+        .receipt-line-editor .receipt-line-name { flex:2.2; }
+        .receipt-line-editor .receipt-line-qty { flex:.8; }
+        .receipt-line-editor .receipt-line-unit { flex:.85; }
+        .receipt-line-editor .receipt-line-price { flex:1; }
+        .receipt-line-meta { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; color:var(--sub); font-size:10px; }
+        .receipt-line-meta b { color:var(--accent); font-size:10px; text-transform:uppercase; letter-spacing:.4px; }
+        .receipt-remove { width:auto!important; min-width:32px; min-height:32px; margin:0!important; padding:6px!important; background:rgba(248,81,73,.09)!important; border:1px solid rgba(248,81,73,.25)!important; color:var(--red)!important; box-shadow:none!important; }
+        .receipt-total { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px; padding:11px 12px; border-radius:11px; background:var(--input); color:var(--text); font-size:14px; font-weight:750; }
+        .receipt-total b { color:var(--accent); font-size:18px; }
+        .receipt-price-row { display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+        .receipt-price-row:last-child { border-bottom:0; }
+        .receipt-price-copy { min-width:0; }
+        .receipt-price-copy b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:var(--text); }
+        .receipt-price-copy small { display:block; margin-top:2px; color:var(--sub); font-size:10px; }
+        .receipt-price-row input { width:105px; min-height:38px; padding:8px; font-size:12px; }
+        .receipt-price-row button { width:auto; min-width:36px; min-height:36px; margin:0; padding:7px; }
+        .receipt-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:10px; }
+        .receipt-preview-shell { margin-top:10px; padding:10px; border:1px dashed var(--border); border-radius:12px; background:var(--input); overflow:auto; }
+        .receipt-preview-shell .receipt-paper { margin:0 auto; transform-origin:top center; }
+        .receipt-paper { width:105mm; min-height:148mm; padding:7mm 6mm 6mm; box-sizing:border-box; background:#fff; color:#000; font-family:'Times New Roman',serif; font-size:10px; line-height:1.2; }
+        .receipt-paper * { color:#000; }
+        .receipt-paper .receipt-topline { display:flex; justify-content:space-between; gap:8px; min-height:12px; font-size:9px; }
+        .receipt-paper .receipt-company { max-width:58%; word-break:break-word; }
+        .receipt-paper .receipt-date { text-align:right; white-space:nowrap; }
+        .receipt-paper h2 { margin:8px 0 5px; text-align:center; font-size:15px; letter-spacing:.3px; }
+        .receipt-paper .receipt-ref { margin:0 0 5px; text-align:center; font-size:8px; }
+        .receipt-paper table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:9px; }
+        .receipt-paper th,.receipt-paper td { border:1px solid #000; padding:3px 2px; vertical-align:middle; word-wrap:break-word; }
+        .receipt-paper th { text-align:center; font-weight:700; }
+        .receipt-paper th:first-child,.receipt-paper td:first-child { width:49%; text-align:left; }
+        .receipt-paper th:nth-child(2),.receipt-paper td:nth-child(2) { width:14%; text-align:center; }
+        .receipt-paper th:nth-child(3),.receipt-paper td:nth-child(3) { width:18%; text-align:right; }
+        .receipt-paper th:nth-child(4),.receipt-paper td:nth-child(4) { width:19%; text-align:right; }
+        .receipt-paper .receipt-blank td { height:18px; }
+        .receipt-paper .receipt-grand { display:flex; justify-content:space-between; gap:8px; margin-top:7px; padding-top:5px; border-top:1px solid #000; font-weight:700; font-size:11px; }
+        .receipt-paper .receipt-footer { display:flex; align-items:flex-end; justify-content:space-between; gap:8px; min-height:33mm; margin-top:8px; }
+        .receipt-paper .receipt-stamp { display:flex; align-items:center; justify-content:center; width:27mm; height:27mm; border:1px solid #555; border-radius:50%; text-align:center; font-size:7px; line-height:1.05; padding:3mm; overflow:hidden; }
+        .receipt-paper .receipt-stamp img { max-width:100%; max-height:100%; object-fit:contain; }
+        .receipt-paper .receipt-signature { flex:1; align-self:flex-end; text-align:right; font-size:9px; }
+        .receipt-paper .receipt-signature img { display:block; max-width:35mm; max-height:16mm; margin:0 0 1mm auto; object-fit:contain; }
+        .receipt-paper .receipt-signature-line { display:inline-block; min-width:32mm; border-bottom:1px solid #000; height:12px; vertical-align:bottom; }
+        .receipt-paper .receipt-executor { margin-top:4px; font-size:8px; }
+        .receipt-settings-assets { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .receipt-asset-preview { display:block; max-width:100%; max-height:55px; margin-top:5px; border:1px solid var(--border); border-radius:7px; background:#fff; object-fit:contain; }
+        @media (max-width:440px) { .receipt-line-editor .row { display:grid; grid-template-columns:1.5fr .75fr .8fr; gap:6px; } .receipt-line-editor .receipt-line-name { grid-column:1 / -1; } .receipt-line-editor .receipt-line-price { grid-column:1 / span 2; } .receipt-paper { transform:scale(.82); transform-origin:top left; margin-right:-19%; margin-bottom:-25mm; } }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-        
+
         .act-container {
             background: #fff !important;
             color: #000 !important;
@@ -654,12 +704,12 @@
         .order-details .ui-icon { width:13px; height:13px; flex-shrink:0; }
         .address-link { color:#bca0ff; cursor:pointer; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .order-profit { color:#74da96; font-weight:650; }
-        .order-actions { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
+        .order-actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(58px,1fr)); gap:5px; padding-top:10px; border-top:1px solid rgba(255,255,255,.06); }
         .order-action { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-width:0; min-height:52px; margin:0; padding:5px 2px; color:var(--sub); background:#171d22; border:1px solid var(--border); border-radius:11px; box-shadow:none; }
         .order-action span { display:flex; align-items:center; justify-content:center; height:22px; line-height:1; }
         .order-action .ui-icon { width:20px; height:20px; stroke-width:2; }
         .order-action small { max-width:100%; font-size:8px; line-height:1.1; font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .order-action.edit span { color:var(--accent); }.order-action.status span { color:var(--green); }.order-action.copy span { color:var(--yellow); }.order-action.call span,.order-action.telegram span { color:var(--blue); }.order-action.map span { color:var(--purple); }.order-action.delete span { color:var(--red); }
+        .order-action.edit span { color:var(--accent); }.order-action.status span { color:var(--green); }.order-action.copy span { color:var(--yellow); }.order-action.call span,.order-action.telegram span { color:var(--blue); }.order-action.map span { color:var(--purple); }.order-action.receipt span { color:var(--purple); }.order-action.delete span { color:var(--red); }
         .order-card .photo-gallery { margin:0 0 6px; }
         .order-card .photo-thumb { width:58px; height:58px; border-radius:11px; border-width:1px; }
         .svg-sprite { position:absolute; width:0; height:0; overflow:hidden; pointer-events:none; }
@@ -775,6 +825,8 @@
     <symbol id="i-finance" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></symbol>
     <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5M4 19h17M7 15l3-4 3 2 5-7"/></symbol>
     <symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
     <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></symbol>
     <symbol id="i-price" viewBox="0 0 24 24"><path d="M4 4h8l8 8-8 8-8-8V4Z"/><circle cx="8" cy="8" r="1.4"/><path d="M11 14h5M13 11.5V17"/></symbol>
     <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 16.5-.7 3.2 3.2-.7L18.7 7.8a2.1 2.1 0 0 0-3-3L4 16.5Z"/><path d="m14.5 6 3.5 3.5"/></symbol>
@@ -831,7 +883,7 @@
         <div class="form-group"><label>Результат диагностики</label><textarea id="n-diagnosis" placeholder="Фактическая причина поломки..."></textarea></div>
         <div class="form-group"><label>Комментарий мастера</label><textarea id="n-comment" placeholder="Что сделано, важные нюансы, отказ от ремонта..."></textarea><div class="field-hint">Внутренняя заметка: не заменяет услуги и не попадает в акт автоматически.</div></div>
         <div class="form-group"><label>Внешние дефекты</label><input type="text" id="n-defects" placeholder="Царапины, сколы ДО ремонта"></div>
-        
+
         <div class="form-group"><label>Выбранные услуги</label>
             <button class="btn-center service-select-btn btn-outline" onclick="showServiceModal()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>Выбрать услуги из каталога</span></button>
             <div id="selected-services" style="margin-top:6px;font-size:13px;"></div>
@@ -848,7 +900,7 @@
                 <button type="button" class="btn-sm btn-outline" onclick="addManualMaterial()">Добавить материал</button>
             </details>
         </div>
-        
+
         <div class="row"><div class="form-group"><label>Итоговая сумма (₽)</label><input type="number" id="n-sum" placeholder="26000" inputmode="numeric" onblur="autoAdjustServices()"></div><div class="form-group"><label>Предоплата (₽)</label><input type="number" id="n-prepay" placeholder="0" inputmode="numeric"></div></div>
         <div class="row"><div class="form-group"><label>Скидка (₽)</label><input type="number" id="n-discount" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Гарантия (мес.)</label><input type="number" id="n-guarantee" placeholder="6" inputmode="numeric"></div></div>
         <div class="row"><div class="form-group"><label>Серые расходы</label><input type="number" id="n-gray" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Белые расходы</label><input type="number" id="n-white" placeholder="0" inputmode="numeric"></div></div>
@@ -900,13 +952,14 @@
 
 <!-- Дополнительные разделы -->
 <div id="page-more" class="page">
-    <div class="page-heading"><div><h1>Ещё</h1><p>Финансы, прайс и настройки</p></div></div>
+    <div class="page-heading"><div><h1>Ещё</h1><p>Финансы, документы, прайс и настройки</p></div></div>
     <div class="more-grid">
         <button class="more-item" onclick="switchTab('expenses')"><span class="more-icon green"><svg class="ui-icon"><use href="#i-finance"></use></svg></span><span><b>Финансы</b><small>Личные расходы вне заявок</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('shopping')"><span class="more-icon yellow"><svg class="ui-icon"><use href="#i-list"></use></svg></span><span><b>Список покупок</b><small>Позиции ниже минимального остатка</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('clients')"><span class="more-icon blue"><svg class="ui-icon"><use href="#i-users"></use></svg></span><span><b>Клиенты</b><small>История обращений и ремонтов</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('price')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-price"></use></svg></span><span><b>Прайс-лист</b><small>Каталог услуг и свои позиции</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('print')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Акт</b><small>Подготовка и печать документа</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
+        <button class="more-item" onclick="switchTab('receipts')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Товарные чеки</b><small>Чеки A6 из заявки или вручную</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('settings')"><span class="more-icon gray"><svg class="ui-icon"><use href="#i-settings"></use></svg></span><span><b>Настройки</b><small>Бэкапы и оформление приложения</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
     </div>
 </div>
@@ -962,10 +1015,93 @@
     </div>
 </div>
 
+<!-- Товарные чеки -->
+<div id="page-receipts" class="page">
+    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарные чеки</h1><p>Компактный формат A6</p></div></div>
+    <div class="card">
+        <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-printer"></use></svg></span>Новый документ</div>
+        <div class="row">
+            <button type="button" class="btn-purple" onclick="newReceipt()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Создать вручную</span></button>
+            <button type="button" class="btn-outline" onclick="newBlankReceipt()"><span class="button-label"><svg class="ui-icon"><use href="#i-file"></use></svg>Пустой бланк</span></button>
+            <button type="button" class="btn-outline" onclick="createReceiptFromSelectedOrder()"><span class="button-label"><svg class="ui-icon"><use href="#i-clipboard"></use></svg>Из закрытой заявки</span></button>
+        </div>
+        <div class="form-group" style="margin-top:7px;"><label>Закрытая заявка для автозаполнения</label><select id="receipt-order-source" onchange="previewReceiptSource()"><option value="">— Выберите заявку —</option></select></div>
+        <div class="field-hint">После создания строки чека становятся самостоятельной копией: изменения прайса и склада не меняют уже сохранённый документ.</div>
+    </div>
+
+    <div id="receipt-editor-card" class="card" style="display:none;">
+        <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-edit"></use></svg></span><span id="receipt-editor-title">Новый товарный чек</span></div>
+        <div class="row">
+            <div class="form-group"><label>Номер чека</label><input id="receipt-number" type="text" placeholder="ТЧ-2026-0001"></div>
+            <div class="form-group"><label>Дата</label><input id="receipt-date" type="date"></div>
+        </div>
+        <div class="row">
+            <div class="form-group"><label>Фирма</label><input id="receipt-company" type="text" placeholder="Название организации"></div>
+            <div class="form-group"><label>Исполнитель</label><input id="receipt-executor" type="text" placeholder="ФИО продавца / исполнителя"></div>
+        </div>
+        <div class="row">
+            <div class="form-group"><label>Адрес / реквизит фирмы</label><input id="receipt-company-address" type="text" placeholder="Необязательно"></div>
+            <div class="form-group"><label>ИНН / телефон</label><input id="receipt-company-details" type="text" placeholder="Необязательно"></div>
+        </div>
+        <div class="row">
+            <div class="form-group"><label>Покупатель</label><input id="receipt-client" type="text" placeholder="Необязательно"></div>
+            <div class="form-group"><label>Заявка / договор</label><input id="receipt-order-ref" type="text" placeholder="№0001"></div>
+        </div>
+        <div class="form-group"><label>Дополнительная отметка</label><input id="receipt-contract-ref" type="text" placeholder="Например, модель или номер договора"></div>
+
+        <div class="card-title" style="margin-top:9px;"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-list"></use></svg></span>Позиции</div>
+        <div id="receipt-lines-editor" class="receipt-lines-editor"></div>
+        <div class="row" style="align-items:end;margin-top:8px;">
+            <div class="form-group" style="flex:2.2;"><label>Новая позиция</label><input id="receipt-add-name" type="text" placeholder="Услуга или товар" onblur="suggestReceiptLinePrice()"></div>
+            <div class="form-group" style="flex:.8;"><label>Кол-во</label><input id="receipt-add-qty" type="number" min="0" step="0.001" value="1"></div>
+            <div class="form-group" style="flex:.85;"><label>Ед.</label><select id="receipt-add-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>мм</option><option>см</option><option>м</option><option>условно</option></select></div>
+        </div>
+        <div class="row" style="align-items:end;">
+            <div class="form-group" style="flex:1;"><label>Цена за единицу</label><input id="receipt-add-price" type="number" min="0" step="0.01" placeholder="0"></div>
+            <div class="form-group" style="flex:1;"><label>Тип</label><select id="receipt-add-kind"><option value="service">Услуга</option><option value="material">Товар / запчасть</option><option value="other">Другое</option></select></div>
+            <button type="button" class="btn-outline" style="flex:1;margin:0;" onclick="addReceiptLineFromForm()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить</span></button>
+        </div>
+        <div id="receipt-total" class="receipt-total"><span>Итого</span><b>0 ₽</b></div>
+        <div class="receipt-actions">
+            <button type="button" onclick="saveReceipt()"><span class="button-label"><svg class="ui-icon"><use href="#i-save"></use></svg>Сохранить чек</span></button>
+            <button type="button" class="btn-outline" onclick="saveReceiptLinePrices()"><span class="button-label"><svg class="ui-icon"><use href="#i-price"></use></svg>Запомнить цены</span></button>
+            <button type="button" class="btn-outline" onclick="previewReceiptDraft()"><span class="button-label"><svg class="ui-icon"><use href="#i-eye"></use></svg>Предпросмотр</span></button>
+            <button type="button" class="btn-outline" onclick="cancelReceiptEdit()">Отмена</button>
+        </div>
+        <div id="receipt-preview-shell" class="receipt-preview-shell" style="display:none;"><div id="receipt-preview"></div><button type="button" class="btn-purple" onclick="printReceiptDraft()"><span class="button-label"><svg class="ui-icon"><use href="#i-printer"></use></svg>Печатать чек</span></button></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-calendar"></use></svg></span>Сохранённые чеки</div>
+        <div id="receipts-list"></div>
+    </div>
+
+    <details class="card manual-material">
+        <summary><span class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-price"></use></svg></span>Цены для товарников</span></summary>
+        <div class="field-hint" style="margin-bottom:8px;">Это отдельный прайс только для новых чеков. Он не меняет прайс услуг, складскую себестоимость и старые документы.</div>
+        <div class="row"><div class="form-group"><label>Название</label><input id="receipt-price-name" type="text" placeholder="Например, клапан Шредера"></div><div class="form-group"><label>Цена</label><input id="receipt-price-value" type="number" min="0" step="0.01" placeholder="1500"></div></div>
+        <div class="row"><div class="form-group"><label>Единица</label><select id="receipt-price-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>мм</option><option>см</option><option>м</option><option>условно</option></select></div><div class="form-group"><label>Тип</label><select id="receipt-price-kind"><option value="service">Услуга</option><option value="material">Товар / запчасть</option><option value="other">Другое</option></select></div></div>
+        <div class="row"><button type="button" onclick="addReceiptPrice()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить цену</span></button><button type="button" class="btn-outline" onclick="seedReceiptServicePrices()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>Загрузить услуги</span></button></div>
+        <div class="search-box" style="margin-top:8px;"><input id="receipt-price-search" type="search" placeholder="Найти в прайсе товарников" oninput="renderReceiptPriceList()"></div>
+        <div id="receipt-price-list"></div>
+    </details>
+</div>
+
 <!-- Настройки -->
 <div id="page-settings" class="page">
     <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Настройки</h1><p>Персонализация и данные</p></div></div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-user"></use></svg></span>Исполнитель</div><div class="form-group"><label>ФИО</label><input type="text" id="set-name" value="Романычев Д.В."></div><div class="form-group"><label>ИНН</label><input type="text" id="set-inn" value="" placeholder="123456789012"></div><div class="form-group"><label>Телефон</label><input type="text" id="set-phone" value=""></div><button onclick="saveSettings()"><span class="button-label"><svg class="ui-icon"><use href="#i-save"></use></svg>Сохранить</span></button></div>
+    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-printer"></use></svg></span>Оформление товарного чека</div>
+        <div class="form-group"><label>Название фирмы</label><input type="text" id="set-company-name" placeholder="Название организации"></div>
+        <div class="form-group"><label>Адрес / реквизит фирмы</label><input type="text" id="set-company-address" placeholder="Необязательно"></div>
+        <div class="field-hint" style="margin-bottom:8px;">Галочки сохраняются в настройках и применяются к новым чекам. Внутри уже сохранённого чека оформление остаётся прежним.</div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-company" style="width:auto;">Показывать фирму и реквизит</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-executor" style="width:auto;">Показывать информацию об исполнителе</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-stamp" style="width:auto;">Показывать место для печати фирмы</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-signature" style="width:auto;">Показывать строку подписи продавца</label>
+        <div class="field-hint" style="margin-top:8px;">Печать и подпись в шаблоне — это фиксированное место для ручного заверения. Случайная подстановка или ротация изображений не используется.</div>
+        <button onclick="saveSettings()" style="margin-top:9px;"><span class="button-label"><svg class="ui-icon"><use href="#i-save"></use></svg>Сохранить оформление чеков</span></button>
+    </div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-theme"></use></svg></span>Оформление</div><button onclick="toggleTheme()"><span class="button-label"><svg class="ui-icon"><use href="#i-theme"></use></svg>Сменить тему</span></button></div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-save"></use></svg></span>Данные</div>
         <div class="settings-actions">
@@ -1040,7 +1176,9 @@ const DB = {
     expenses() { return this.get('expenses'); },
     incomes() { return this.get('incomes'); },
     customServices() { return this.get('service_custom'); },
-    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true, autoPriceAdjust:true}; },
+    receipts() { return this.get('receipts'); },
+    receiptPrices() { return this.get('receipt_prices'); },
+    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', companyName:'', companyAddress:'', autoBackup:true, autoPriceAdjust:true, receiptShowCompany:true, receiptShowExecutor:true, receiptShowStamp:false, receiptShowSignature:false}; },
     saveSettings(s) { this.set('settings', [s]); },
     saveOrders(d) { this.set('orders', d); },
     saveWarehouse(d) { this.set('warehouse', d); },
@@ -1048,6 +1186,8 @@ const DB = {
     saveExpenses(d) { this.set('expenses', d); },
     saveIncomes(d) { this.set('incomes', d); },
     saveCustomServices(d) { this.set('service_custom', d); },
+    saveReceipts(d) { this.set('receipts', d); },
+    saveReceiptPrices(d) { this.set('receipt_prices', d); },
     getStorageSize() {
         let total = 0;
         for (let key in localStorage) {
@@ -1082,7 +1222,7 @@ const DeviceBackup = {
     async restoreMissing() {
         try {
             const db = await this.open();
-            for (const key of ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','settings']) {
+            for (const key of ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','settings']) {
                 const raw=localStorage.getItem('repair_' + key);
                 let valid=raw!==null;
                 if(valid){try{JSON.parse(raw);}catch{valid=false;}}
@@ -1608,7 +1748,7 @@ const U = {
     time: (d) => new Date(d).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}),
     dateTime: (d) => {
         const dt = new Date(d);
-        return dt.toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + 
+        return dt.toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' +
                dt.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
     },
     toDateInput(d) {
@@ -1677,10 +1817,10 @@ const U = {
 };
 
 function toast(msg, isWarning = false) {
-    const t = document.createElement('div'); 
-    t.className = 'toast' + (isWarning ? ' toast-warning' : ''); 
+    const t = document.createElement('div');
+    t.className = 'toast' + (isWarning ? ' toast-warning' : '');
     t.textContent = msg;
-    document.body.appendChild(t); 
+    document.body.appendChild(t);
     setTimeout(()=>t.remove(), 2500);
 }
 
@@ -1703,7 +1843,7 @@ function switchTab(tab) {
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     const page=document.getElementById('page-'+tab);if(!page)return;
     page.classList.add('active');
-    const secondary=['expenses','clients','price','print','settings'];
+    const secondary=['expenses','clients','price','print','receipts','settings'];
     const navTab=tab==='new'?'orders':(tab==='shopping'?'warehouse':(secondary.includes(tab)?'more':tab));
     document.querySelectorAll('.nav-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===navTab));
     if(tab==='orders')renderOrders();
@@ -1714,6 +1854,7 @@ function switchTab(tab) {
     if(tab==='clients')renderClients();
     if(tab==='price')renderPriceList();
     if(tab==='print')renderPrintSelect();
+    if(tab==='receipts')renderReceipts();
     if(tab==='settings'){loadSettings();updateStorageInfo();}
     window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2217,18 +2358,18 @@ function updateServiceSumDisplay(){
 function applyServices(){
     const targetSum = parseInt(document.getElementById('n-sum').value) || 0;
     if(selectedServices.length === 0){closeServiceModal();return;}
-    
+
     if(targetSum > 0){
         const totalBase = selectedServices.reduce((s,ss) => s + ss.price, 0);
         if(totalBase > 0 && totalBase !== targetSum){
             const ratio = targetSum / totalBase;
-            
+
             selectedServices.forEach((ss, i) => {
                 if(i < selectedServices.length - 1){
                     ss.price = Math.round(ss.price * ratio);
                 }
             });
-            
+
             let roundedTotal = 0;
             selectedServices.forEach((ss, i) => {
                 if(i < selectedServices.length - 1){
@@ -2236,7 +2377,7 @@ function applyServices(){
                     roundedTotal += ss.price;
                 }
             });
-            
+
             let diff = targetSum - roundedTotal;
             let lastPrice = Math.round(diff);
             if (lastPrice < 100 && lastPrice > 0) {
@@ -2246,7 +2387,7 @@ function applyServices(){
             } else if (lastPrice > 0) {
                 lastPrice = Math.round(lastPrice / 100) * 100;
             }
-            
+
             if (lastPrice <= 0 && selectedServices.length > 1) {
                 let remaining = diff;
                 for (let i = selectedServices.length - 2; i >= 0; i--) {
@@ -2258,11 +2399,11 @@ function applyServices(){
                 }
                 lastPrice = Math.max(0, remaining);
             }
-            
+
             if (selectedServices.length > 0) {
                 selectedServices[selectedServices.length - 1].price = Math.max(0, lastPrice);
             }
-            
+
             let finalTotal = selectedServices.reduce((s,ss) => s + ss.price, 0);
             if (finalTotal !== targetSum) {
                 const adjust = targetSum - finalTotal;
@@ -2275,16 +2416,16 @@ function applyServices(){
             }
         }
     }
-    
+
     const container = document.getElementById('selected-services');
-    container.innerHTML = selectedServices.map(s => 
+    container.innerHTML = selectedServices.map(s =>
         `<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`
     ).join('');
-    
+
     const totalAfter = selectedServices.reduce((s,ss) => s + ss.price, 0);
-    document.getElementById('services-total-display').innerHTML = 
+    document.getElementById('services-total-display').innerHTML =
         `Итого услуг: <b>${U.money(totalAfter)}</b> ${targetSum > 0 ? `| ${totalAfter === targetSum ? 'Совпадает' : 'Разница: ' + U.money(targetSum - totalAfter)}` : ''}`;
-    
+
     if(!document.getElementById('n-issue').value.trim()){
         document.getElementById('n-issue').value = selectedServices.map(s => s.name).join(', ');
     }
@@ -2399,7 +2540,7 @@ function saveOrder(){
     const phone=document.getElementById('n-phone').value.trim().replace(/[^0-9+]/g, '');
     if(!name){alert('❌ Имя обязательно!');return;}
     if(!phone || phone.length < 10){alert('❌ Введите корректный номер телефона!');return;}
-    
+
     const existing=editingId?DB.orders().find(order=>order.id===editingId):null;
     const id = editingId || U.orderId();
     const sum = parseInt(document.getElementById('n-sum').value) || 0;
@@ -2408,7 +2549,7 @@ function saveOrder(){
     const status=document.getElementById('n-status').value;
     const created=U.dateInputToISO(document.getElementById('n-created-date').value,existing?.created||U.nowISO());
     const completed=status==='Закрыта'?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
-    
+
     if(gray > sum){
         toast('⚠️ Серые расходы не могут превышать сумму заявки!', true);
         return;
@@ -2421,7 +2562,7 @@ function saveOrder(){
         toast('⚠️ Дата закрытия не может быть раньше даты создания',true);
         return;
     }
-    
+
     const order={
         id: id,
         name, phone,
@@ -2564,7 +2705,7 @@ let orderFilter='all';
 
 function iconSvg(name){
     const aliases={delete:'trash'};
-    const allowed=new Set(['edit','check','reopen','copy','phone','telegram','trash','map','box','warehouse','plus','minus','user','users','folder','diamond','shield','calendar','lock','price','printer','finance','chart','clipboard','list','save','refresh','download','upload','compress','wrench','search','alert']);
+    const allowed=new Set(['edit','check','reopen','copy','phone','telegram','trash','map','box','warehouse','plus','minus','user','users','folder','diamond','shield','calendar','lock','price','printer','eye','file','finance','chart','clipboard','list','save','refresh','download','upload','compress','wrench','search','alert']);
     const icon=aliases[name]||name;
     return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${allowed.has(icon)?icon:'wrench'}"></use></svg>`;
 }
@@ -2659,6 +2800,7 @@ function renderOrders(){
                 <button class="order-action edit" onclick="editOrder('${o.id}')"><span>${iconSvg('edit')}</span><small>Изменить</small></button>
                 <button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg(inWork?'check':'reopen')}</span><small>${inWork?'Закрыть':'В работу'}</small></button>
                 <button class="order-action copy" onclick="duplicateOrder('${o.id}')"><span>${iconSvg('copy')}</span><small>Копия</small></button>
+                ${!inWork?`<button class="order-action receipt" onclick="createReceiptFromOrder('${o.id}')"><span>${iconSvg('printer')}</span><small>Товарник</small></button>`:''}
                 <button class="order-action call" onclick="callPhone('${o.phone}')"><span>${iconSvg('phone')}</span><small>Позвонить</small></button>
                 <button class="order-action telegram" onclick="messageTelegram('${o.phone}')"><span>${iconSvg('telegram')}</span><small>Telegram</small></button>
                 <button class="order-action delete" onclick="deleteOrder('${o.id}')"><span>${iconSvg('delete')}</span><small>Удалить</small></button>
@@ -2950,7 +3092,7 @@ function renderStats(period){
     const otherExp=DB.expenses().filter(e=>isActiveExpense(e)&&e.date>=from&&e.date<=to).reduce((s,e)=>s+e.amount,0);
     const netProfit=profit-otherExp;
     const avgCheck = closed.length > 0 ? Math.round(revenue / closed.length) : 0;
-    
+
     const techStats = {};
     closed.forEach(o => {
         if(o.tech){
@@ -2970,7 +3112,7 @@ function renderStats(period){
             `).join('')}
         </div>`;
     }
-    
+
     let chartHtml = '';
     if (closed.length > 0) {
         const days = {};
@@ -2996,7 +3138,7 @@ function renderStats(period){
             </div>
         </div>`;
     }
-    
+
     document.getElementById('stats-container').innerHTML=`
         <div class="stat-card">
             <div class="stat-grid">
@@ -3037,18 +3179,18 @@ function renderClients(){
             clients[o.phone].count++;
         }
     });
-    
+
     const search=(document.getElementById('search-clients')?.value||'').toLowerCase();
     let list=Object.values(clients);
     if(search) list=list.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
     list.sort((a,b) => b.total - a.total);
-    
+
     const container=document.getElementById('clients-container');
     if(!list.length){
         container.innerHTML=`<div class="empty-state"><div class="empty-icon">${iconSvg('users')}</div>Нет клиентов</div>`;
         return;
     }
-    
+
     container.innerHTML=list.map(c => `
         <div class="card client-card" onclick="openClientCard('${c.phone}')">
             <span class="client-avatar">${iconSvg('user')}</span>
@@ -3066,17 +3208,17 @@ function openOrderFromClient(event,id){
 function openClientCard(phone){
     const orders = DB.orders().filter(o => o.phone === phone);
     if(!orders.length) return;
-    
+
     const client = {
         name: orders[0].name,
         phone: phone,
         address: orders[0].address || '—'
     };
-    
+
     const closed = orders.filter(o => o.status === 'Закрыта');
     const totalSum = closed.reduce((s,o) => s + U.finalAmount(o), 0);
     const avgCheck = closed.length > 0 ? Math.round(totalSum / closed.length) : 0;
-    
+
     let ordersHtml = '';
     if(orders.length) {
         ordersHtml = orders.map(o => `
@@ -3094,7 +3236,7 @@ function openClientCard(phone){
     } else {
         ordersHtml = '<div class="empty-state" style="padding:20px;">Нет заявок</div>';
     }
-    
+
     const modalHtml = `
         <div class="client-modal-head">
             <div class="client-modal-title"><span class="client-avatar">${iconSvg('user')}</span><h3>${client.name}</h3></div>
@@ -3106,7 +3248,7 @@ function openClientCard(phone){
             </div>
         </div>
         <div class="contact-line"><span>${iconSvg('phone')}${client.phone}</span>${client.address !== '—' ? `<span>${iconSvg('map')}${client.address}</span>` : ''}</div>
-        
+
         <div class="client-stat-grid">
             <div class="client-stat-item">
                 <div class="num">${orders.length}</div>
@@ -3121,16 +3263,16 @@ function openClientCard(phone){
                 <div class="label">Средний чек</div>
             </div>
         </div>
-        
+
         <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:bold;margin:12px 0 6px;">${iconSvg('clipboard')} История ремонтов</div>
         ${ordersHtml}
-        
+
         <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
             <button class="btn-sm btn-yellow" onclick="createOrderForClient('${client.phone}','${client.name}')" style="flex:1;"><span class="button-label">${iconSvg('plus')}Новая заявка</span></button>
             <button class="btn-sm btn-outline" onclick="closeModal()" style="flex:1;">Закрыть</button>
         </div>
     `;
-    
+
     document.getElementById('modal-content').innerHTML = modalHtml;
     document.getElementById('modal-overlay').classList.add('active');
 }
@@ -3152,6 +3294,265 @@ function createOrderForClient(phone, name){
     toast('📝 Создайте новую заявку для клиента');
 }
 
+// ==================== ТОВАРНЫЕ ЧЕКИ ====================
+// Чек хранит самостоятельный снимок строк и цен. После сохранения он не
+// пересчитывается от прайса, склада или изменений в заявке.
+let receiptDraft=null;
+let receiptEditingId=null;
+const RECEIPT_KIND_LABELS={service:'Услуга',material:'Товар / запчасть',other:'Другое'};
+
+function receiptKindLabel(kind){return RECEIPT_KIND_LABELS[kind]||RECEIPT_KIND_LABELS.other;}
+function receiptNameKey(name){return String(name||'').trim().toLowerCase().replace(/\s+/g,' ');}
+function receiptPriceFor(name,kind,unit,fallback=0){
+    const key=receiptNameKey(name),wantedUnit=canonicalUnit(unit||'шт.');
+    if(!key)return Number(fallback)||0;
+    const prices=DB.receiptPrices();
+    const exact=prices.find(item=>receiptNameKey(item.name)===key&&item.kind===kind&&canonicalUnit(item.unit||'шт.')===wantedUnit);
+    const sameKind=prices.find(item=>receiptNameKey(item.name)===key&&item.kind===kind);
+    const any=prices.find(item=>receiptNameKey(item.name)===key);
+    const hit=exact||sameKind||any;
+    return hit?Number(hit.price)||0:Number(fallback)||0;
+}
+function nextReceiptNumber(){
+    const year=new Date().getFullYear(),prefix=`ТЧ-${year}-`;
+    const max=DB.receipts().reduce((value,item)=>{const match=String(item.number||'').match(new RegExp('^'+prefix+'(\\d+)$'));return match?Math.max(value,Number(match[1])||0):value;},0);
+    return prefix+String(max+1).padStart(4,'0');
+}
+function receiptDateLabel(value){
+    const raw=String(value||'');
+    const match=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return match?`${match[3]}.${match[2]}.${match[1]}`:(value?U.date(value):'');
+}
+function receiptLineTotal(line){
+    const qty=String(line?.qty??'').trim()===''?1:(Number(line.qty)||0);
+    return Math.max(0,qty)*(Number(line?.price)||0);
+}
+function receiptTotal(receipt){return (receipt?.lines||[]).reduce((sum,line)=>sum+receiptLineTotal(line),0);}
+function normaliseReceiptLine(line){
+    const item=line||{};
+    return {id:item.id||U.uid(),name:String(item.name||'').trim(),qty:item.qty===undefined||item.qty===null?'1':String(item.qty),unit:canonicalUnit(item.unit||'шт.'),price:Math.max(0,Number(item.price)||0),kind:RECEIPT_KIND_LABELS[item.kind]?item.kind:'other'};
+}
+function receiptSettingsSnapshot(){
+    const settings=DB.settings();
+    return {showCompany:settings.receiptShowCompany!==false,showExecutor:settings.receiptShowExecutor!==false,showStamp:Boolean(settings.receiptShowStamp),showSignature:Boolean(settings.receiptShowSignature)};
+}
+function receiptLinesFromOrder(order){
+    const lines=[];
+    (order?.services||[]).forEach(service=>{
+        const qty=service.qty===undefined||service.qty===null?'1':String(service.qty);
+        lines.push(normaliseReceiptLine({name:service.name,qty,unit:'шт.',price:receiptPriceFor(service.name,'service','шт.',service.price),kind:'service'}));
+    });
+    (order?.materials||[]).forEach(materialRaw=>{
+        const material=normaliseMaterial(materialRaw),unit=canonicalUnit(material.unit||'шт.');
+        const qty=String(material.qty||'').trim()===''?'1':String(material.qty);
+        lines.push(normaliseReceiptLine({name:material.name,qty,unit,price:receiptPriceFor(material.name,'material',unit,0),kind:'material'}));
+    });
+    return lines;
+}
+function newReceipt(){
+    const settings=DB.settings();
+    receiptEditingId=null;
+    receiptDraft={id:null,number:nextReceiptNumber(),date:U.toDateInput(),company:settings.companyName||'',executor:settings.name||'',companyAddress:settings.companyAddress||'',companyDetails:[settings.inn,settings.phone].filter(Boolean).join(' · '),client:'',orderRef:'',contractRef:'',lines:[],...receiptSettingsSnapshot(),createdAt:U.nowISO(),updatedAt:U.nowISO()};
+    openReceiptEditor();
+}
+function newBlankReceipt(){
+    newReceipt();
+    previewReceiptDraft();
+    toast('📝 Пустой бланк готов для ручного заполнения');
+}
+function createReceiptFromSelectedOrder(){
+    const id=document.getElementById('receipt-order-source')?.value;
+    if(!id){toast('❌ Выбери закрытую заявку',true);return;}
+    createReceiptFromOrder(id);
+}
+function createReceiptFromOrder(orderId){
+    const order=DB.orders().find(item=>String(item.id)===String(orderId));
+    if(!order){toast('❌ Заявка не найдена',true);return;}
+    if(order.status!=='Закрыта'){toast('⚠️ Товарный чек создаётся из закрытой заявки',true);return;}
+    const settings=DB.settings();
+    receiptEditingId=null;
+    receiptDraft={id:null,number:nextReceiptNumber(),date:U.toDateInput(order.completed||order.created),company:settings.companyName||'',executor:settings.name||'',companyAddress:settings.companyAddress||'',companyDetails:[settings.inn,settings.phone].filter(Boolean).join(' · '),client:order.name||'',orderRef:U.formatOrderId(order.id),contractRef:U.formatOrderId(order.id),lines:receiptLinesFromOrder(order),sourceOrderId:order.id,...receiptSettingsSnapshot(),createdAt:U.nowISO(),updatedAt:U.nowISO()};
+    switchTab('receipts');
+    openReceiptEditor();
+    toast(`🧾 Чек подготовлен из ${U.formatOrderId(order.id)}`);
+}
+function previewReceiptSource(){
+    const id=document.getElementById('receipt-order-source')?.value;
+    const order=DB.orders().find(item=>String(item.id)===String(id));
+    const field=document.getElementById('receipt-order-source');
+    if(field&&order)field.title=`${order.name||''} · ${U.finalAmount(order).toLocaleString('ru-RU')} ₽`;
+}
+function openReceiptEditor(){
+    const card=document.getElementById('receipt-editor-card');if(!card||!receiptDraft)return;
+    card.style.display='block';
+    document.getElementById('receipt-editor-title').textContent=receiptEditingId?'Редактирование товарного чека':'Новый товарный чек';
+    document.getElementById('receipt-number').value=receiptDraft.number||'';
+    document.getElementById('receipt-date').value=receiptDraft.date||U.toDateInput();
+    document.getElementById('receipt-company').value=receiptDraft.company||'';
+    document.getElementById('receipt-executor').value=receiptDraft.executor||'';
+    document.getElementById('receipt-company-address').value=receiptDraft.companyAddress||'';
+    document.getElementById('receipt-company-details').value=receiptDraft.companyDetails||'';
+    document.getElementById('receipt-client').value=receiptDraft.client||'';
+    document.getElementById('receipt-order-ref').value=receiptDraft.orderRef||'';
+    document.getElementById('receipt-contract-ref').value=receiptDraft.contractRef||'';
+    document.getElementById('receipt-preview-shell').style.display='none';
+    renderReceiptLines();
+    card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function syncReceiptDraftFromForm(){
+    if(!receiptDraft)return null;
+    receiptDraft.number=document.getElementById('receipt-number')?.value.trim()||receiptDraft.number||nextReceiptNumber();
+    receiptDraft.date=document.getElementById('receipt-date')?.value||U.toDateInput();
+    receiptDraft.company=document.getElementById('receipt-company')?.value.trim()||'';
+    receiptDraft.executor=document.getElementById('receipt-executor')?.value.trim()||'';
+    receiptDraft.companyAddress=document.getElementById('receipt-company-address')?.value.trim()||'';
+    receiptDraft.companyDetails=document.getElementById('receipt-company-details')?.value.trim()||'';
+    receiptDraft.client=document.getElementById('receipt-client')?.value.trim()||'';
+    receiptDraft.orderRef=document.getElementById('receipt-order-ref')?.value.trim()||'';
+    receiptDraft.contractRef=document.getElementById('receipt-contract-ref')?.value.trim()||'';
+    return receiptDraft;
+}
+function updateReceiptLine(index,key,value){
+    if(!receiptDraft?.lines?.[index])return;
+    if(key==='price')receiptDraft.lines[index].price=Math.max(0,Number(value)||0);
+    else if(key==='qty')receiptDraft.lines[index].qty=value;
+    else if(key==='unit')receiptDraft.lines[index].unit=canonicalUnit(value);
+    else if(key==='kind')receiptDraft.lines[index].kind=RECEIPT_KIND_LABELS[value]?value:'other';
+    else receiptDraft.lines[index].name=String(value||'').trim();
+    renderReceiptLines();
+    if(document.getElementById('receipt-preview-shell')?.style.display!=='none')previewReceiptDraft();
+}
+function removeReceiptLine(index){if(!receiptDraft?.lines)return;receiptDraft.lines.splice(index,1);renderReceiptLines();}
+function renderReceiptLines(){
+    const container=document.getElementById('receipt-lines-editor');if(!container||!receiptDraft)return;
+    if(!receiptDraft.lines.length){container.innerHTML='<div class="empty-state" style="padding:18px 8px;">Добавь услуги или товары в чек</div>';updateReceiptTotal();return;}
+    const units=ALL_UNITS;
+    container.innerHTML=receiptDraft.lines.map((line,index)=>{
+        const item=normaliseReceiptLine(line);receiptDraft.lines[index]=item;
+        return `<div class="receipt-line-editor"><div class="receipt-line-meta"><b>${receiptKindLabel(item.kind)}</b><button type="button" class="receipt-remove" onclick="removeReceiptLine(${index})" aria-label="Удалить строку">${iconSvg('delete')}</button></div><div class="row"><div class="form-group receipt-line-name"><label>Наименование</label><input type="text" value="${escapeHtml(item.name)}" onchange="updateReceiptLine(${index},'name',this.value)"></div><div class="form-group receipt-line-qty"><label>Кол-во</label><input type="number" min="0" step="0.001" value="${escapeHtml(item.qty)}" onchange="updateReceiptLine(${index},'qty',this.value)"></div><div class="form-group receipt-line-unit"><label>Ед.</label><select onchange="updateReceiptLine(${index},'unit',this.value)">${units.map(unit=>`<option value="${unit}" ${canonicalUnit(item.unit)===canonicalUnit(unit)?'selected':''}>${unit}</option>`).join('')}</select></div><div class="form-group receipt-line-price"><label>Цена</label><input type="number" min="0" step="0.01" value="${Number(item.price)||0}" onchange="updateReceiptLine(${index},'price',this.value)"></div></div></div>`;
+    }).join('');
+    updateReceiptTotal();
+}
+function updateReceiptTotal(){
+    const el=document.getElementById('receipt-total');if(!el)return;
+    const total=receiptTotal(receiptDraft);el.innerHTML=`<span>Итого</span><b>${U.money(total)}</b>`;
+}
+function suggestReceiptLinePrice(){
+    const name=document.getElementById('receipt-add-name')?.value.trim();if(!name)return;
+    const kind=document.getElementById('receipt-add-kind')?.value||'service',unit=document.getElementById('receipt-add-unit')?.value||'шт.',price=receiptPriceFor(name,kind,unit,0),field=document.getElementById('receipt-add-price');
+    if(field&&!field.value&&price>0)field.value=price;
+}
+function addReceiptLineFromForm(){
+    if(!receiptDraft){newReceipt();}
+    const name=document.getElementById('receipt-add-name')?.value.trim();if(!name){toast('❌ Укажи название позиции',true);return;}
+    const kind=document.getElementById('receipt-add-kind')?.value||'other',unit=canonicalUnit(document.getElementById('receipt-add-unit')?.value||'шт.'),qty=document.getElementById('receipt-add-qty')?.value||'1';
+    const entered=document.getElementById('receipt-add-price')?.value,price=entered===''?receiptPriceFor(name,kind,unit,0):Math.max(0,Number(entered)||0);
+    receiptDraft.lines.push(normaliseReceiptLine({name,kind,unit,qty,price}));
+    document.getElementById('receipt-add-name').value='';document.getElementById('receipt-add-price').value='';document.getElementById('receipt-add-qty').value='1';
+    renderReceiptLines();
+}
+function saveReceiptLinePrices(){
+    if(!receiptDraft)return;
+    const prices=DB.receiptPrices();
+    receiptDraft.lines.forEach(line=>{
+        const item=normaliseReceiptLine(line);if(!item.name||item.price<=0)return;
+        const existing=prices.find(price=>receiptNameKey(price.name)===receiptNameKey(item.name)&&price.kind===item.kind&&canonicalUnit(price.unit||'шт.')===item.unit);
+        if(existing){existing.price=item.price;existing.updatedAt=U.nowISO();}
+        else prices.unshift({id:U.uid(),name:item.name,kind:item.kind,unit:item.unit,price:item.price,updatedAt:U.nowISO()});
+    });
+    DB.saveReceiptPrices(prices);renderReceiptPriceList();toast('✅ Цены сохранены для новых чеков');
+}
+function saveReceipt(){
+    const draft=syncReceiptDraftFromForm();if(!draft)return;
+    if(!draft.number){toast('❌ Укажи номер чека',true);return;}
+    if(!draft.lines.length){toast('❌ Добавь хотя бы одну позицию',true);return;}
+    if(DB.receipts().some(item=>item.number===draft.number&&item.id!==receiptEditingId)){toast('❌ Такой номер чека уже есть',true);return;}
+    const now=U.nowISO(),doc={...JSON.parse(JSON.stringify(draft)),id:receiptEditingId||U.uid(),createdAt:draft.createdAt||now,updatedAt:now,lines:draft.lines.map(normaliseReceiptLine)};
+    const receipts=DB.receipts(),index=receipts.findIndex(item=>item.id===doc.id);
+    if(index>=0)receipts[index]=doc;else receipts.unshift(doc);
+    DB.saveReceipts(receipts);receiptEditingId=doc.id;receiptDraft=JSON.parse(JSON.stringify(doc));renderReceiptList();openReceiptEditor();toast('✅ Товарный чек сохранён');maybeAutoBackup();
+}
+function cancelReceiptEdit(){receiptDraft=null;receiptEditingId=null;const card=document.getElementById('receipt-editor-card');if(card)card.style.display='none';const preview=document.getElementById('receipt-preview-shell');if(preview)preview.style.display='none';}
+function editReceipt(id){
+    const doc=DB.receipts().find(item=>item.id===id);if(!doc)return;
+    receiptEditingId=id;receiptDraft=JSON.parse(JSON.stringify(doc));openReceiptEditor();
+}
+function deleteReceipt(id){
+    const receipts=DB.receipts(),index=receipts.findIndex(item=>item.id===id);if(index<0)return;
+    if(!confirm('Удалить сохранённый товарный чек?'))return;
+    const removed=receipts.splice(index,1)[0];DB.saveReceipts(receipts);if(receiptEditingId===id)cancelReceiptEdit();renderReceiptList();maybeAutoBackup();
+    showUndo('Товарный чек удалён',()=>{const restored=DB.receipts();restored.splice(Math.min(index,restored.length),0,removed);DB.saveReceipts(restored);renderReceiptList();maybeAutoBackup();});
+}
+function renderReceiptOrderSource(){
+    const select=document.getElementById('receipt-order-source');if(!select)return;
+    const current=select.value,orders=DB.orders().filter(order=>order.status==='Закрыта').sort((a,b)=>new Date(b.completed||b.created)-new Date(a.completed||a.created));
+    select.innerHTML='<option value="">— Выберите заявку —</option>'+orders.map(order=>`<option value="${escapeHtml(order.id)}">${escapeHtml(U.formatOrderId(order.id))} · ${escapeHtml(order.name||'Без имени')} · ${escapeHtml(order.tech||'Техника')} · ${U.money(U.finalAmount(order))}</option>`).join('');
+    if(orders.some(order=>String(order.id)===String(current)))select.value=current;
+}
+function renderReceiptList(){
+    renderReceiptOrderSource();
+    const container=document.getElementById('receipts-list');if(!container)return;
+    const receipts=DB.receipts().slice().sort((a,b)=>new Date(b.updatedAt||b.date||0)-new Date(a.updatedAt||a.date||0));
+    if(!receipts.length){container.innerHTML='<div class="empty-state" style="padding:20px 8px;">Сохранённых чеков пока нет</div>';return;}
+    container.innerHTML=receipts.map(doc=>`<div class="table-row" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;"><div><b>${escapeHtml(doc.number||'Без номера')}</b><small style="display:block;color:var(--sub);margin-top:3px;">${receiptDateLabel(doc.date)}${doc.client?` · ${escapeHtml(doc.client)}`:''} · ${doc.lines?.length||0} поз.</small><strong style="display:block;margin-top:3px;color:var(--accent);">${U.money(receiptTotal(doc))}</strong></div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"><button type="button" class="btn-xs btn-outline" onclick="editReceipt('${doc.id}')">${iconSvg('edit')}</button><button type="button" class="btn-xs btn-purple" onclick="printReceiptById('${doc.id}')">${iconSvg('printer')}</button><button type="button" class="btn-xs btn-red" onclick="deleteReceipt('${doc.id}')">${iconSvg('delete')}</button></div></div>`).join('');
+}
+function renderReceipts(){renderReceiptList();renderReceiptPriceList();}
+function receiptPaperHtml(doc){
+    const source=doc||{};
+    const lines=(source.lines||[]).map(normaliseReceiptLine);
+    const rows=lines.map(line=>`<tr><td>${escapeHtml(line.name||'—')}</td><td>${String(line.qty||'').trim()?`${escapeHtml(formatQuantity(line.qty))} ${escapeHtml(line.unit)}`:''}</td><td>${formatReceiptNumber(line.price)}</td><td>${formatReceiptNumber(receiptLineTotal(line))}</td></tr>`);
+    while(rows.length<6)rows.push('<tr class="receipt-blank"><td>&nbsp;</td><td></td><td></td><td></td></tr>');
+    const company=source.company||'';
+    const companyExtra=[source.companyAddress,source.companyDetails].filter(Boolean).map(value=>escapeHtml(value)).join(' · ');
+    const companyBlock=source.showCompany?`<div class="receipt-company"><b>Фирма:</b> ${escapeHtml(company||'________________')}${companyExtra?`<div class="receipt-executor">${companyExtra}</div>`:''}</div>`:'';
+    const executor=source.showExecutor?`<div class="receipt-executor">Исполнитель: ${escapeHtml(source.executor||'________________')}</div>`:'';
+    const refs=[source.client?`Покупатель: ${escapeHtml(source.client)}`:'',source.orderRef?`Заявка/договор: ${escapeHtml(source.orderRef)}`:'',source.contractRef&&source.contractRef!==source.orderRef?escapeHtml(source.contractRef):''].filter(Boolean).join(' · ');
+    const stamp=source.showStamp?`<div class="receipt-stamp"><span>ПЕЧАТЬ<br>${escapeHtml(company||'ФИРМА')}<br>${source.showExecutor?escapeHtml(source.executor||''):''}</span></div>`:'<div style="width:27mm;height:27mm;"></div>';
+    const signature=source.showSignature?`<div class="receipt-signature"><div><span class="receipt-signature-line"></span></div><div>Подпись продавца</div>${source.showExecutor?`<div class="receipt-executor">${escapeHtml(source.executor||'')}</div>`:''}</div>`:'<div></div>';
+    return `<div class="receipt-paper"><div class="receipt-topline">${companyBlock}<div class="receipt-date">Дата «${receiptDateLabel(source.date)||'__' }»</div></div>${executor}<h2>ТОВАРНЫЙ ЧЕК</h2>${refs?`<div class="receipt-ref">${refs}</div>`:''}<table><thead><tr><th>Наименование товара</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead><tbody>${rows.join('')}</tbody></table><div class="receipt-grand"><span>Всего:</span><span>${formatReceiptNumber(receiptTotal(source))} ₽</span></div><div class="receipt-footer">${stamp}${signature}</div></div>`;
+}
+function formatReceiptNumber(value){return (Number(value)||0).toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2});}
+function previewReceiptDraft(){
+    const draft=syncReceiptDraftFromForm();if(!draft)return;
+    const shell=document.getElementById('receipt-preview-shell');if(!shell)return;
+    document.getElementById('receipt-preview').innerHTML=receiptPaperHtml(draft);shell.style.display='block';updateReceiptTotal();
+}
+function printReceiptDraft(){
+    const draft=syncReceiptDraftFromForm();if(!draft)return;
+    printReceiptDocument(draft);
+}
+function printReceiptById(id){const doc=DB.receipts().find(item=>item.id===id);if(doc)printReceiptDocument(doc);}
+function printReceiptDocument(doc){
+    const win=window.open('','_blank','width=500,height=700');
+    if(!win){toast('⚠️ Разреши всплывающие окна для печати',true);return;}
+    win.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>${escapeHtml(doc.number||'Товарный чек')}</title><style>@page{size:A6 portrait;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000}body{width:105mm;min-height:148mm}.receipt-paper{width:105mm;min-height:148mm;padding:7mm 6mm 6mm;box-sizing:border-box;background:#fff;color:#000;font-family:'Times New Roman',serif;font-size:10px;line-height:1.2}.receipt-paper *{color:#000}.receipt-paper .receipt-topline{display:flex;justify-content:space-between;gap:8px;min-height:12px;font-size:9px}.receipt-paper .receipt-company{max-width:58%;word-break:break-word}.receipt-paper .receipt-date{text-align:right;white-space:nowrap}.receipt-paper h2{margin:8px 0 5px;text-align:center;font-size:15px;letter-spacing:.3px}.receipt-paper .receipt-ref{margin:0 0 5px;text-align:center;font-size:8px}.receipt-paper table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9px}.receipt-paper th,.receipt-paper td{border:1px solid #000;padding:3px 2px;vertical-align:middle;word-wrap:break-word}.receipt-paper th{text-align:center;font-weight:700}.receipt-paper th:first-child,.receipt-paper td:first-child{width:49%;text-align:left}.receipt-paper th:nth-child(2),.receipt-paper td:nth-child(2){width:14%;text-align:center}.receipt-paper th:nth-child(3),.receipt-paper td:nth-child(3){width:18%;text-align:right}.receipt-paper th:nth-child(4),.receipt-paper td:nth-child(4){width:19%;text-align:right}.receipt-paper .receipt-blank td{height:18px}.receipt-paper .receipt-grand{display:flex;justify-content:space-between;gap:8px;margin-top:7px;padding-top:5px;border-top:1px solid #000;font-weight:700;font-size:11px}.receipt-paper .receipt-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;min-height:33mm;margin-top:8px}.receipt-paper .receipt-stamp{display:flex;align-items:center;justify-content:center;width:27mm;height:27mm;border:1px solid #555;border-radius:50%;text-align:center;font-size:7px;line-height:1.05;padding:3mm;overflow:hidden}.receipt-paper .receipt-signature{flex:1;align-self:flex-end;text-align:right;font-size:9px}.receipt-paper .receipt-signature-line{display:inline-block;min-width:32mm;border-bottom:1px solid #000;height:12px;vertical-align:bottom}.receipt-paper .receipt-executor{margin-top:4px;font-size:8px}@media print{body{width:105mm;min-height:148mm}}</style></head><body>${receiptPaperHtml(doc)}</body></html>`);
+    win.document.close();setTimeout(()=>win.print(),350);
+}
+function seedReceiptServicePrices(){
+    const prices=DB.receiptPrices(),existing=new Set(prices.filter(item=>item.kind==='service').map(item=>receiptNameKey(item.name)+'|'+canonicalUnit(item.unit||'шт.')));let added=0;
+    getAllPriceServices().forEach(service=>{
+        const key=receiptNameKey(service.name)+'|шт.';if(existing.has(key))return;
+        prices.push({id:U.uid(),name:service.name,price:Number(service.price)||0,unit:'шт.',kind:'service',tech:service.tech,category:service.category,updatedAt:U.nowISO()});existing.add(key);added++;
+    });
+    DB.saveReceiptPrices(prices);renderReceiptPriceList();toast(added?`✅ Добавлено услуг в прайс: ${added}`:'ℹ️ Услуги уже есть в прайсе');maybeAutoBackup();
+}
+function addReceiptPrice(){
+    const name=document.getElementById('receipt-price-name')?.value.trim(),price=Math.max(0,Number(document.getElementById('receipt-price-value')?.value)||0),unit=canonicalUnit(document.getElementById('receipt-price-unit')?.value||'шт.'),kind=document.getElementById('receipt-price-kind')?.value||'other';
+    if(!name){toast('❌ Укажи название цены',true);return;}if(price<=0){toast('❌ Укажи цену больше нуля',true);return;}
+    const prices=DB.receiptPrices(),existing=prices.find(item=>receiptNameKey(item.name)===receiptNameKey(name)&&item.kind===kind&&canonicalUnit(item.unit||'шт.')===unit);
+    if(existing){existing.price=price;existing.updatedAt=U.nowISO();}else prices.unshift({id:U.uid(),name,price,unit,kind,updatedAt:U.nowISO()});
+    DB.saveReceiptPrices(prices);document.getElementById('receipt-price-name').value='';document.getElementById('receipt-price-value').value='';renderReceiptPriceList();toast('✅ Цена сохранена');maybeAutoBackup();
+}
+function updateReceiptPrice(id,value){const prices=DB.receiptPrices(),item=prices.find(entry=>entry.id===id);if(!item)return;const price=Math.max(0,Number(value)||0);if(price<=0){toast('❌ Цена должна быть больше нуля',true);renderReceiptPriceList();return;}item.price=price;item.updatedAt=U.nowISO();DB.saveReceiptPrices(prices);toast('✅ Цена обновлена');}
+function deleteReceiptPrice(id){const prices=DB.receiptPrices(),index=prices.findIndex(item=>item.id===id);if(index<0)return;if(!confirm('Удалить эту цену из прайса товарников?'))return;const removed=prices.splice(index,1)[0];DB.saveReceiptPrices(prices);renderReceiptPriceList();showUndo('Цена удалена',()=>{const restored=DB.receiptPrices();restored.splice(Math.min(index,restored.length),0,removed);DB.saveReceiptPrices(restored);renderReceiptPriceList();});}
+function renderReceiptPriceList(){
+    const container=document.getElementById('receipt-price-list');if(!container)return;
+    const search=(document.getElementById('receipt-price-search')?.value||'').trim().toLowerCase();let prices=DB.receiptPrices().slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ru'));
+    if(search)prices=prices.filter(item=>`${item.name||''} ${receiptKindLabel(item.kind)} ${item.unit||''}`.toLowerCase().includes(search));
+    if(!prices.length){container.innerHTML='<div class="empty-state" style="padding:16px 8px;">Прайс товарников пуст</div>';return;}
+    container.innerHTML=prices.map(item=>`<div class="receipt-price-row"><div class="receipt-price-copy"><b>${escapeHtml(item.name)}</b><small>${receiptKindLabel(item.kind)} · ${escapeHtml(item.unit||'шт.')}</small></div><input type="number" min="0" step="0.01" value="${Number(item.price)||0}" onchange="updateReceiptPrice('${item.id}',this.value)"><button type="button" class="btn-red" onclick="deleteReceiptPrice('${item.id}')" aria-label="Удалить цену">${iconSvg('delete')}</button></div>`).join('');
+}
+
 // ==================== ПЕЧАТЬ АКТА ====================
 function renderPrintSelect(){
     const select=document.getElementById('print-order-select');
@@ -3167,7 +3568,7 @@ function previewAct(){
     const id=document.getElementById('print-order-select').value;
     const o=DB.orders().find(o=>o.id===id);
     if(!o){document.getElementById('act-print-area').innerHTML='';document.getElementById('btn-print-act').disabled=true;return;}
-    
+
     const settings=DB.settings();
     const contractDate=new Date(o.created);
     const actDate=new Date(o.completed||o.created);
@@ -3178,10 +3579,10 @@ function previewAct(){
     const actDay=actDate.getDate();
     const actMonth=monthNames[actDate.getMonth()];
     const actYear=actDate.getFullYear();
-    
+
     const total=U.finalAmount(o);
     const sumWords=U.numberToWords(total)+' '+U.rubles(total);
-    
+
     let servicesRows='';
     const services=o.services||[];
     for(let i=0;i<Math.max(services.length,5);i++){
@@ -3195,38 +3596,38 @@ function previewAct(){
             <td>${o.guarantee||'—'} мес.</td>
         </tr>`;
     }
-    
+
     const html=`
     <div class="act-container" id="act-content">
         <h2>Акт выполненных работ</h2>
         <div class="act-subtitle">по договору ${U.formatOrderId(o.id)} от «${contractDay}» ${contractMonth} ${contractYear} г.</div>
-        
+
         <div class="act-row"><span class="act-label">Тип, модель техники:</span><span class="act-value">${o.tech||'—'} ${o.brand||''}</span></div>
         <div class="act-row"><span class="act-label">Неисправность со слов клиента:</span><span class="act-value">${o.issue||'—'}</span></div>
         <div class="act-row"><span class="act-label">Результат диагностики:</span><span class="act-value">${o.diagnosis||'—'}</span></div>
         <div class="act-row"><span class="act-label">Внешние дефекты:</span><span class="act-value">${o.defects||'—'}</span></div>
-        
+
         <table>
             <thead><tr><th>п/п</th><th>Наименование работ</th><th>Стоимость</th><th>Кол-во</th><th>Сумма</th><th>Гарантия</th></tr></thead>
             <tbody>${servicesRows}</tbody>
         </table>
-        
+
         <div class="total-line"><span>Общая стоимость:</span><span>${U.money(o.sum)}</span></div>
         ${o.discount?`<div class="total-line"><span>Скидка:</span><span>-${U.money(o.discount)}</span></div>`:''}
         <div class="total-line"><span>Итого к оплате:</span><span>${U.money(total)}</span></div>
         <div class="propis-line">Сумма прописью: ${sumWords}</div>
-        
+
         <div class="act-section-title">АКТ СДАЧИ-ПРИЕМКИ ОКАЗАННЫХ УСЛУГ</div>
         <div class="act-subtitle">от «${actDay}» ${actMonth} ${actYear} г.</div>
-        
+
         <div class="act-text">
-            Мы, нижеподписавшиеся, <b>Исполнитель ${settings.name||'Романычев Д.В.'}</b>${settings.inn?` (ИНН ${settings.inn})`:''} с одной стороны, 
-            и представитель Заказчика <b>${o.name||'_______________'}</b> с другой стороны, составили настоящий Акт о том, 
-            что в соответствии с настоящим договором Исполнителем выполнен в полном объеме перечень работ по обслуживанию оборудования, 
-            указанного в данном договоре. С условиями обслуживания и оплаты Заказчик ознакомлен. 
+            Мы, нижеподписавшиеся, <b>Исполнитель ${settings.name||'Романычев Д.В.'}</b>${settings.inn?` (ИНН ${settings.inn})`:''} с одной стороны,
+            и представитель Заказчика <b>${o.name||'_______________'}</b> с другой стороны, составили настоящий Акт о том,
+            что в соответствии с настоящим договором Исполнителем выполнен в полном объеме перечень работ по обслуживанию оборудования,
+            указанного в данном договоре. С условиями обслуживания и оплаты Заказчик ознакомлен.
             К качеству работ (услуг) и состоянию оборудования Заказчик претензий не имеет.
         </div>
-        
+
         <div class="sign-block">
             <div class="sign-col">
                 <div><b>Исполнитель:</b></div>
@@ -3244,7 +3645,7 @@ function previewAct(){
             </div>
         </div>
     </div>`;
-    
+
     document.getElementById('act-print-area').innerHTML=html;
     document.getElementById('btn-print-act').disabled=false;
 }
@@ -3342,13 +3743,33 @@ function loadSettings(){
     document.getElementById('set-name').value=s.name||'Романычев Д.В.';
     document.getElementById('set-inn').value=s.inn||'';
     document.getElementById('set-phone').value=s.phone||'';
+    document.getElementById('set-company-name').value=s.companyName||'';
+    document.getElementById('set-company-address').value=s.companyAddress||'';
+    document.getElementById('set-receipt-show-company').checked=s.receiptShowCompany!==false;
+    document.getElementById('set-receipt-show-executor').checked=s.receiptShowExecutor!==false;
+    document.getElementById('set-receipt-show-stamp').checked=s.receiptShowStamp===true;
+    document.getElementById('set-receipt-show-signature').checked=s.receiptShowSignature===true;
     document.getElementById('set-auto-backup').checked=s.autoBackup!==false;
     document.getElementById('set-auto-price').checked=s.autoPriceAdjust!==false;
     updateBackupInfo();
 }
 
 function saveSettings(){
-    DB.saveSettings({name:document.getElementById('set-name').value,inn:document.getElementById('set-inn').value,phone:document.getElementById('set-phone').value,autoBackup:document.getElementById('set-auto-backup').checked,autoPriceAdjust:document.getElementById('set-auto-price').checked});
+    const previous=DB.settings();
+    DB.saveSettings({
+        ...previous,
+        name:document.getElementById('set-name').value.trim(),
+        inn:document.getElementById('set-inn').value.trim(),
+        phone:document.getElementById('set-phone').value.trim(),
+        companyName:document.getElementById('set-company-name').value.trim(),
+        companyAddress:document.getElementById('set-company-address').value.trim(),
+        receiptShowCompany:document.getElementById('set-receipt-show-company').checked,
+        receiptShowExecutor:document.getElementById('set-receipt-show-executor').checked,
+        receiptShowStamp:document.getElementById('set-receipt-show-stamp').checked,
+        receiptShowSignature:document.getElementById('set-receipt-show-signature').checked,
+        autoBackup:document.getElementById('set-auto-backup').checked,
+        autoPriceAdjust:document.getElementById('set-auto-price').checked
+    });
     toast('✅ Настройки сохранены');
 }
 
@@ -3371,7 +3792,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:9,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:10,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -3438,7 +3859,7 @@ function restoreFromFile(){
             const restoredWarehouse=data.warehouse||[];
             DB.saveOrders(data.orders||[]);DB.saveWarehouse(restoredWarehouse);
             DB.saveWarehouseMovements(Array.isArray(data.warehouse_movements)?data.warehouse_movements:createOpeningWarehouseMovements(restoredWarehouse));
-            DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.set('draft',data.draft||[]);
+            DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.saveReceipts(Array.isArray(data.receipts)?data.receipts:[]);DB.saveReceiptPrices(Array.isArray(data.receipt_prices)?data.receipt_prices:[]);DB.set('draft',data.draft||[]);
             if(data.settings)DB.saveSettings(data.settings);
             closeModal();toast('✅ Восстановлено!');location.reload();
         }catch{toast('❌ Ошибка файла!');}
@@ -3454,7 +3875,7 @@ document.getElementById('warehouse-history-overlay').addEventListener('click',fu
 
 function migrateStoredData(){
     // Старые версии выдавали складу и расходам номера заявок, из-за чего ID могли повторяться.
-    for(const type of ['warehouse','warehouse_movements','expenses','incomes','service_custom']){
+    for(const type of ['warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices']){
         const items=DB.get(type);const seen=new Set();let changed=false;
         items.forEach(item=>{if(!item.id||seen.has(item.id)){item.id=U.uid();changed=true;}seen.add(item.id);});
         if(changed)DB.set(type,items);
@@ -3502,6 +3923,36 @@ function migrateStoredData(){
         if(movementChanged)DB.saveWarehouseMovements(movements);
     }
     if(changed)DB.saveOrders(orders);
+    const receipts=DB.receipts();let receiptsChanged=false;
+    const receiptYear=new Date().getFullYear(),receiptPrefix=`ТЧ-${receiptYear}-`,usedReceiptNumbers=new Set(receipts.map(receipt=>String(receipt.number||'')));let receiptSequence=receipts.reduce((max,receipt)=>{const match=String(receipt.number||'').match(new RegExp('^'+receiptPrefix+'(\\d+)$'));return match?Math.max(max,Number(match[1])||0):max;},0);
+    receipts.forEach(receipt=>{
+        if(!receipt.id){receipt.id=U.uid();receiptsChanged=true;}
+        if(!receipt.number){do{receiptSequence++;receipt.number=receiptPrefix+String(receiptSequence).padStart(4,'0');}while(usedReceiptNumbers.has(receipt.number));usedReceiptNumbers.add(receipt.number);receiptsChanged=true;}
+        if(!receipt.date){receipt.date=U.toDateInput(receipt.createdAt||U.nowISO());receiptsChanged=true;}
+        if(receipt.companyAddress===undefined){receipt.companyAddress='';receiptsChanged=true;}
+        if(receipt.companyDetails===undefined){receipt.companyDetails='';receiptsChanged=true;}
+        if(!Array.isArray(receipt.lines)){receipt.lines=[];receiptsChanged=true;}else{
+            const lines=receipt.lines.map(normaliseReceiptLine);
+            if(JSON.stringify(lines)!==JSON.stringify(receipt.lines)){receipt.lines=lines;receiptsChanged=true;}
+        }
+        if(receipt.showCompany===undefined){receipt.showCompany=true;receiptsChanged=true;}
+        if(receipt.showExecutor===undefined){receipt.showExecutor=true;receiptsChanged=true;}
+        if(receipt.showStamp===undefined){receipt.showStamp=false;receiptsChanged=true;}
+        if(receipt.showSignature===undefined){receipt.showSignature=false;receiptsChanged=true;}
+    });
+    if(receiptsChanged)DB.saveReceipts(receipts);
+    const receiptPrices=DB.receiptPrices();let receiptPricesChanged=false;
+    receiptPrices.forEach(item=>{
+        if(!item.id){item.id=U.uid();receiptPricesChanged=true;}
+        if(item.unit!==canonicalUnit(item.unit||'шт.')){item.unit=canonicalUnit(item.unit||'шт.');receiptPricesChanged=true;}
+        if(!RECEIPT_KIND_LABELS[item.kind]){item.kind='other';receiptPricesChanged=true;}
+        if(Number.isNaN(Number(item.price))){item.price=0;receiptPricesChanged=true;}
+    });
+    if(receiptPricesChanged)DB.saveReceiptPrices(receiptPrices);
+    const settings=DB.settings();let settingsChanged=false;
+    const settingDefaults={companyName:'',companyAddress:'',receiptShowCompany:true,receiptShowExecutor:true,receiptShowStamp:false,receiptShowSignature:false};
+    Object.entries(settingDefaults).forEach(([key,value])=>{if(settings[key]===undefined){settings[key]=value;settingsChanged=true;}});
+    if(settingsChanged)DB.saveSettings(settings);
 }
 
 // ==================== PWA УСТАНОВКА ====================
@@ -3554,9 +4005,9 @@ async function initializeApp(){
     migrateStoredData();
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     setupDraftAutosave();
-    ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','settings','draft'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
+    ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','settings','draft'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
     updateOrderDateFields();renderSelectedMaterials();renderDraftBanner();
-    updateServiceCatalog();updateStorageInfo();renderOrders();renderClients();updateBackupInfo();
+    updateServiceCatalog();updateStorageInfo();renderOrders();renderClients();renderReceipts();renderReceiptPriceList();updateBackupInfo();
 }
 initializeApp();
 </script>
