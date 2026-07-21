@@ -253,11 +253,9 @@
         .receipt-preview-shell .receipt-paper { margin:0 auto; transform-origin:top center; }
         .receipt-paper { width:105mm; min-height:148mm; padding:7mm 6mm 6mm; box-sizing:border-box; background:#fff; color:#000; font-family:'Times New Roman',serif; font-size:10px; line-height:1.2; }
         .receipt-paper * { color:#000; }
-        .receipt-paper .receipt-topline { display:flex; justify-content:space-between; gap:8px; min-height:12px; font-size:9px; }
-        .receipt-paper .receipt-company { max-width:58%; word-break:break-word; }
+        .receipt-paper .receipt-topline { display:flex; justify-content:flex-end; gap:8px; min-height:12px; font-size:9px; }
         .receipt-paper .receipt-date { text-align:right; white-space:nowrap; }
         .receipt-paper h2 { margin:8px 0 5px; text-align:center; font-size:15px; letter-spacing:.3px; }
-        .receipt-paper .receipt-ref { margin:0 0 5px; text-align:center; font-size:8px; }
         .receipt-paper table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:9px; }
         .receipt-paper th,.receipt-paper td { border:1px solid #000; padding:3px 2px; vertical-align:middle; word-wrap:break-word; }
         .receipt-paper th { text-align:center; font-weight:700; }
@@ -267,15 +265,7 @@
         .receipt-paper th:nth-child(4),.receipt-paper td:nth-child(4) { width:19%; text-align:right; }
         .receipt-paper .receipt-blank td { height:18px; }
         .receipt-paper .receipt-grand { display:flex; justify-content:space-between; gap:8px; margin-top:7px; padding-top:5px; border-top:1px solid #000; font-weight:700; font-size:11px; }
-        .receipt-paper .receipt-footer { display:flex; align-items:flex-end; justify-content:space-between; gap:8px; min-height:33mm; margin-top:8px; }
-        .receipt-paper .receipt-stamp { display:flex; align-items:center; justify-content:center; width:27mm; height:27mm; border:1px solid #555; border-radius:50%; text-align:center; font-size:7px; line-height:1.05; padding:3mm; overflow:hidden; }
-        .receipt-paper .receipt-stamp img { max-width:100%; max-height:100%; object-fit:contain; }
-        .receipt-paper .receipt-signature { flex:1; align-self:flex-end; text-align:right; font-size:9px; }
-        .receipt-paper .receipt-signature img { display:block; max-width:35mm; max-height:16mm; margin:0 0 1mm auto; object-fit:contain; }
-        .receipt-paper .receipt-signature-line { display:inline-block; min-width:32mm; border-bottom:1px solid #000; height:12px; vertical-align:bottom; }
-        .receipt-paper .receipt-executor { margin-top:4px; font-size:8px; }
-        .receipt-settings-assets { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-        .receipt-asset-preview { display:block; max-width:100%; max-height:55px; margin-top:5px; border:1px solid var(--border); border-radius:7px; background:#fff; object-fit:contain; }
+        .receipt-paper .receipt-bottom-space { height:22mm; }
         @media (max-width:440px) { .receipt-line-editor .row { display:grid; grid-template-columns:1.5fr .75fr .8fr; gap:6px; } .receipt-line-editor .receipt-line-name { grid-column:1 / -1; } .receipt-line-editor .receipt-line-price { grid-column:1 / span 2; } .receipt-paper { transform:scale(.82); transform-origin:top left; margin-right:-19%; margin-bottom:-25mm; } }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -958,8 +948,8 @@
         <button class="more-item" onclick="switchTab('shopping')"><span class="more-icon yellow"><svg class="ui-icon"><use href="#i-list"></use></svg></span><span><b>Список покупок</b><small>Позиции ниже минимального остатка</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('clients')"><span class="more-icon blue"><svg class="ui-icon"><use href="#i-users"></use></svg></span><span><b>Клиенты</b><small>История обращений и ремонтов</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('price')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-price"></use></svg></span><span><b>Прайс-лист</b><small>Каталог услуг и свои позиции</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
-        <button class="more-item" onclick="switchTab('print')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Акт</b><small>Подготовка и печать документа</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
-        <button class="more-item" onclick="switchTab('receipts')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Товарные чеки</b><small>Чеки A6 из заявки или вручную</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
+        <button class="more-item" id="more-act-document" onclick="switchTab('print')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Акт</b><small>Подготовка и печать документа</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
+        <button class="more-item" id="more-receipt-document" onclick="switchTab('receipts')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Товарные чеки</b><small>Материалы из заявки или вручную</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('settings')"><span class="more-icon gray"><svg class="ui-icon"><use href="#i-settings"></use></svg></span><span><b>Настройки</b><small>Бэкапы и оформление приложения</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
     </div>
 </div>
@@ -1017,7 +1007,7 @@
 
 <!-- Товарные чеки -->
 <div id="page-receipts" class="page">
-    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарные чеки</h1><p>Компактный формат A6</p></div></div>
+    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарные чеки</h1><p>Материалы · компактный формат A6</p></div></div>
     <div class="card">
         <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-printer"></use></svg></span>Новый документ</div>
         <div class="row">
@@ -1026,39 +1016,25 @@
             <button type="button" class="btn-outline" onclick="createReceiptFromSelectedOrder()"><span class="button-label"><svg class="ui-icon"><use href="#i-clipboard"></use></svg>Из закрытой заявки</span></button>
         </div>
         <div class="form-group" style="margin-top:7px;"><label>Закрытая заявка для автозаполнения</label><select id="receipt-order-source" onchange="previewReceiptSource()"><option value="">— Выберите заявку —</option></select></div>
-        <div class="field-hint">После создания строки чека становятся самостоятельной копией: изменения прайса и склада не меняют уже сохранённый документ.</div>
+        <div class="field-hint">Из заявки переносятся только материалы, отмеченные в разделе «Расход материалов». Услуги, сумма заявки, складская себестоимость и реквизиты в товарник не попадают. Цены можно менять вручную и запоминать отдельно для следующих чеков.</div>
     </div>
 
     <div id="receipt-editor-card" class="card" style="display:none;">
         <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-edit"></use></svg></span><span id="receipt-editor-title">Новый товарный чек</span></div>
-        <div class="row">
-            <div class="form-group"><label>Номер чека</label><input id="receipt-number" type="text" placeholder="ТЧ-2026-0001"></div>
-            <div class="form-group"><label>Дата</label><input id="receipt-date" type="date"></div>
-        </div>
-        <div class="row">
-            <div class="form-group"><label>Фирма</label><input id="receipt-company" type="text" placeholder="Название организации"></div>
-            <div class="form-group"><label>Исполнитель</label><input id="receipt-executor" type="text" placeholder="ФИО продавца / исполнителя"></div>
-        </div>
-        <div class="row">
-            <div class="form-group"><label>Адрес / реквизит фирмы</label><input id="receipt-company-address" type="text" placeholder="Необязательно"></div>
-            <div class="form-group"><label>ИНН / телефон</label><input id="receipt-company-details" type="text" placeholder="Необязательно"></div>
-        </div>
-        <div class="row">
-            <div class="form-group"><label>Покупатель</label><input id="receipt-client" type="text" placeholder="Необязательно"></div>
-            <div class="form-group"><label>Заявка / договор</label><input id="receipt-order-ref" type="text" placeholder="№0001"></div>
-        </div>
-        <div class="form-group"><label>Дополнительная отметка</label><input id="receipt-contract-ref" type="text" placeholder="Например, модель или номер договора"></div>
+        <input id="receipt-number" type="hidden">
+        <div class="form-group"><label>Дата товарного чека</label><input id="receipt-date" type="date"></div>
+        <div class="field-hint">Печать содержит только дату, строки товаров и итог. Название фирмы, номер, клиент, исполнитель, подпись и печать не выводятся.</div>
 
         <div class="card-title" style="margin-top:9px;"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-list"></use></svg></span>Позиции</div>
         <div id="receipt-lines-editor" class="receipt-lines-editor"></div>
+        <div class="form-group" style="margin-top:8px;"><label>Быстрый выбор товара из прайса</label><select id="receipt-add-price-item" onchange="selectReceiptPriceItem()"><option value="">— Выбрать сохранённый товар —</option></select></div>
         <div class="row" style="align-items:end;margin-top:8px;">
-            <div class="form-group" style="flex:2.2;"><label>Новая позиция</label><input id="receipt-add-name" type="text" placeholder="Услуга или товар" onblur="suggestReceiptLinePrice()"></div>
+            <div class="form-group" style="flex:2.2;"><label>Новый товар / материал</label><input id="receipt-add-name" type="text" placeholder="Например, фильтр-осушитель" onblur="suggestReceiptLinePrice()"></div>
             <div class="form-group" style="flex:.8;"><label>Кол-во</label><input id="receipt-add-qty" type="number" min="0" step="0.001" value="1"></div>
             <div class="form-group" style="flex:.85;"><label>Ед.</label><select id="receipt-add-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>мм</option><option>см</option><option>м</option><option>условно</option></select></div>
         </div>
         <div class="row" style="align-items:end;">
             <div class="form-group" style="flex:1;"><label>Цена за единицу</label><input id="receipt-add-price" type="number" min="0" step="0.01" placeholder="0"></div>
-            <div class="form-group" style="flex:1;"><label>Тип</label><select id="receipt-add-kind"><option value="service">Услуга</option><option value="material">Товар / запчасть</option><option value="other">Другое</option></select></div>
             <button type="button" class="btn-outline" style="flex:1;margin:0;" onclick="addReceiptLineFromForm()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить</span></button>
         </div>
         <div id="receipt-total" class="receipt-total"><span>Итого</span><b>0 ₽</b></div>
@@ -1080,8 +1056,8 @@
         <summary><span class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-price"></use></svg></span>Цены для товарников</span></summary>
         <div class="field-hint" style="margin-bottom:8px;">Это отдельный прайс только для новых чеков. Он не меняет прайс услуг, складскую себестоимость и старые документы.</div>
         <div class="row"><div class="form-group"><label>Название</label><input id="receipt-price-name" type="text" placeholder="Например, клапан Шредера"></div><div class="form-group"><label>Цена</label><input id="receipt-price-value" type="number" min="0" step="0.01" placeholder="1500"></div></div>
-        <div class="row"><div class="form-group"><label>Единица</label><select id="receipt-price-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>мм</option><option>см</option><option>м</option><option>условно</option></select></div><div class="form-group"><label>Тип</label><select id="receipt-price-kind"><option value="service">Услуга</option><option value="material">Товар / запчасть</option><option value="other">Другое</option></select></div></div>
-        <div class="row"><button type="button" onclick="addReceiptPrice()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить цену</span></button><button type="button" class="btn-outline" onclick="seedReceiptServicePrices()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>Загрузить услуги</span></button></div>
+        <div class="form-group"><label>Единица</label><select id="receipt-price-unit"><option>шт.</option><option>г</option><option>кг</option><option>мл</option><option>л</option><option>мм</option><option>см</option><option>м</option><option>условно</option></select></div>
+        <button type="button" onclick="addReceiptPrice()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Добавить / обновить цену товара</span></button>
         <div class="search-box" style="margin-top:8px;"><input id="receipt-price-search" type="search" placeholder="Найти в прайсе товарников" oninput="renderReceiptPriceList()"></div>
         <div id="receipt-price-list"></div>
     </details>
@@ -1091,16 +1067,8 @@
 <div id="page-settings" class="page">
     <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Настройки</h1><p>Персонализация и данные</p></div></div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-user"></use></svg></span>Исполнитель</div><div class="form-group"><label>ФИО</label><input type="text" id="set-name" value="Романычев Д.В."></div><div class="form-group"><label>ИНН</label><input type="text" id="set-inn" value="" placeholder="123456789012"></div><div class="form-group"><label>Телефон</label><input type="text" id="set-phone" value=""></div><button onclick="saveSettings()"><span class="button-label"><svg class="ui-icon"><use href="#i-save"></use></svg>Сохранить</span></button></div>
-    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-printer"></use></svg></span>Оформление товарного чека</div>
-        <div class="form-group"><label>Название фирмы</label><input type="text" id="set-company-name" placeholder="Название организации"></div>
-        <div class="form-group"><label>Адрес / реквизит фирмы</label><input type="text" id="set-company-address" placeholder="Необязательно"></div>
-        <div class="field-hint" style="margin-bottom:8px;">Галочки сохраняются в настройках и применяются к новым чекам. Внутри уже сохранённого чека оформление остаётся прежним.</div>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-company" style="width:auto;">Показывать фирму и реквизит</label>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-executor" style="width:auto;">Показывать информацию об исполнителе</label>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-stamp" style="width:auto;">Показывать место для печати фирмы</label>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="set-receipt-show-signature" style="width:auto;">Показывать строку подписи продавца</label>
-        <div class="field-hint" style="margin-top:8px;">Печать и подпись в шаблоне — это фиксированное место для ручного заверения. Случайная подстановка или ротация изображений не используется.</div>
-        <button onclick="saveSettings()" style="margin-top:9px;"><span class="button-label"><svg class="ui-icon"><use href="#i-save"></use></svg>Сохранить оформление чеков</span></button>
+    <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-printer"></use></svg></span>Товарный чек</div>
+        <div class="field-hint">Создание товарника находится в меню «Ещё» отдельным пунктом под «Актом», а для закрытой заявки доступна кнопка «Товарник». В чек попадают только купленные товары/материалы; цены можно выбрать из отдельного прайса товарников или вписать вручную. Настройки печати, фирмы, подписи и печати для него не нужны.</div>
     </div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-theme"></use></svg></span>Оформление</div><button onclick="toggleTheme()"><span class="button-label"><svg class="ui-icon"><use href="#i-theme"></use></svg>Сменить тему</span></button></div>
     <div class="card"><div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-save"></use></svg></span>Данные</div>
@@ -1178,7 +1146,7 @@ const DB = {
     customServices() { return this.get('service_custom'); },
     receipts() { return this.get('receipts'); },
     receiptPrices() { return this.get('receipt_prices'); },
-    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', companyName:'', companyAddress:'', autoBackup:true, autoPriceAdjust:true, receiptShowCompany:true, receiptShowExecutor:true, receiptShowStamp:false, receiptShowSignature:false}; },
+    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true, autoPriceAdjust:true}; },
     saveSettings(s) { this.set('settings', [s]); },
     saveOrders(d) { this.set('orders', d); },
     saveWarehouse(d) { this.set('warehouse', d); },
@@ -3295,22 +3263,18 @@ function createOrderForClient(phone, name){
 }
 
 // ==================== ТОВАРНЫЕ ЧЕКИ ====================
-// Чек хранит самостоятельный снимок строк и цен. После сохранения он не
-// пересчитывается от прайса, склада или изменений в заявке.
+// Чек хранит самостоятельный снимок строк и цен. Он не связан с услугами,
+// складской себестоимостью или итогом заявки.
 let receiptDraft=null;
 let receiptEditingId=null;
-const RECEIPT_KIND_LABELS={service:'Услуга',material:'Товар / запчасть',other:'Другое'};
-
-function receiptKindLabel(kind){return RECEIPT_KIND_LABELS[kind]||RECEIPT_KIND_LABELS.other;}
 function receiptNameKey(name){return String(name||'').trim().toLowerCase().replace(/\s+/g,' ');}
-function receiptPriceFor(name,kind,unit,fallback=0){
+function receiptPriceFor(name,unit,fallback=0){
     const key=receiptNameKey(name),wantedUnit=canonicalUnit(unit||'шт.');
     if(!key)return Number(fallback)||0;
-    const prices=DB.receiptPrices();
-    const exact=prices.find(item=>receiptNameKey(item.name)===key&&item.kind===kind&&canonicalUnit(item.unit||'шт.')===wantedUnit);
-    const sameKind=prices.find(item=>receiptNameKey(item.name)===key&&item.kind===kind);
-    const any=prices.find(item=>receiptNameKey(item.name)===key);
-    const hit=exact||sameKind||any;
+    const prices=DB.receiptPrices().filter(item=>!item.kind||item.kind==='material');
+    const exact=prices.find(item=>receiptNameKey(item.name)===key&&canonicalUnit(item.unit||'шт.')===wantedUnit);
+    const sameName=prices.find(item=>receiptNameKey(item.name)===key);
+    const hit=exact||sameName;
     return hit?Number(hit.price)||0:Number(fallback)||0;
 }
 function nextReceiptNumber(){
@@ -3327,39 +3291,25 @@ function receiptLineTotal(line){
     const qty=String(line?.qty??'').trim()===''?1:(Number(line.qty)||0);
     return Math.max(0,qty)*(Number(line?.price)||0);
 }
-function receiptTotal(receipt){return (receipt?.lines||[]).reduce((sum,line)=>sum+receiptLineTotal(line),0);}
+function receiptTotal(receipt){return (receipt?.lines||[]).filter(line=>!line?.kind||line.kind==='material').reduce((sum,line)=>sum+receiptLineTotal(line),0);}
 function normaliseReceiptLine(line){
     const item=line||{};
-    return {id:item.id||U.uid(),name:String(item.name||'').trim(),qty:item.qty===undefined||item.qty===null?'1':String(item.qty),unit:canonicalUnit(item.unit||'шт.'),price:Math.max(0,Number(item.price)||0),kind:RECEIPT_KIND_LABELS[item.kind]?item.kind:'other'};
-}
-function receiptSettingsSnapshot(){
-    const settings=DB.settings();
-    return {showCompany:settings.receiptShowCompany!==false,showExecutor:settings.receiptShowExecutor!==false,showStamp:Boolean(settings.receiptShowStamp),showSignature:Boolean(settings.receiptShowSignature)};
+    return {id:item.id||U.uid(),name:String(item.name||'').trim(),qty:item.qty===undefined||item.qty===null?'1':String(item.qty),unit:canonicalUnit(item.unit||'шт.'),price:Math.max(0,Number(item.price)||0),kind:'material'};
 }
 function receiptLinesFromOrder(order){
-    const lines=[];
-    (order?.services||[]).forEach(service=>{
-        const qty=service.qty===undefined||service.qty===null?'1':String(service.qty);
-        lines.push(normaliseReceiptLine({name:service.name,qty,unit:'шт.',price:receiptPriceFor(service.name,'service','шт.',service.price),kind:'service'}));
-    });
-    (order?.materials||[]).forEach(materialRaw=>{
-        const material=normaliseMaterial(materialRaw),unit=canonicalUnit(material.unit||'шт.');
-        const qty=String(material.qty||'').trim()===''?'1':String(material.qty);
-        lines.push(normaliseReceiptLine({name:material.name,qty,unit,price:receiptPriceFor(material.name,'material',unit,0),kind:'material'}));
-    });
-    return lines;
+    return (order?.materials||[]).map(raw=>{
+        const material=normaliseMaterial(raw),unit=canonicalUnit(material.unit||'шт.');
+        const qty=material.qty===undefined||material.qty===null?'':String(material.qty);
+        // Не используем unitCost: это себестоимость склада, а не цена в товарнике.
+        return normaliseReceiptLine({name:material.name,qty,unit,price:receiptPriceFor(material.name,unit,0)});
+    }).filter(line=>line.name);
 }
 function newReceipt(){
-    const settings=DB.settings();
     receiptEditingId=null;
-    receiptDraft={id:null,number:nextReceiptNumber(),date:U.toDateInput(),company:settings.companyName||'',executor:settings.name||'',companyAddress:settings.companyAddress||'',companyDetails:[settings.inn,settings.phone].filter(Boolean).join(' · '),client:'',orderRef:'',contractRef:'',lines:[],...receiptSettingsSnapshot(),createdAt:U.nowISO(),updatedAt:U.nowISO()};
+    receiptDraft={id:null,number:nextReceiptNumber(),date:U.toDateInput(),lines:[],sourceOrderId:null,createdAt:U.nowISO(),updatedAt:U.nowISO()};
     openReceiptEditor();
 }
-function newBlankReceipt(){
-    newReceipt();
-    previewReceiptDraft();
-    toast('📝 Пустой бланк готов для ручного заполнения');
-}
+function newBlankReceipt(){newReceipt();previewReceiptDraft();toast('📝 Пустой бланк готов для ручного заполнения');}
 function createReceiptFromSelectedOrder(){
     const id=document.getElementById('receipt-order-source')?.value;
     if(!id){toast('❌ Выбери закрытую заявку',true);return;}
@@ -3369,47 +3319,45 @@ function createReceiptFromOrder(orderId){
     const order=DB.orders().find(item=>String(item.id)===String(orderId));
     if(!order){toast('❌ Заявка не найдена',true);return;}
     if(order.status!=='Закрыта'){toast('⚠️ Товарный чек создаётся из закрытой заявки',true);return;}
-    const settings=DB.settings();
     receiptEditingId=null;
-    receiptDraft={id:null,number:nextReceiptNumber(),date:U.toDateInput(order.completed||order.created),company:settings.companyName||'',executor:settings.name||'',companyAddress:settings.companyAddress||'',companyDetails:[settings.inn,settings.phone].filter(Boolean).join(' · '),client:order.name||'',orderRef:U.formatOrderId(order.id),contractRef:U.formatOrderId(order.id),lines:receiptLinesFromOrder(order),sourceOrderId:order.id,...receiptSettingsSnapshot(),createdAt:U.nowISO(),updatedAt:U.nowISO()};
-    switchTab('receipts');
-    openReceiptEditor();
-    toast(`🧾 Чек подготовлен из ${U.formatOrderId(order.id)}`);
+    receiptDraft={id:null,number:nextReceiptNumber(),date:U.toDateInput(order.completed||order.created),lines:receiptLinesFromOrder(order),sourceOrderId:order.id,createdAt:U.nowISO(),updatedAt:U.nowISO()};
+    switchTab('receipts');openReceiptEditor();
+    toast(`🧾 В чек перенесены материалы из ${U.formatOrderId(order.id)}`);
 }
 function previewReceiptSource(){
     const id=document.getElementById('receipt-order-source')?.value;
     const order=DB.orders().find(item=>String(item.id)===String(id));
     const field=document.getElementById('receipt-order-source');
-    if(field&&order)field.title=`${order.name||''} · ${U.finalAmount(order).toLocaleString('ru-RU')} ₽`;
+    if(field&&order)field.title=`${order.name||''} · материалов: ${(order.materials||[]).length}`;
 }
 function openReceiptEditor(){
     const card=document.getElementById('receipt-editor-card');if(!card||!receiptDraft)return;
     card.style.display='block';
-    document.getElementById('receipt-editor-title').textContent=receiptEditingId?'Редактирование товарного чека':'Новый товарный чек';
-    document.getElementById('receipt-number').value=receiptDraft.number||'';
-    document.getElementById('receipt-date').value=receiptDraft.date||U.toDateInput();
-    document.getElementById('receipt-company').value=receiptDraft.company||'';
-    document.getElementById('receipt-executor').value=receiptDraft.executor||'';
-    document.getElementById('receipt-company-address').value=receiptDraft.companyAddress||'';
-    document.getElementById('receipt-company-details').value=receiptDraft.companyDetails||'';
-    document.getElementById('receipt-client').value=receiptDraft.client||'';
-    document.getElementById('receipt-order-ref').value=receiptDraft.orderRef||'';
-    document.getElementById('receipt-contract-ref').value=receiptDraft.contractRef||'';
-    document.getElementById('receipt-preview-shell').style.display='none';
+    const title=document.getElementById('receipt-editor-title');if(title)title.textContent=receiptEditingId?'Редактирование товарного чека':'Новый товарный чек';
+    const number=document.getElementById('receipt-number');if(number)number.value=receiptDraft.number||'';
+    const date=document.getElementById('receipt-date');if(date)date.value=receiptDraft.date||U.toDateInput();
+    const preview=document.getElementById('receipt-preview-shell');if(preview)preview.style.display='none';
+    renderReceiptPriceChoices();
     renderReceiptLines();
     card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderReceiptPriceChoices(){
+    const select=document.getElementById('receipt-add-price-item');if(!select)return;
+    const current=select.value;
+    const prices=DB.receiptPrices().filter(item=>!item.kind||item.kind==='material').slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ru'));
+    select.innerHTML='<option value="">— Выбрать сохранённый товар —</option>'+prices.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} · ${escapeHtml(item.unit||'шт.')} · ${formatReceiptNumber(item.price)} ₽</option>`).join('');
+    if(prices.some(item=>String(item.id)===String(current)))select.value=current;
+}
+function selectReceiptPriceItem(){
+    const id=document.getElementById('receipt-add-price-item')?.value;if(!id)return;
+    const item=DB.receiptPrices().find(entry=>String(entry.id)===String(id));if(!item)return;
+    const name=document.getElementById('receipt-add-name'),unit=document.getElementById('receipt-add-unit'),price=document.getElementById('receipt-add-price');
+    if(name)name.value=item.name||'';if(unit)unit.value=canonicalUnit(item.unit||'шт.');if(price)price.value=Number(item.price)||0;
 }
 function syncReceiptDraftFromForm(){
     if(!receiptDraft)return null;
     receiptDraft.number=document.getElementById('receipt-number')?.value.trim()||receiptDraft.number||nextReceiptNumber();
     receiptDraft.date=document.getElementById('receipt-date')?.value||U.toDateInput();
-    receiptDraft.company=document.getElementById('receipt-company')?.value.trim()||'';
-    receiptDraft.executor=document.getElementById('receipt-executor')?.value.trim()||'';
-    receiptDraft.companyAddress=document.getElementById('receipt-company-address')?.value.trim()||'';
-    receiptDraft.companyDetails=document.getElementById('receipt-company-details')?.value.trim()||'';
-    receiptDraft.client=document.getElementById('receipt-client')?.value.trim()||'';
-    receiptDraft.orderRef=document.getElementById('receipt-order-ref')?.value.trim()||'';
-    receiptDraft.contractRef=document.getElementById('receipt-contract-ref')?.value.trim()||'';
     return receiptDraft;
 }
 function updateReceiptLine(index,key,value){
@@ -3417,7 +3365,6 @@ function updateReceiptLine(index,key,value){
     if(key==='price')receiptDraft.lines[index].price=Math.max(0,Number(value)||0);
     else if(key==='qty')receiptDraft.lines[index].qty=value;
     else if(key==='unit')receiptDraft.lines[index].unit=canonicalUnit(value);
-    else if(key==='kind')receiptDraft.lines[index].kind=RECEIPT_KIND_LABELS[value]?value:'other';
     else receiptDraft.lines[index].name=String(value||'').trim();
     renderReceiptLines();
     if(document.getElementById('receipt-preview-shell')?.style.display!=='none')previewReceiptDraft();
@@ -3425,11 +3372,11 @@ function updateReceiptLine(index,key,value){
 function removeReceiptLine(index){if(!receiptDraft?.lines)return;receiptDraft.lines.splice(index,1);renderReceiptLines();}
 function renderReceiptLines(){
     const container=document.getElementById('receipt-lines-editor');if(!container||!receiptDraft)return;
-    if(!receiptDraft.lines.length){container.innerHTML='<div class="empty-state" style="padding:18px 8px;">Добавь услуги или товары в чек</div>';updateReceiptTotal();return;}
+    if(!receiptDraft.lines.length){container.innerHTML='<div class="empty-state" style="padding:18px 8px;">Добавь товары или материалы в чек</div>';updateReceiptTotal();return;}
     const units=ALL_UNITS;
     container.innerHTML=receiptDraft.lines.map((line,index)=>{
         const item=normaliseReceiptLine(line);receiptDraft.lines[index]=item;
-        return `<div class="receipt-line-editor"><div class="receipt-line-meta"><b>${receiptKindLabel(item.kind)}</b><button type="button" class="receipt-remove" onclick="removeReceiptLine(${index})" aria-label="Удалить строку">${iconSvg('delete')}</button></div><div class="row"><div class="form-group receipt-line-name"><label>Наименование</label><input type="text" value="${escapeHtml(item.name)}" onchange="updateReceiptLine(${index},'name',this.value)"></div><div class="form-group receipt-line-qty"><label>Кол-во</label><input type="number" min="0" step="0.001" value="${escapeHtml(item.qty)}" onchange="updateReceiptLine(${index},'qty',this.value)"></div><div class="form-group receipt-line-unit"><label>Ед.</label><select onchange="updateReceiptLine(${index},'unit',this.value)">${units.map(unit=>`<option value="${unit}" ${canonicalUnit(item.unit)===canonicalUnit(unit)?'selected':''}>${unit}</option>`).join('')}</select></div><div class="form-group receipt-line-price"><label>Цена</label><input type="number" min="0" step="0.01" value="${Number(item.price)||0}" onchange="updateReceiptLine(${index},'price',this.value)"></div></div></div>`;
+        return `<div class="receipt-line-editor"><div class="receipt-line-meta"><b>Товар</b><button type="button" class="receipt-remove" onclick="removeReceiptLine(${index})" aria-label="Удалить строку">${iconSvg('delete')}</button></div><div class="row"><div class="form-group receipt-line-name"><label>Наименование</label><input type="text" value="${escapeHtml(item.name)}" onchange="updateReceiptLine(${index},'name',this.value)"></div><div class="form-group receipt-line-qty"><label>Кол-во</label><input type="number" min="0" step="0.001" value="${escapeHtml(item.qty)}" onchange="updateReceiptLine(${index},'qty',this.value)"></div><div class="form-group receipt-line-unit"><label>Ед.</label><select onchange="updateReceiptLine(${index},'unit',this.value)">${units.map(unit=>`<option value="${unit}" ${canonicalUnit(item.unit)===canonicalUnit(unit)?'selected':''}>${unit}</option>`).join('')}</select></div><div class="form-group receipt-line-price"><label>Цена</label><input type="number" min="0" step="0.01" value="${Number(item.price)||0}" onchange="updateReceiptLine(${index},'price',this.value)"></div></div></div>`;
     }).join('');
     updateReceiptTotal();
 }
@@ -3439,16 +3386,17 @@ function updateReceiptTotal(){
 }
 function suggestReceiptLinePrice(){
     const name=document.getElementById('receipt-add-name')?.value.trim();if(!name)return;
-    const kind=document.getElementById('receipt-add-kind')?.value||'service',unit=document.getElementById('receipt-add-unit')?.value||'шт.',price=receiptPriceFor(name,kind,unit,0),field=document.getElementById('receipt-add-price');
+    const unit=document.getElementById('receipt-add-unit')?.value||'шт.',price=receiptPriceFor(name,unit,0),field=document.getElementById('receipt-add-price');
     if(field&&!field.value&&price>0)field.value=price;
 }
 function addReceiptLineFromForm(){
-    if(!receiptDraft){newReceipt();}
-    const name=document.getElementById('receipt-add-name')?.value.trim();if(!name){toast('❌ Укажи название позиции',true);return;}
-    const kind=document.getElementById('receipt-add-kind')?.value||'other',unit=canonicalUnit(document.getElementById('receipt-add-unit')?.value||'шт.'),qty=document.getElementById('receipt-add-qty')?.value||'1';
-    const entered=document.getElementById('receipt-add-price')?.value,price=entered===''?receiptPriceFor(name,kind,unit,0):Math.max(0,Number(entered)||0);
-    receiptDraft.lines.push(normaliseReceiptLine({name,kind,unit,qty,price}));
+    if(!receiptDraft)newReceipt();
+    const name=document.getElementById('receipt-add-name')?.value.trim();if(!name){toast('❌ Укажи название товара',true);return;}
+    const unit=canonicalUnit(document.getElementById('receipt-add-unit')?.value||'шт.'),qty=document.getElementById('receipt-add-qty')?.value||'1';
+    const entered=document.getElementById('receipt-add-price')?.value,price=entered===''?receiptPriceFor(name,unit,0):Math.max(0,Number(entered)||0);
+    receiptDraft.lines.push(normaliseReceiptLine({name,unit,qty,price}));
     document.getElementById('receipt-add-name').value='';document.getElementById('receipt-add-price').value='';document.getElementById('receipt-add-qty').value='1';
+    const choice=document.getElementById('receipt-add-price-item');if(choice)choice.value='';
     renderReceiptLines();
 }
 function saveReceiptLinePrices(){
@@ -3456,27 +3404,23 @@ function saveReceiptLinePrices(){
     const prices=DB.receiptPrices();
     receiptDraft.lines.forEach(line=>{
         const item=normaliseReceiptLine(line);if(!item.name||item.price<=0)return;
-        const existing=prices.find(price=>receiptNameKey(price.name)===receiptNameKey(item.name)&&price.kind===item.kind&&canonicalUnit(price.unit||'шт.')===item.unit);
-        if(existing){existing.price=item.price;existing.updatedAt=U.nowISO();}
-        else prices.unshift({id:U.uid(),name:item.name,kind:item.kind,unit:item.unit,price:item.price,updatedAt:U.nowISO()});
+        const existing=prices.find(price=>receiptNameKey(price.name)===receiptNameKey(item.name)&&canonicalUnit(price.unit||'шт.')===item.unit&&(!price.kind||price.kind==='material'));
+        if(existing){existing.price=item.price;existing.kind='material';existing.updatedAt=U.nowISO();}
+        else prices.unshift({id:U.uid(),name:item.name,kind:'material',unit:item.unit,price:item.price,updatedAt:U.nowISO()});
     });
-    DB.saveReceiptPrices(prices);renderReceiptPriceList();toast('✅ Цены сохранены для новых чеков');
+    DB.saveReceiptPrices(prices);renderReceiptPriceList();renderReceiptPriceChoices();toast('✅ Цены сохранены для новых чеков');
 }
 function saveReceipt(){
     const draft=syncReceiptDraftFromForm();if(!draft)return;
-    if(!draft.number){toast('❌ Укажи номер чека',true);return;}
-    if(!draft.lines.length){toast('❌ Добавь хотя бы одну позицию',true);return;}
-    if(DB.receipts().some(item=>item.number===draft.number&&item.id!==receiptEditingId)){toast('❌ Такой номер чека уже есть',true);return;}
+    if(!draft.lines.length){toast('❌ Добавь хотя бы один товар',true);return;}
+    if(DB.receipts().some(item=>item.number===draft.number&&item.id!==receiptEditingId)){draft.number=nextReceiptNumber();}
     const now=U.nowISO(),doc={...JSON.parse(JSON.stringify(draft)),id:receiptEditingId||U.uid(),createdAt:draft.createdAt||now,updatedAt:now,lines:draft.lines.map(normaliseReceiptLine)};
     const receipts=DB.receipts(),index=receipts.findIndex(item=>item.id===doc.id);
     if(index>=0)receipts[index]=doc;else receipts.unshift(doc);
     DB.saveReceipts(receipts);receiptEditingId=doc.id;receiptDraft=JSON.parse(JSON.stringify(doc));renderReceiptList();openReceiptEditor();toast('✅ Товарный чек сохранён');maybeAutoBackup();
 }
 function cancelReceiptEdit(){receiptDraft=null;receiptEditingId=null;const card=document.getElementById('receipt-editor-card');if(card)card.style.display='none';const preview=document.getElementById('receipt-preview-shell');if(preview)preview.style.display='none';}
-function editReceipt(id){
-    const doc=DB.receipts().find(item=>item.id===id);if(!doc)return;
-    receiptEditingId=id;receiptDraft=JSON.parse(JSON.stringify(doc));openReceiptEditor();
-}
+function editReceipt(id){const doc=DB.receipts().find(item=>item.id===id);if(!doc)return;receiptEditingId=id;receiptDraft=JSON.parse(JSON.stringify(doc));openReceiptEditor();}
 function deleteReceipt(id){
     const receipts=DB.receipts(),index=receipts.findIndex(item=>item.id===id);if(index<0)return;
     if(!confirm('Удалить сохранённый товарный чек?'))return;
@@ -3486,7 +3430,7 @@ function deleteReceipt(id){
 function renderReceiptOrderSource(){
     const select=document.getElementById('receipt-order-source');if(!select)return;
     const current=select.value,orders=DB.orders().filter(order=>order.status==='Закрыта').sort((a,b)=>new Date(b.completed||b.created)-new Date(a.completed||a.created));
-    select.innerHTML='<option value="">— Выберите заявку —</option>'+orders.map(order=>`<option value="${escapeHtml(order.id)}">${escapeHtml(U.formatOrderId(order.id))} · ${escapeHtml(order.name||'Без имени')} · ${escapeHtml(order.tech||'Техника')} · ${U.money(U.finalAmount(order))}</option>`).join('');
+    select.innerHTML='<option value="">— Выберите заявку —</option>'+orders.map(order=>`<option value="${escapeHtml(order.id)}">${escapeHtml(U.formatOrderId(order.id))} · ${escapeHtml(order.name||'Без имени')} · ${escapeHtml(order.tech||'Техника')} · материалов: ${(order.materials||[]).length}</option>`).join('');
     if(orders.some(order=>String(order.id)===String(current)))select.value=current;
 }
 function renderReceiptList(){
@@ -3494,22 +3438,14 @@ function renderReceiptList(){
     const container=document.getElementById('receipts-list');if(!container)return;
     const receipts=DB.receipts().slice().sort((a,b)=>new Date(b.updatedAt||b.date||0)-new Date(a.updatedAt||a.date||0));
     if(!receipts.length){container.innerHTML='<div class="empty-state" style="padding:20px 8px;">Сохранённых чеков пока нет</div>';return;}
-    container.innerHTML=receipts.map(doc=>`<div class="table-row" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;"><div><b>${escapeHtml(doc.number||'Без номера')}</b><small style="display:block;color:var(--sub);margin-top:3px;">${receiptDateLabel(doc.date)}${doc.client?` · ${escapeHtml(doc.client)}`:''} · ${doc.lines?.length||0} поз.</small><strong style="display:block;margin-top:3px;color:var(--accent);">${U.money(receiptTotal(doc))}</strong></div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"><button type="button" class="btn-xs btn-outline" onclick="editReceipt('${doc.id}')">${iconSvg('edit')}</button><button type="button" class="btn-xs btn-purple" onclick="printReceiptById('${doc.id}')">${iconSvg('printer')}</button><button type="button" class="btn-xs btn-red" onclick="deleteReceipt('${doc.id}')">${iconSvg('delete')}</button></div></div>`).join('');
+    container.innerHTML=receipts.map(doc=>`<div class="table-row" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;"><div><b>Товарный чек</b><small style="display:block;color:var(--sub);margin-top:3px;">${receiptDateLabel(doc.date)}${doc.sourceOrderId?` · ${escapeHtml(U.formatOrderId(doc.sourceOrderId))}`:''} · ${doc.lines?.length||0} поз.</small><strong style="display:block;margin-top:3px;color:var(--accent);">${U.money(receiptTotal(doc))}</strong></div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"><button type="button" class="btn-xs btn-outline" onclick="editReceipt('${doc.id}')">${iconSvg('edit')}</button><button type="button" class="btn-xs btn-purple" onclick="printReceiptById('${doc.id}')">${iconSvg('printer')}</button><button type="button" class="btn-xs btn-red" onclick="deleteReceipt('${doc.id}')">${iconSvg('delete')}</button></div></div>`).join('');
 }
-function renderReceipts(){renderReceiptList();renderReceiptPriceList();}
+function renderReceipts(){renderReceiptList();renderReceiptPriceList();renderReceiptPriceChoices();}
 function receiptPaperHtml(doc){
-    const source=doc||{};
-    const lines=(source.lines||[]).map(normaliseReceiptLine);
-    const rows=lines.map(line=>`<tr><td>${escapeHtml(line.name||'—')}</td><td>${String(line.qty||'').trim()?`${escapeHtml(formatQuantity(line.qty))} ${escapeHtml(line.unit)}`:''}</td><td>${formatReceiptNumber(line.price)}</td><td>${formatReceiptNumber(receiptLineTotal(line))}</td></tr>`);
-    while(rows.length<6)rows.push('<tr class="receipt-blank"><td>&nbsp;</td><td></td><td></td><td></td></tr>');
-    const company=source.company||'';
-    const companyExtra=[source.companyAddress,source.companyDetails].filter(Boolean).map(value=>escapeHtml(value)).join(' · ');
-    const companyBlock=source.showCompany?`<div class="receipt-company"><b>Фирма:</b> ${escapeHtml(company||'________________')}${companyExtra?`<div class="receipt-executor">${companyExtra}</div>`:''}</div>`:'';
-    const executor=source.showExecutor?`<div class="receipt-executor">Исполнитель: ${escapeHtml(source.executor||'________________')}</div>`:'';
-    const refs=[source.client?`Покупатель: ${escapeHtml(source.client)}`:'',source.orderRef?`Заявка/договор: ${escapeHtml(source.orderRef)}`:'',source.contractRef&&source.contractRef!==source.orderRef?escapeHtml(source.contractRef):''].filter(Boolean).join(' · ');
-    const stamp=source.showStamp?`<div class="receipt-stamp"><span>ПЕЧАТЬ<br>${escapeHtml(company||'ФИРМА')}<br>${source.showExecutor?escapeHtml(source.executor||''):''}</span></div>`:'<div style="width:27mm;height:27mm;"></div>';
-    const signature=source.showSignature?`<div class="receipt-signature"><div><span class="receipt-signature-line"></span></div><div>Подпись продавца</div>${source.showExecutor?`<div class="receipt-executor">${escapeHtml(source.executor||'')}</div>`:''}</div>`:'<div></div>';
-    return `<div class="receipt-paper"><div class="receipt-topline">${companyBlock}<div class="receipt-date">Дата «${receiptDateLabel(source.date)||'__' }»</div></div>${executor}<h2>ТОВАРНЫЙ ЧЕК</h2>${refs?`<div class="receipt-ref">${refs}</div>`:''}<table><thead><tr><th>Наименование товара</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead><tbody>${rows.join('')}</tbody></table><div class="receipt-grand"><span>Всего:</span><span>${formatReceiptNumber(receiptTotal(source))} ₽</span></div><div class="receipt-footer">${stamp}${signature}</div></div>`;
+    const source=doc||{},lines=(source.lines||[]).filter(line=>!line?.kind||line.kind==='material').map(normaliseReceiptLine);
+    const rows=lines.map(line=>`<tr><td>${escapeHtml(line.name||'')}</td><td>${String(line.qty||'').trim()?`${escapeHtml(formatQuantity(line.qty))} ${escapeHtml(line.unit)}`:''}</td><td>${formatReceiptNumber(line.price)}</td><td>${formatReceiptNumber(receiptLineTotal(line))}</td></tr>`);
+    while(rows.length<8)rows.push('<tr class="receipt-blank"><td>&nbsp;</td><td></td><td></td><td></td></tr>');
+    return `<div class="receipt-paper"><div class="receipt-topline"><div class="receipt-date">Дата «${receiptDateLabel(source.date)||'__' }»</div></div><h2>ТОВАРНЫЙ ЧЕК</h2><table><thead><tr><th>Наименование товара</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead><tbody>${rows.join('')}</tbody></table><div class="receipt-grand"><span>Итого:</span><span>${formatReceiptNumber(receiptTotal(source))} ₽</span></div><div class="receipt-bottom-space"></div></div>`;
 }
 function formatReceiptNumber(value){return (Number(value)||0).toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function previewReceiptDraft(){
@@ -3517,40 +3453,30 @@ function previewReceiptDraft(){
     const shell=document.getElementById('receipt-preview-shell');if(!shell)return;
     document.getElementById('receipt-preview').innerHTML=receiptPaperHtml(draft);shell.style.display='block';updateReceiptTotal();
 }
-function printReceiptDraft(){
-    const draft=syncReceiptDraftFromForm();if(!draft)return;
-    printReceiptDocument(draft);
-}
+function printReceiptDraft(){const draft=syncReceiptDraftFromForm();if(draft)printReceiptDocument(draft);}
 function printReceiptById(id){const doc=DB.receipts().find(item=>item.id===id);if(doc)printReceiptDocument(doc);}
+function receiptPrintCss(){return `@page{size:A6 portrait;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000}body{width:105mm;min-height:148mm}.receipt-paper{width:105mm;min-height:148mm;padding:7mm 6mm 6mm;box-sizing:border-box;background:#fff;color:#000;font-family:'Times New Roman',serif;font-size:10px;line-height:1.2}.receipt-paper *{color:#000}.receipt-paper .receipt-topline{display:flex;justify-content:flex-end;gap:8px;min-height:12px;font-size:9px}.receipt-paper .receipt-date{text-align:right;white-space:nowrap}.receipt-paper h2{margin:8px 0 5px;text-align:center;font-size:15px;letter-spacing:.3px}.receipt-paper table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9px}.receipt-paper th,.receipt-paper td{border:1px solid #000;padding:3px 2px;vertical-align:middle;word-wrap:break-word}.receipt-paper th{text-align:center;font-weight:700}.receipt-paper th:first-child,.receipt-paper td:first-child{width:49%;text-align:left}.receipt-paper th:nth-child(2),.receipt-paper td:nth-child(2){width:14%;text-align:center}.receipt-paper th:nth-child(3),.receipt-paper td:nth-child(3){width:18%;text-align:right}.receipt-paper th:nth-child(4),.receipt-paper td:nth-child(4){width:19%;text-align:right}.receipt-paper .receipt-blank td{height:18px}.receipt-paper .receipt-grand{display:flex;justify-content:space-between;gap:8px;margin-top:7px;padding-top:5px;border-top:1px solid #000;font-weight:700;font-size:11px}.receipt-paper .receipt-bottom-space{height:22mm}@media print{body{width:105mm;min-height:148mm}}`;}
 function printReceiptDocument(doc){
     const win=window.open('','_blank','width=500,height=700');
     if(!win){toast('⚠️ Разреши всплывающие окна для печати',true);return;}
-    win.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>${escapeHtml(doc.number||'Товарный чек')}</title><style>@page{size:A6 portrait;margin:0}html,body{margin:0;padding:0;background:#fff;color:#000}body{width:105mm;min-height:148mm}.receipt-paper{width:105mm;min-height:148mm;padding:7mm 6mm 6mm;box-sizing:border-box;background:#fff;color:#000;font-family:'Times New Roman',serif;font-size:10px;line-height:1.2}.receipt-paper *{color:#000}.receipt-paper .receipt-topline{display:flex;justify-content:space-between;gap:8px;min-height:12px;font-size:9px}.receipt-paper .receipt-company{max-width:58%;word-break:break-word}.receipt-paper .receipt-date{text-align:right;white-space:nowrap}.receipt-paper h2{margin:8px 0 5px;text-align:center;font-size:15px;letter-spacing:.3px}.receipt-paper .receipt-ref{margin:0 0 5px;text-align:center;font-size:8px}.receipt-paper table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9px}.receipt-paper th,.receipt-paper td{border:1px solid #000;padding:3px 2px;vertical-align:middle;word-wrap:break-word}.receipt-paper th{text-align:center;font-weight:700}.receipt-paper th:first-child,.receipt-paper td:first-child{width:49%;text-align:left}.receipt-paper th:nth-child(2),.receipt-paper td:nth-child(2){width:14%;text-align:center}.receipt-paper th:nth-child(3),.receipt-paper td:nth-child(3){width:18%;text-align:right}.receipt-paper th:nth-child(4),.receipt-paper td:nth-child(4){width:19%;text-align:right}.receipt-paper .receipt-blank td{height:18px}.receipt-paper .receipt-grand{display:flex;justify-content:space-between;gap:8px;margin-top:7px;padding-top:5px;border-top:1px solid #000;font-weight:700;font-size:11px}.receipt-paper .receipt-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;min-height:33mm;margin-top:8px}.receipt-paper .receipt-stamp{display:flex;align-items:center;justify-content:center;width:27mm;height:27mm;border:1px solid #555;border-radius:50%;text-align:center;font-size:7px;line-height:1.05;padding:3mm;overflow:hidden}.receipt-paper .receipt-signature{flex:1;align-self:flex-end;text-align:right;font-size:9px}.receipt-paper .receipt-signature-line{display:inline-block;min-width:32mm;border-bottom:1px solid #000;height:12px;vertical-align:bottom}.receipt-paper .receipt-executor{margin-top:4px;font-size:8px}@media print{body{width:105mm;min-height:148mm}}</style></head><body>${receiptPaperHtml(doc)}</body></html>`);
+    win.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Товарный чек</title><style>${receiptPrintCss()}</style></head><body>${receiptPaperHtml(doc)}</body></html>`);
     win.document.close();setTimeout(()=>win.print(),350);
 }
-function seedReceiptServicePrices(){
-    const prices=DB.receiptPrices(),existing=new Set(prices.filter(item=>item.kind==='service').map(item=>receiptNameKey(item.name)+'|'+canonicalUnit(item.unit||'шт.')));let added=0;
-    getAllPriceServices().forEach(service=>{
-        const key=receiptNameKey(service.name)+'|шт.';if(existing.has(key))return;
-        prices.push({id:U.uid(),name:service.name,price:Number(service.price)||0,unit:'шт.',kind:'service',tech:service.tech,category:service.category,updatedAt:U.nowISO()});existing.add(key);added++;
-    });
-    DB.saveReceiptPrices(prices);renderReceiptPriceList();toast(added?`✅ Добавлено услуг в прайс: ${added}`:'ℹ️ Услуги уже есть в прайсе');maybeAutoBackup();
-}
 function addReceiptPrice(){
-    const name=document.getElementById('receipt-price-name')?.value.trim(),price=Math.max(0,Number(document.getElementById('receipt-price-value')?.value)||0),unit=canonicalUnit(document.getElementById('receipt-price-unit')?.value||'шт.'),kind=document.getElementById('receipt-price-kind')?.value||'other';
-    if(!name){toast('❌ Укажи название цены',true);return;}if(price<=0){toast('❌ Укажи цену больше нуля',true);return;}
-    const prices=DB.receiptPrices(),existing=prices.find(item=>receiptNameKey(item.name)===receiptNameKey(name)&&item.kind===kind&&canonicalUnit(item.unit||'шт.')===unit);
-    if(existing){existing.price=price;existing.updatedAt=U.nowISO();}else prices.unshift({id:U.uid(),name,price,unit,kind,updatedAt:U.nowISO()});
-    DB.saveReceiptPrices(prices);document.getElementById('receipt-price-name').value='';document.getElementById('receipt-price-value').value='';renderReceiptPriceList();toast('✅ Цена сохранена');maybeAutoBackup();
+    const name=document.getElementById('receipt-price-name')?.value.trim(),price=Math.max(0,Number(document.getElementById('receipt-price-value')?.value)||0),unit=canonicalUnit(document.getElementById('receipt-price-unit')?.value||'шт.');
+    if(!name){toast('❌ Укажи название товара',true);return;}if(price<=0){toast('❌ Укажи цену больше нуля',true);return;}
+    const prices=DB.receiptPrices(),existing=prices.find(item=>receiptNameKey(item.name)===receiptNameKey(name)&&canonicalUnit(item.unit||'шт.')===unit&&(!item.kind||item.kind==='material'));
+    if(existing){existing.price=price;existing.kind='material';existing.updatedAt=U.nowISO();}else prices.unshift({id:U.uid(),name,price,unit,kind:'material',updatedAt:U.nowISO()});
+    DB.saveReceiptPrices(prices);document.getElementById('receipt-price-name').value='';document.getElementById('receipt-price-value').value='';renderReceiptPriceList();renderReceiptPriceChoices();toast('✅ Цена товара сохранена');maybeAutoBackup();
 }
-function updateReceiptPrice(id,value){const prices=DB.receiptPrices(),item=prices.find(entry=>entry.id===id);if(!item)return;const price=Math.max(0,Number(value)||0);if(price<=0){toast('❌ Цена должна быть больше нуля',true);renderReceiptPriceList();return;}item.price=price;item.updatedAt=U.nowISO();DB.saveReceiptPrices(prices);toast('✅ Цена обновлена');}
-function deleteReceiptPrice(id){const prices=DB.receiptPrices(),index=prices.findIndex(item=>item.id===id);if(index<0)return;if(!confirm('Удалить эту цену из прайса товарников?'))return;const removed=prices.splice(index,1)[0];DB.saveReceiptPrices(prices);renderReceiptPriceList();showUndo('Цена удалена',()=>{const restored=DB.receiptPrices();restored.splice(Math.min(index,restored.length),0,removed);DB.saveReceiptPrices(restored);renderReceiptPriceList();});}
+function updateReceiptPrice(id,value){const prices=DB.receiptPrices(),item=prices.find(entry=>entry.id===id);if(!item)return;const price=Math.max(0,Number(value)||0);if(price<=0){toast('❌ Цена должна быть больше нуля',true);renderReceiptPriceList();return;}item.price=price;item.kind='material';item.updatedAt=U.nowISO();DB.saveReceiptPrices(prices);renderReceiptPriceChoices();toast('✅ Цена обновлена');}
+function deleteReceiptPrice(id){const prices=DB.receiptPrices(),index=prices.findIndex(item=>item.id===id);if(index<0)return;if(!confirm('Удалить эту цену из прайса товарников?'))return;const removed=prices.splice(index,1)[0];DB.saveReceiptPrices(prices);renderReceiptPriceList();renderReceiptPriceChoices();showUndo('Цена удалена',()=>{const restored=DB.receiptPrices();restored.splice(Math.min(index,restored.length),0,removed);DB.saveReceiptPrices(restored);renderReceiptPriceList();renderReceiptPriceChoices();});}
 function renderReceiptPriceList(){
     const container=document.getElementById('receipt-price-list');if(!container)return;
-    const search=(document.getElementById('receipt-price-search')?.value||'').trim().toLowerCase();let prices=DB.receiptPrices().slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ru'));
-    if(search)prices=prices.filter(item=>`${item.name||''} ${receiptKindLabel(item.kind)} ${item.unit||''}`.toLowerCase().includes(search));
-    if(!prices.length){container.innerHTML='<div class="empty-state" style="padding:16px 8px;">Прайс товарников пуст</div>';return;}
-    container.innerHTML=prices.map(item=>`<div class="receipt-price-row"><div class="receipt-price-copy"><b>${escapeHtml(item.name)}</b><small>${receiptKindLabel(item.kind)} · ${escapeHtml(item.unit||'шт.')}</small></div><input type="number" min="0" step="0.01" value="${Number(item.price)||0}" onchange="updateReceiptPrice('${item.id}',this.value)"><button type="button" class="btn-red" onclick="deleteReceiptPrice('${item.id}')" aria-label="Удалить цену">${iconSvg('delete')}</button></div>`).join('');
+    const search=(document.getElementById('receipt-price-search')?.value||'').trim().toLowerCase();let prices=DB.receiptPrices().filter(item=>!item.kind||item.kind==='material').slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ru'));
+    if(search)prices=prices.filter(item=>`${item.name||''} ${item.unit||''}`.toLowerCase().includes(search));
+    if(!prices.length){container.innerHTML='<div class="empty-state" style="padding:16px 8px;">Прайс товаров пуст</div>';return;}
+    container.innerHTML=prices.map(item=>`<div class="receipt-price-row"><div class="receipt-price-copy"><b>${escapeHtml(item.name)}</b><small>Товар · ${escapeHtml(item.unit||'шт.')}</small></div><input type="number" min="0" step="0.01" value="${Number(item.price)||0}" onchange="updateReceiptPrice('${item.id}',this.value)"><button type="button" class="btn-red" onclick="deleteReceiptPrice('${item.id}')" aria-label="Удалить цену">${iconSvg('delete')}</button></div>`).join('');
 }
 
 // ==================== ПЕЧАТЬ АКТА ====================
@@ -3740,17 +3666,12 @@ function deleteCustomService(id){
 
 function loadSettings(){
     const s=DB.settings();
-    document.getElementById('set-name').value=s.name||'Романычев Д.В.';
-    document.getElementById('set-inn').value=s.inn||'';
-    document.getElementById('set-phone').value=s.phone||'';
-    document.getElementById('set-company-name').value=s.companyName||'';
-    document.getElementById('set-company-address').value=s.companyAddress||'';
-    document.getElementById('set-receipt-show-company').checked=s.receiptShowCompany!==false;
-    document.getElementById('set-receipt-show-executor').checked=s.receiptShowExecutor!==false;
-    document.getElementById('set-receipt-show-stamp').checked=s.receiptShowStamp===true;
-    document.getElementById('set-receipt-show-signature').checked=s.receiptShowSignature===true;
-    document.getElementById('set-auto-backup').checked=s.autoBackup!==false;
-    document.getElementById('set-auto-price').checked=s.autoPriceAdjust!==false;
+    const put=(id,value)=>{const el=document.getElementById(id);if(el)el.value=value??'';};
+    put('set-name',s.name||'Романычев Д.В.');
+    put('set-inn',s.inn||'');
+    put('set-phone',s.phone||'');
+    const backup=document.getElementById('set-auto-backup');if(backup)backup.checked=s.autoBackup!==false;
+    const autoPrice=document.getElementById('set-auto-price');if(autoPrice)autoPrice.checked=s.autoPriceAdjust!==false;
     updateBackupInfo();
 }
 
@@ -3761,12 +3682,6 @@ function saveSettings(){
         name:document.getElementById('set-name').value.trim(),
         inn:document.getElementById('set-inn').value.trim(),
         phone:document.getElementById('set-phone').value.trim(),
-        companyName:document.getElementById('set-company-name').value.trim(),
-        companyAddress:document.getElementById('set-company-address').value.trim(),
-        receiptShowCompany:document.getElementById('set-receipt-show-company').checked,
-        receiptShowExecutor:document.getElementById('set-receipt-show-executor').checked,
-        receiptShowStamp:document.getElementById('set-receipt-show-stamp').checked,
-        receiptShowSignature:document.getElementById('set-receipt-show-signature').checked,
         autoBackup:document.getElementById('set-auto-backup').checked,
         autoPriceAdjust:document.getElementById('set-auto-price').checked
     });
@@ -3792,7 +3707,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:10,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:11,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -3929,30 +3844,22 @@ function migrateStoredData(){
         if(!receipt.id){receipt.id=U.uid();receiptsChanged=true;}
         if(!receipt.number){do{receiptSequence++;receipt.number=receiptPrefix+String(receiptSequence).padStart(4,'0');}while(usedReceiptNumbers.has(receipt.number));usedReceiptNumbers.add(receipt.number);receiptsChanged=true;}
         if(!receipt.date){receipt.date=U.toDateInput(receipt.createdAt||U.nowISO());receiptsChanged=true;}
-        if(receipt.companyAddress===undefined){receipt.companyAddress='';receiptsChanged=true;}
-        if(receipt.companyDetails===undefined){receipt.companyDetails='';receiptsChanged=true;}
         if(!Array.isArray(receipt.lines)){receipt.lines=[];receiptsChanged=true;}else{
-            const lines=receipt.lines.map(normaliseReceiptLine);
+            // В старых версиях сюда могли попасть услуги. Новый товарник хранит
+            // только строки с материалами/товарами.
+            const lines=receipt.lines.filter(line=>!line?.kind||line.kind==='material').map(normaliseReceiptLine);
             if(JSON.stringify(lines)!==JSON.stringify(receipt.lines)){receipt.lines=lines;receiptsChanged=true;}
         }
-        if(receipt.showCompany===undefined){receipt.showCompany=true;receiptsChanged=true;}
-        if(receipt.showExecutor===undefined){receipt.showExecutor=true;receiptsChanged=true;}
-        if(receipt.showStamp===undefined){receipt.showStamp=false;receiptsChanged=true;}
-        if(receipt.showSignature===undefined){receipt.showSignature=false;receiptsChanged=true;}
     });
     if(receiptsChanged)DB.saveReceipts(receipts);
     const receiptPrices=DB.receiptPrices();let receiptPricesChanged=false;
     receiptPrices.forEach(item=>{
         if(!item.id){item.id=U.uid();receiptPricesChanged=true;}
         if(item.unit!==canonicalUnit(item.unit||'шт.')){item.unit=canonicalUnit(item.unit||'шт.');receiptPricesChanged=true;}
-        if(!RECEIPT_KIND_LABELS[item.kind]){item.kind='other';receiptPricesChanged=true;}
+        if(item.kind!=='service'&&item.kind!=='other'&&item.kind!=='material'){item.kind='material';receiptPricesChanged=true;}
         if(Number.isNaN(Number(item.price))){item.price=0;receiptPricesChanged=true;}
     });
     if(receiptPricesChanged)DB.saveReceiptPrices(receiptPrices);
-    const settings=DB.settings();let settingsChanged=false;
-    const settingDefaults={companyName:'',companyAddress:'',receiptShowCompany:true,receiptShowExecutor:true,receiptShowStamp:false,receiptShowSignature:false};
-    Object.entries(settingDefaults).forEach(([key,value])=>{if(settings[key]===undefined){settings[key]=value;settingsChanged=true;}});
-    if(settingsChanged)DB.saveSettings(settings);
 }
 
 // ==================== PWA УСТАНОВКА ====================
