@@ -1078,7 +1078,7 @@
 
 <!-- Товарник -->
 <div id="page-receipts" class="page">
-    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарник</h1><p>Таблица товаров · без сохранения · v16</p></div></div>
+    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарник</h1><p>Таблица товаров · без сохранения · v17</p></div></div>
     <div class="card">
         <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-price"></use></svg></span>Новый товарник</div>
         <div class="row">
@@ -2490,6 +2490,56 @@ function getServiceCatalogForTech(tech){
     return catalog;
 }
 
+function findCatalogServicePrice(name,tech){
+    const wanted=String(name||'').trim();if(!wanted)return null;
+    const catalog=getServiceCatalogForTech(tech||document.getElementById('n-tech')?.value||'');
+    for(const services of Object.values(catalog)){
+        const found=services.find(service=>service.name===wanted);
+        if(found)return Math.max(0,Number(found.price)||0);
+    }
+    return null;
+}
+
+function normaliseSelectedService(service,tech){
+    const source=service||{},price=Math.max(0,Math.round(Number(source.price)||0));
+    const storedBase=Number(source.basePrice),hasStoredBase=source.basePrice!==undefined&&source.basePrice!==null&&Number.isFinite(storedBase)&&storedBase>=0,catalogBase=findCatalogServicePrice(source.name,tech);
+    const basePrice=hasStoredBase?storedBase:(catalogBase!==null?catalogBase:price);
+    return {...source,name:String(source.name||'').trim(),price,basePrice:Math.max(0,Math.round(basePrice)),qty:1};
+}
+
+function ensureSelectedServiceBasePrices(){
+    const tech=document.getElementById('n-tech')?.value||'';
+    selectedServices=selectedServices.map(service=>normaliseSelectedService(service,tech));
+    return selectedServices;
+}
+
+function distributeServicePrices(targetSum){
+    ensureSelectedServiceBasePrices();
+    const target=Math.max(0,Math.round(Number(targetSum)||0));
+    if(!selectedServices.length||target<=0)return;
+
+    let weights=selectedServices.map(service=>Math.max(0,Number(service.basePrice)||0));
+    let weightTotal=weights.reduce((sum,value)=>sum+value,0);
+    if(weightTotal<=0){weights=selectedServices.map(()=>1);weightTotal=weights.length;}
+
+    const raw=weights.map(weight=>target*weight/weightTotal);
+    const prices=raw.map(value=>Math.max(0,U.roundToNice(value)));
+    let difference=target-prices.reduce((sum,value)=>sum+value,0);
+
+    if(difference>0){
+        const best=raw.map((value,index)=>({index,remainder:value-prices[index],weight:weights[index]})).sort((a,b)=>b.remainder-a.remainder||b.weight-a.weight)[0]?.index??0;
+        prices[best]+=difference;
+    }else if(difference<0){
+        let remove=-difference;
+        const order=prices.map((value,index)=>({index,value,weight:weights[index]})).sort((a,b)=>b.value-a.value||b.weight-a.weight);
+        for(const entry of order){
+            const amount=Math.min(prices[entry.index],remove);prices[entry.index]-=amount;remove-=amount;if(remove<=0)break;
+        }
+    }
+
+    selectedServices.forEach((service,index)=>{service.price=Math.max(0,Math.round(prices[index]));});
+}
+
 function updateServiceCatalog(){
     document.getElementById('selected-services').innerHTML='';
     document.getElementById('services-total-display').innerHTML='';
@@ -2505,6 +2555,7 @@ function onOrderTechChange(){
 }
 
 function showServiceModal(){
+    ensureSelectedServiceBasePrices();
     document.getElementById('service-modal-overlay').classList.add('active');
     renderServiceCatalog();
 }
@@ -2538,7 +2589,7 @@ function renderServiceCatalog(){
 function toggleService(name,price){
     const idx=selectedServices.findIndex(s=>s.name===name);
     if(idx>=0)selectedServices.splice(idx,1);
-    else selectedServices.push({name,price,qty:1});
+    else selectedServices.push({name,price,basePrice:price,qty:1});
     renderServiceCatalog();
 }
 
@@ -2555,63 +2606,8 @@ function applyServices(){
     const targetSum = parseInt(document.getElementById('n-sum').value) || 0;
     if(selectedServices.length === 0){closeServiceModal();return;}
 
-    if(targetSum > 0){
-        const totalBase = selectedServices.reduce((s,ss) => s + ss.price, 0);
-        if(totalBase > 0 && totalBase !== targetSum){
-            const ratio = targetSum / totalBase;
-
-            selectedServices.forEach((ss, i) => {
-                if(i < selectedServices.length - 1){
-                    ss.price = Math.round(ss.price * ratio);
-                }
-            });
-
-            let roundedTotal = 0;
-            selectedServices.forEach((ss, i) => {
-                if(i < selectedServices.length - 1){
-                    ss.price = U.roundToNice(ss.price);
-                    roundedTotal += ss.price;
-                }
-            });
-
-            let diff = targetSum - roundedTotal;
-            let lastPrice = Math.round(diff);
-            if (lastPrice < 100 && lastPrice > 0) {
-                lastPrice = Math.round(lastPrice / 10) * 10;
-            } else if (lastPrice < 500 && lastPrice > 0) {
-                lastPrice = Math.round(lastPrice / 50) * 50;
-            } else if (lastPrice > 0) {
-                lastPrice = Math.round(lastPrice / 100) * 100;
-            }
-
-            if (lastPrice <= 0 && selectedServices.length > 1) {
-                let remaining = diff;
-                for (let i = selectedServices.length - 2; i >= 0; i--) {
-                    if (remaining > 0) {
-                        let add = Math.min(remaining, 100);
-                        selectedServices[i].price += add;
-                        remaining -= add;
-                    }
-                }
-                lastPrice = Math.max(0, remaining);
-            }
-
-            if (selectedServices.length > 0) {
-                selectedServices[selectedServices.length - 1].price = Math.max(0, lastPrice);
-            }
-
-            let finalTotal = selectedServices.reduce((s,ss) => s + ss.price, 0);
-            if (finalTotal !== targetSum) {
-                const adjust = targetSum - finalTotal;
-                if (selectedServices.length > 0) {
-                    selectedServices[selectedServices.length - 1].price += adjust;
-                    if (selectedServices[selectedServices.length - 1].price < 0) {
-                        selectedServices[selectedServices.length - 1].price = 0;
-                    }
-                }
-            }
-        }
-    }
+    if(targetSum > 0)distributeServicePrices(targetSum);
+    else ensureSelectedServiceBasePrices();
 
     const container = document.getElementById('selected-services');
     container.innerHTML = selectedServices.map(s =>
@@ -2681,7 +2677,7 @@ function renderDraftBanner(){
 function restoreDraft(){
     const d=DB.get('draft');if(!d||Array.isArray(d))return;
     Object.entries(d).forEach(([id,value])=>{const el=document.getElementById(id);if(el&&typeof value==='string')el.value=value;});
-    selectedServices=JSON.parse(JSON.stringify(d.services||[]));selectedMaterials=(d.materials||[]).map(normaliseMaterial);tempPhotos=d.photos||[];
+    selectedServices=JSON.parse(JSON.stringify(d.services||[])).map(service=>normaliseSelectedService(service,document.getElementById('n-tech')?.value||''));selectedMaterials=(d.materials||[]).map(normaliseMaterial);tempPhotos=d.photos||[];
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);document.getElementById('services-total-display').innerHTML=selectedServices.length?`Итого услуг: <b>${U.money(total)}</b>`:'';
     const container=document.getElementById('photo-preview');container.innerHTML='';tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>showFullPhoto(p);container.appendChild(img);});
@@ -2823,7 +2819,7 @@ function editOrder(id){
     document.getElementById('n-created-date').value=U.toDateInput(order.created);
     document.getElementById('n-completed-date').value=order.completed?U.toDateInput(order.completed):'';
     document.getElementById('n-next-visit').value=U.toDateTimeInput(order.nextVisit);
-    selectedServices=JSON.parse(JSON.stringify(order.services||[]));
+    selectedServices=JSON.parse(JSON.stringify(order.services||[])).map(service=>normaliseSelectedService(service,order.tech||''));
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);
     document.getElementById('services-total-display').innerHTML=`Итого услуг: <b>${U.money(total)}</b>`;
@@ -2888,7 +2884,7 @@ function duplicateOrder(id){
     document.getElementById('n-percent').value=order.percent||50;
     document.getElementById('n-guarantee').value=order.guarantee||'';
     document.getElementById('n-status').value='В работе';
-    selectedServices=JSON.parse(JSON.stringify(order.services||[]));
+    selectedServices=JSON.parse(JSON.stringify(order.services||[])).map(service=>normaliseSelectedService(service,order.tech||''));
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);
     document.getElementById('services-total-display').innerHTML=`Итого услуг: <b>${U.money(total)}</b>`;
@@ -4216,7 +4212,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:14,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:15,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -4312,6 +4308,11 @@ function migrateStoredData(){
         if(Array.isArray(o.materials)){
             const normalised=o.materials.map(normaliseMaterial);
             if(JSON.stringify(normalised)!==JSON.stringify(o.materials)){o.materials=normalised;changed=true;}
+        }
+        if(!Array.isArray(o.services)&&o.services!==undefined){o.services=[];changed=true;}
+        if(Array.isArray(o.services)){
+            const normalised=o.services.map(service=>normaliseSelectedService(service,o.tech||''));
+            if(JSON.stringify(normalised)!==JSON.stringify(o.services)){o.services=normalised;changed=true;}
         }
         if(o.nextVisit&&Number.isNaN(new Date(o.nextVisit).getTime())){o.nextVisit=null;changed=true;}
     });
@@ -4411,7 +4412,7 @@ if ('serviceWorker' in navigator) {
             window.location.reload();
         }
     });
-    navigator.serviceWorker.register('./sw.js?v=16',{updateViaCache:'none'})
+    navigator.serviceWorker.register('./sw.js?v=17',{updateViaCache:'none'})
         .then(registration=>{
             console.log('✅ Service Worker зарегистрирован');
             if(registration.waiting)registration.waiting.postMessage({type:'SKIP_WAITING'});
