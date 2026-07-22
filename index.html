@@ -865,6 +865,28 @@
         @media (max-width:440px) { body{padding-left:10px;padding-right:10px}.app-header{margin-left:-10px;margin-right:-10px}.page-heading h1{font-size:25px}.row{gap:7px}.card{padding:13px}.price-toolbar{grid-template-columns:1fr}.compat-grid{grid-template-columns:1fr}.client-actions{grid-template-columns:repeat(4,36px)}.client-actions button{width:36px;min-width:36px;height:36px;min-height:36px}.custom-period{grid-template-columns:1fr 1fr}.custom-period button{grid-column:1 / -1;width:100%}.attention-grid{grid-template-columns:repeat(3,minmax(72px,1fr))} }
         @media (max-width:360px) { .order-action small{font-size:7px}.order-actions{gap:3px}.order-action{padding-left:1px;padding-right:1px}.money-box b{font-size:15px}.client-modal-head{flex-direction:column}.client-actions{width:100%;grid-template-columns:repeat(4,1fr)}.client-actions button{width:100%;min-width:0} }
         @media print { .app-header,.bottom-nav,.page-heading { display:none!important; } body{padding:0!important;} }
+
+        /* v18: компактный склад и рабочая гарантия */
+        .warranty-panel{margin:10px 0;padding:12px;border:1px solid rgba(247,129,102,.28);border-radius:12px;background:rgba(247,129,102,.055)}
+        .warranty-panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+        .warranty-panel-head b{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--text)}
+        .warranty-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+        .warranty-scope-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}
+        .warranty-scope-option{display:flex;align-items:center;gap:7px;min-height:38px;padding:8px;border:1px solid var(--border);border-radius:9px;background:var(--input);font-size:11px;text-transform:none;letter-spacing:0;font-weight:550}
+        .warranty-scope-option input{width:auto;margin:0}
+        .warranty-scope-option:has(input:checked){border-color:var(--accent);background:rgba(247,129,102,.12)}
+        .warranty-link{margin:8px 0;padding:10px;border:1px solid rgba(88,166,255,.3);border-radius:10px;background:rgba(88,166,255,.07);font-size:11px;line-height:1.45}
+        .warranty-link b{color:var(--blue)}
+        .warranty-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid rgba(88,166,255,.35);border-radius:999px;color:var(--blue);font-size:9px;font-weight:750}
+        .warehouse-card-head{align-items:center;gap:10px}
+        .warehouse-card-copy b{font-size:14px;line-height:1.25}
+        .warehouse-card-copy small{font-size:10px;line-height:1.35;display:block;margin-top:3px}
+        .warehouse-stock{min-width:78px;text-align:right}
+        .compact-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;margin-top:8px!important;padding-top:8px!important}
+        .compact-action{min-height:38px!important;padding:8px 7px!important;margin:0!important;font-size:11px!important}
+        .stock-group-items>.card{padding:10px!important}
+        @media(min-width:620px){.compact-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important}.warranty-scope-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+        @media(max-width:430px){.warranty-grid{grid-template-columns:1fr}.warehouse-card-icon{width:40px;height:40px}.warehouse-card-copy b{font-size:13px}.warehouse-stock b{font-size:13px}.stock-group-items{padding-left:6px!important;padding-right:6px!important}}
     </style>
 </head>
 <body>
@@ -962,7 +984,18 @@
         </div>
 
         <div class="row"><div class="form-group"><label>Итоговая сумма (₽)</label><input type="number" id="n-sum" placeholder="26000" inputmode="numeric" onblur="autoAdjustServices()"></div><div class="form-group"><label>Предоплата (₽)</label><input type="number" id="n-prepay" placeholder="0" inputmode="numeric"></div></div>
-        <div class="row"><div class="form-group"><label>Скидка (₽)</label><input type="number" id="n-discount" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Гарантия (мес.)</label><input type="number" id="n-guarantee" placeholder="6" inputmode="numeric"></div></div>
+        <div class="row"><div class="form-group"><label>Скидка (₽)</label><input type="number" id="n-discount" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Гарантия (мес.)</label><select id="n-guarantee" onchange="syncWarrantyPanel()"><option value="0">Без гарантии</option><option value="1">1 месяц</option><option value="3">3 месяца</option><option value="6" selected>6 месяцев</option><option value="12">12 месяцев</option><option value="custom">Свой срок</option></select></div></div>
+        <section class="warranty-panel" id="warranty-panel">
+            <div class="warranty-panel-head"><b><svg class="ui-icon"><use href="#i-shield"></use></svg> Условия гарантии</b><span id="warranty-until-preview" class="warranty-badge">начнётся после закрытия</span></div>
+            <div class="warranty-grid">
+                <div class="form-group" id="warranty-custom-wrap" style="display:none"><label>Свой срок (мес.)</label><input type="number" id="n-guarantee-custom" min="0" placeholder="Например, 2" inputmode="numeric" oninput="syncWarrantyPanel()"></div>
+                <div class="form-group"><label>Что покрывает</label><select id="n-guarantee-type"><option value="work_part">Работу и установленную деталь</option><option value="work">Только работу</option><option value="part">Только установленную деталь</option><option value="node">Конкретный узел</option></select></div>
+            </div>
+            <div class="form-group"><label>Узлы / область гарантии</label><div id="warranty-scope-options" class="warranty-scope-grid"></div></div>
+            <div class="form-group"><label>Комментарий и исключения</label><textarea id="n-guarantee-note" placeholder="Например: не распространяется на перепады напряжения, засоры и посторонние предметы"></textarea></div>
+            <div id="warranty-parent-link" class="warranty-link" style="display:none"></div>
+            <div class="form-group" id="warranty-result-wrap" style="display:none"><label>Результат гарантийного обращения</label><select id="n-warranty-result"><option value="pending">На диагностике</option><option value="confirmed">Гарантия подтверждена</option><option value="non_warranty">Случай не гарантийный</option><option value="not_found">Дефект не обнаружен</option><option value="fixed">Исправлено по гарантии</option><option value="declined">Клиент отказался</option></select><div class="field-hint">Для гарантийной заявки сумма клиента по умолчанию 0 ₽. При выборе «не гарантийный» её можно сделать обычной платной заявкой.</div></div>
+        </section>
         <div class="row"><div class="form-group"><label>Серые расходы</label><input type="number" id="n-gray" placeholder="0" inputmode="numeric"></div><div class="form-group"><label>Белые расходы</label><input type="number" id="n-white" placeholder="0" inputmode="numeric"></div></div>
         <div class="form-group">
             <label>Ваш %</label>
@@ -1933,6 +1966,7 @@ const U = {
     },
     profit(o) {
         if (o.status !== 'Закрыта') return null;
+        if(o.isWarrantyCase&&o.warrantyResult!=='non_warranty')return 0;
         const total = this.finalAmount(o) - (o.expense_gray||0);
         if (total <= 0) return 0;
         return Math.round(total * (o.percent||50) / 100 + Math.max(0, (o.expense_gray||0) - (o.expense_white||0)));
@@ -2547,6 +2581,7 @@ function updateServiceCatalog(){
 }
 
 function onOrderTechChange(){
+    const previousScope=selectedWarrantyScope();renderWarrantyScope(previousScope);syncWarrantyPanel();
     updateServiceCatalog();window.materialShowAll=false;
     const tech=document.getElementById('n-tech')?.value||'';
     const mismatched=selectedMaterials.filter(material=>{const stock=material.warehouseId?DB.warehouse().find(item=>item.id===material.warehouseId):null;return stock&&itemHasCompatibility(stock)&&!itemCompatibleWithTech(stock,tech);});
@@ -2647,13 +2682,52 @@ function updateOrderDateFields(){
     if(closed&&!completed.value)completed.value=U.toDateInput();
     if(!closed)completed.value='';
     if(nextVisit){nextVisit.disabled=closed;if(closed)nextVisit.value='';}
+    syncWarrantyPanel();
+}
+
+
+const WARRANTY_SCOPES={
+    'Холодильник':['Компрессор','Холодильный контур','Фильтр / заправка','Электрика','Датчики','Вентилятор'],
+    'Морозильная камера':['Компрессор','Холодильный контур','Фильтр / заправка','Электрика','Датчики'],
+    'Стиральная машина':['ТЭН','Насос','Клапан','УБЛ','Подшипники','Электроника'],
+    'Посудомоечная машина':['ТЭН','Циркуляционный насос','Слив','Аквастоп','Клапан','Плата управления']
+};
+let currentWarrantyParentId=null;
+function warrantyScopesForTech(tech){return WARRANTY_SCOPES[tech]||['Выполненная работа','Установленная деталь','Диагностированный узел','Электрика'];}
+function renderWarrantyScope(selected=null){
+    const box=document.getElementById('warranty-scope-options');if(!box)return;
+    const selectedSet=new Set(Array.isArray(selected)?selected:selectedWarrantyScope());
+    box.innerHTML=warrantyScopesForTech(document.getElementById('n-tech')?.value).map(scope=>`<label class="warranty-scope-option"><input type="checkbox" value="${escapeHtml(scope)}" ${selectedSet.has(scope)?'checked':''}>${escapeHtml(scope)}</label>`).join('');
+}
+function selectedWarrantyScope(){return [...document.querySelectorAll('#warranty-scope-options input:checked')].map(input=>input.value);}
+function getWarrantyMonths(){const select=document.getElementById('n-guarantee');if(!select)return 0;return select.value==='custom'?Math.max(0,parseInt(document.getElementById('n-guarantee-custom').value)||0):Math.max(0,parseInt(select.value)||0);}
+function setWarrantyMonths(months){const value=Math.max(0,parseInt(months)||0),select=document.getElementById('n-guarantee');if(!select)return;if(['0','1','3','6','12'].includes(String(value))){select.value=String(value);document.getElementById('n-guarantee-custom').value='';}else{select.value='custom';document.getElementById('n-guarantee-custom').value=value;}}
+function syncWarrantyPanel(){
+    const custom=document.getElementById('warranty-custom-wrap'),months=getWarrantyMonths();if(custom)custom.style.display=document.getElementById('n-guarantee')?.value==='custom'?'block':'none';
+    const preview=document.getElementById('warranty-until-preview'),status=document.getElementById('n-status')?.value,completed=document.getElementById('n-completed-date')?.value;
+    if(preview){if(!months)preview.textContent='без гарантии';else if(status==='Закрыта'&&completed){const d=new Date(completed+'T12:00:00');d.setMonth(d.getMonth()+months);preview.textContent='до '+U.date(d.toISOString());}else preview.textContent=months+' мес. после закрытия';}
+    const link=document.getElementById('warranty-parent-link'),result=document.getElementById('warranty-result-wrap');
+    if(link){if(currentWarrantyParentId){const parent=DB.orders().find(o=>String(o.id)===String(currentWarrantyParentId));link.style.display='block';link.innerHTML=`<b>${iconSvg('shield')} Гарантийное обращение</b><br>Связано с ${parent?`${U.formatOrderId(parent.id)} · ${escapeHtml(parent.name)} · ${escapeHtml(parent.tech||'Техника')}`:U.formatOrderId(currentWarrantyParentId)}.`;}else link.style.display='none';}
+    if(result)result.style.display=currentWarrantyParentId?'block':'none';
+}
+function warrantyResultLabel(value){return ({pending:'на диагностике',confirmed:'гарантия подтверждена',non_warranty:'не гарантийный',not_found:'дефект не обнаружен',fixed:'исправлено по гарантии',declined:'клиент отказался'})[value]||value;}
+function createWarrantyCase(id){
+    const source=DB.orders().find(o=>String(o.id)===String(id));if(!source)return;
+    clearForm();currentWarrantyParentId=source.id;
+    document.getElementById('n-name').value=source.name||'';document.getElementById('n-phone').value=source.phone||'';document.getElementById('n-address').value=source.address||'';document.getElementById('n-tech').value=source.tech||'';document.getElementById('n-brand').value=source.brand||'';
+    document.getElementById('n-issue').value='Повторное обращение по гарантии: ';document.getElementById('n-comment').value=`Исходная заявка ${U.formatOrderId(source.id)}. Первичный ремонт: ${(source.services||[]).map(s=>s.name).join(', ')||'не указано'}.`;
+    document.getElementById('n-sum').value='0';document.getElementById('n-prepay').value='0';document.getElementById('n-discount').value='0';setWarrantyMonths(0);document.getElementById('n-warranty-result').value='pending';
+    selectedServices=[];selectedMaterials=[];renderSelectedMaterials();document.getElementById('selected-services').innerHTML='';document.getElementById('services-total-display').innerHTML='';
+    renderWarrantyScope(source.guaranteeScope||[]);syncWarrantyPanel();switchTab('new');window.scrollTo(0,0);toast('🛡️ Гарантийная заявка создана из исходной');
 }
 
 function getDraft(){
     const draft={};
-    ['n-name','n-phone','n-address','n-tech','n-brand','n-issue','n-diagnosis','n-comment','n-defects','n-sum','n-prepay','n-discount','n-gray','n-white','n-percent','n-guarantee','n-status','n-created-date','n-completed-date','n-next-visit'].forEach(id=>{const el=document.getElementById(id);if(el)draft[id]=el.value;});
+    ['n-name','n-phone','n-address','n-tech','n-brand','n-issue','n-diagnosis','n-comment','n-defects','n-sum','n-prepay','n-discount','n-gray','n-white','n-percent','n-guarantee','n-guarantee-custom','n-guarantee-type','n-guarantee-note','n-warranty-result','n-status','n-created-date','n-completed-date','n-next-visit'].forEach(id=>{const el=document.getElementById(id);if(el)draft[id]=el.value;});
     draft.services=JSON.parse(JSON.stringify(selectedServices));
     draft.materials=JSON.parse(JSON.stringify(selectedMaterials));
+    draft.warrantyScope=selectedWarrantyScope();
+    draft.warrantyParentId=currentWarrantyParentId;
     draft.photos=tempPhotos.slice(0,5);
     draft.saved=U.nowISO();
     return draft;
@@ -2676,12 +2750,13 @@ function renderDraftBanner(){
 
 function restoreDraft(){
     const d=DB.get('draft');if(!d||Array.isArray(d))return;
+    currentWarrantyParentId=d.warrantyParentId||null;
     Object.entries(d).forEach(([id,value])=>{const el=document.getElementById(id);if(el&&typeof value==='string')el.value=value;});
     selectedServices=JSON.parse(JSON.stringify(d.services||[])).map(service=>normaliseSelectedService(service,document.getElementById('n-tech')?.value||''));selectedMaterials=(d.materials||[]).map(normaliseMaterial);tempPhotos=d.photos||[];
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);document.getElementById('services-total-display').innerHTML=selectedServices.length?`Итого услуг: <b>${U.money(total)}</b>`:'';
     const container=document.getElementById('photo-preview');container.innerHTML='';tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>showFullPhoto(p);container.appendChild(img);});
-    updateOrderDateFields();renderSelectedMaterials();
+    updateOrderDateFields();renderWarrantyScope(d['warrantyScope']||[]);syncWarrantyPanel();renderSelectedMaterials();
     renderDraftBanner();toast('📝 Черновик восстановлен');
 }
 
@@ -2691,9 +2766,10 @@ function setupDraftAutosave(){
 
 function clearForm(){
     ['n-name','n-phone','n-address','n-brand','n-issue','n-diagnosis','n-comment','n-defects'].forEach(id=>document.getElementById(id).value='');
-    ['n-sum','n-prepay','n-discount','n-gray','n-white','n-guarantee'].forEach(id=>document.getElementById(id).value='');
+    ['n-sum','n-prepay','n-discount','n-gray','n-white','n-guarantee-custom'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('n-percent').value='50';
     document.getElementById('n-tech').value='';
+    document.getElementById('n-guarantee').value='6';document.getElementById('n-guarantee-type').value='work_part';document.getElementById('n-guarantee-note').value='';document.getElementById('n-warranty-result').value='pending';currentWarrantyParentId=null;
     document.getElementById('n-status').value='В работе';
     document.getElementById('n-created-date').value=U.toDateInput();
     document.getElementById('n-completed-date').value='';
@@ -2704,7 +2780,7 @@ function clearForm(){
     document.getElementById('services-total-display').innerHTML='';
     document.getElementById('edit-indicator').style.display='none';
     document.getElementById('save-btn').innerHTML=`<span class="button-label">${iconSvg('save')}Сохранить заявку</span>`;
-    selectedServices=[];selectedMaterials=[];renderSelectedMaterials();tempPhotos=[];pendingPhotoJobs=0;editingId=null;updateOrderDateFields();clearDraft();
+    selectedServices=[];selectedMaterials=[];renderSelectedMaterials();tempPhotos=[];pendingPhotoJobs=0;editingId=null;updateOrderDateFields();renderWarrantyScope();syncWarrantyPanel();clearDraft();
 }
 
 function snapshotWarehouseMaterialCosts(materials,previousOrder=null){
@@ -2773,7 +2849,13 @@ function saveOrder(){
         expense_gray: gray,
         expense_white: white,
         percent:parseInt(document.getElementById('n-percent').value)||50,
-        guarantee:parseInt(document.getElementById('n-guarantee').value)||6,
+        guarantee:getWarrantyMonths(),
+        guaranteeType:document.getElementById('n-guarantee-type').value||'work_part',
+        guaranteeScope:selectedWarrantyScope(),
+        guaranteeNote:document.getElementById('n-guarantee-note').value.trim(),
+        warrantyParentId:currentWarrantyParentId||existing?.warrantyParentId||null,
+        warrantyResult:document.getElementById('n-warranty-result').value||existing?.warrantyResult||null,
+        isWarrantyCase:Boolean(currentWarrantyParentId||existing?.isWarrantyCase),
         status,
         photos:tempPhotos.length>0 ? tempPhotos : (existing?.photos||[]),
         created,
@@ -2814,7 +2896,7 @@ function editOrder(id){
     document.getElementById('n-gray').value=order.expense_gray||'';
     document.getElementById('n-white').value=order.expense_white||'';
     document.getElementById('n-percent').value=order.percent||50;
-    document.getElementById('n-guarantee').value=order.guarantee||'';
+    setWarrantyMonths(order.guarantee);document.getElementById('n-guarantee-type').value=order.guaranteeType||'work_part';document.getElementById('n-guarantee-note').value=order.guaranteeNote||'';document.getElementById('n-warranty-result').value=order.warrantyResult||'pending';currentWarrantyParentId=order.warrantyParentId||null;renderWarrantyScope(order.guaranteeScope||[]);syncWarrantyPanel();
     document.getElementById('n-status').value=order.status==='СД'?'В работе':(order.status||'В работе');
     document.getElementById('n-created-date').value=U.toDateInput(order.created);
     document.getElementById('n-completed-date').value=order.completed?U.toDateInput(order.completed):'';
@@ -2882,7 +2964,7 @@ function duplicateOrder(id){
     document.getElementById('n-gray').value=order.expense_gray||'';
     document.getElementById('n-white').value=order.expense_white||'';
     document.getElementById('n-percent').value=order.percent||50;
-    document.getElementById('n-guarantee').value=order.guarantee||'';
+    setWarrantyMonths(order.guarantee);document.getElementById('n-guarantee-type').value=order.guaranteeType||'work_part';document.getElementById('n-guarantee-note').value=order.guaranteeNote||'';currentWarrantyParentId=null;renderWarrantyScope(order.guaranteeScope||[]);syncWarrantyPanel();
     document.getElementById('n-status').value='В работе';
     selectedServices=JSON.parse(JSON.stringify(order.services||[])).map(service=>normaliseSelectedService(service,order.tech||''));
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
@@ -2983,7 +3065,7 @@ function renderOrders(){
             </div>
             <div class="order-details">
                 <span role="button" tabindex="0" onclick="callPhone('${o.phone}')" style="cursor:pointer;">${iconSvg('phone')} ${o.phone}</span>${o.address?`<span class="address-link" onclick="openMap('${o.address.replace(/'/g,"\\'")}')">${iconSvg('map')} ${o.address}</span>`:''}
-                <span>${iconSvg('shield')} ${o.guarantee||0} мес.${warranty?` · до ${U.date(warranty)}`:''}</span>
+                <span>${iconSvg('shield')} ${o.isWarrantyCase?'Гарантийное обращение':`${o.guarantee||0} мес.${warranty?` · до ${U.date(warranty)}`:''}`}${o.warrantyResult?` · ${warrantyResultLabel(o.warrantyResult)}`:''}</span>
                 ${(o.materials||[]).length?`<span>${iconSvg('warehouse')} ${(o.materials||[]).length} поз. материалов${materialsCost?` · ${U.money(materialsCost)}`:''}</span>`:''}
                 ${o.nextVisit&&inWork?`<span style="color:${new Date(o.nextVisit)<new Date()?'var(--red)':'var(--blue)'};">${iconSvg('calendar')} Следующий визит: ${U.dateTime(o.nextVisit)}</span>`:''}
             </div>
@@ -3008,7 +3090,7 @@ function showOrderActions(id){
     const order=DB.orders().find(item=>String(item.id)===String(id));if(!order)return;
     const closed=order.status==='Закрыта';
     document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('dots')}Действия по ${U.formatOrderId(order.id)}</h3><p class="field-hint" style="margin-bottom:10px;">${escapeHtml(order.name||'')} · ${escapeHtml(order.tech||'Техника')}</p><div class="action-sheet-list">
-        ${closed?`<button type="button" onclick="createReceiptForOrder('${order.id}')">${iconSvg('price')}Создать товарник</button>`:''}
+        ${closed?`<button type="button" onclick="createReceiptForOrder('${order.id}')">${iconSvg('price')}Создать товарник</button><button type="button" onclick="closeModal();createWarrantyCase('${order.id}')">${iconSvg('shield')}Гарантийный случай</button>`:''}
         <button type="button" onclick="openActForOrder('${order.id}')">${iconSvg('printer')}Открыть акт</button>
         <button type="button" onclick="closeModal();duplicateOrder('${order.id}')">${iconSvg('copy')}Создать копию заявки</button>
         <button type="button" onclick="closeModal();messageTelegram('${order.phone||''}')">${iconSvg('telegram')}Открыть Telegram</button>
@@ -3428,11 +3510,11 @@ function applyCustomAnalyticsPeriod(){
     analyticsState.period='custom';analyticsState.offset=0;analyticsState.customFrom=from;analyticsState.customTo=to;renderStats();persistCurrentView('stats',false);
 }
 function analyticsMetrics(range){
-    const allOrders=DB.orders(),created=allOrders.filter(order=>analyticsInRange(order.created,range)),closed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range));
+    const allOrders=DB.orders(),created=allOrders.filter(order=>analyticsInRange(order.created,range)),closed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range)),paidClosed=closed.filter(order=>!order.isWarrantyCase||order.warrantyResult==='non_warranty');
     const expenses=DB.expenses().filter(expense=>isActiveExpense(expense)&&analyticsInRange(expense.date,range));
-    const revenue=closed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=closed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=closed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    const revenue=paidClosed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=paidClosed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=closed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
     const stockPurchases=expenses.filter(expense=>expense.source==='warehouse_purchase').reduce((sum,expense)=>sum+(Number(expense.amount)||0),0),nonStockExpenses=allExpenses-stockPurchases;
-    return{created,closed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0};
+    return{created,closed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:paidClosed.length?Math.round(revenue/paidClosed.length):0,warrantyCases:closed.filter(order=>order.isWarrantyCase)};
 }
 function analyticsDelta(current,previous,positiveGood=true){
     if(previous===null||previous===undefined)return '<span class="delta">без сравнения</span>';
@@ -4212,7 +4294,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:15,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:18,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -4310,6 +4392,9 @@ function migrateStoredData(){
             if(JSON.stringify(normalised)!==JSON.stringify(o.materials)){o.materials=normalised;changed=true;}
         }
         if(!Array.isArray(o.services)&&o.services!==undefined){o.services=[];changed=true;}
+        if(o.guaranteeType===undefined){o.guaranteeType='work_part';changed=true;}
+        if(!Array.isArray(o.guaranteeScope)){o.guaranteeScope=[];changed=true;}
+        if(o.isWarrantyCase===undefined){o.isWarrantyCase=Boolean(o.warrantyParentId);changed=true;}
         if(Array.isArray(o.services)){
             const normalised=o.services.map(service=>normaliseSelectedService(service,o.tech||''));
             if(JSON.stringify(normalised)!==JSON.stringify(o.services)){o.services=normalised;changed=true;}
@@ -4412,7 +4497,7 @@ if ('serviceWorker' in navigator) {
             window.location.reload();
         }
     });
-    navigator.serviceWorker.register('./sw.js?v=17',{updateViaCache:'none'})
+    navigator.serviceWorker.register('./sw.js?v=18',{updateViaCache:'none'})
         .then(registration=>{
             console.log('✅ Service Worker зарегистрирован');
             if(registration.waiting)registration.waiting.postMessage({type:'SKIP_WAITING'});
@@ -4442,7 +4527,7 @@ async function initializeApp(){
     migrateStoredData();
     seedReceiptPriceCatalog();
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
-    setupDraftAutosave();
+    setupDraftAutosave();renderWarrantyScope();syncWarrantyPanel();
     ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','settings','draft'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
     restoreViewFilters();
     updateOrderDateFields();renderSelectedMaterials();renderDraftBanner();
