@@ -786,15 +786,25 @@
         .catalog-list { display:flex; flex-direction:column; gap:7px; max-height:min(62vh,560px); overflow:auto; padding:2px; }
         .catalog-group-title { position:sticky; top:0; z-index:1; padding:7px 4px 4px; color:var(--sub); background:var(--card); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.45px; }
         .catalog-choice { display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px; width:100%; min-height:54px; margin:0; padding:10px 12px; color:var(--text); background:var(--input); border:1px solid var(--border); border-radius:11px; box-shadow:none; text-align:left; }
+        .catalog-choice>span { display:flex; align-items:center; gap:9px; min-width:0; }
         .catalog-choice b { display:block; font-size:13px; }
         .catalog-choice small { display:block; margin-top:3px; color:var(--sub); font-size:10px; }
         .catalog-choice strong { color:var(--accent); font-size:12px; white-space:nowrap; }
+        .catalog-choice.selected { border-color:var(--accent); background:rgba(255,112,72,.12); }
+        .catalog-choice.already-added { opacity:.58; }
+        .catalog-check { display:flex; align-items:center; justify-content:center; width:24px; height:24px; flex-shrink:0; border:2px solid var(--border); border-radius:7px; color:transparent; }
+        .catalog-choice.selected .catalog-check { color:#000; background:var(--accent); border-color:var(--accent); }
+        .receipt-catalog-toolbar { display:grid; grid-template-columns:1fr; gap:7px; margin-bottom:8px; }
+        .receipt-catalog-actions { position:sticky; bottom:0; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:7px; padding-top:9px; background:var(--card); }
+        .receipt-catalog-actions button { margin:0; }
         .action-sheet-list { display:flex; flex-direction:column; gap:7px; }
         .action-sheet-list button { display:flex; align-items:center; justify-content:flex-start; gap:10px; min-height:48px; margin:0; padding:10px 13px; color:var(--text); background:var(--input); border:1px solid var(--border); box-shadow:none; }
         .action-sheet-list button .ui-icon { width:20px; height:20px; color:var(--accent); }
         .action-sheet-list button.danger { color:var(--red); }
         .action-sheet-list button.danger .ui-icon { color:var(--red); }
         .analytics-period-nav { display:grid; grid-template-columns:42px 1fr 42px; align-items:center; gap:7px; margin:0 0 10px; }
+        .analytics-period-chips { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+        .analytics-period-chips .chip { display:flex; align-items:center; justify-content:center; min-height:36px; padding:6px 4px; text-align:center; }
         .analytics-period-nav button { display:flex; align-items:center; justify-content:center; min-height:42px; margin:0; padding:8px; background:var(--input); border:1px solid var(--border); color:var(--text); box-shadow:none; }
         .analytics-period-nav button:disabled { opacity:.35; }
         .analytics-period-label { min-width:0; text-align:center; }
@@ -815,6 +825,11 @@
         .analytics-row b { display:block; color:var(--text); font-size:12px; }
         .analytics-row small { display:block; margin-top:3px; color:var(--sub); font-size:9px; line-height:1.35; }
         .analytics-row strong { color:var(--accent); font-size:12px; text-align:right; white-space:nowrap; }
+        .analytics-row-actions { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+        .analytics-row-actions button { width:auto; min-height:28px; margin:0; padding:5px 8px; font-size:9px; box-shadow:none; }
+        .analytics-explain { margin-top:9px; padding:9px 10px; color:var(--sub); background:rgba(77,163,255,.07); border:1px solid rgba(77,163,255,.22); border-radius:10px; font-size:10px; line-height:1.45; }
+        .movement-excluded { opacity:.62; }
+        .movement-excluded .movement-copy b { text-decoration:line-through; }
         .attention-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
         .attention-item { min-width:0; padding:10px 7px; background:rgba(227,179,65,.08); border:1px solid rgba(227,179,65,.27); border-radius:11px; text-align:center; cursor:pointer; }
         .attention-item b { display:block; color:var(--yellow); font-size:20px; }
@@ -837,6 +852,7 @@
         html[data-theme="light"] .order-action,html[data-theme="light"] .compact-action,html[data-theme="light"] .client-actions button,html[data-theme="light"] .money-box,html[data-theme="light"] .btn-outline { background:#f4f6f8; }
         html[data-theme="light"] .price-row { background:#fff; }
         html[data-theme="light"] input,html[data-theme="light"] textarea,html[data-theme="light"] select,html[data-theme="light"] .chip,html[data-theme="light"] .tab,html[data-theme="light"] .material-quick button,html[data-theme="light"] .material-row,html[data-theme="light"] .stock-group-head button,html[data-theme="light"] .compat-option,html[data-theme="light"] .catalog-trigger,html[data-theme="light"] .catalog-choice,html[data-theme="light"] .action-sheet-list button,html[data-theme="light"] .analytics-period-nav button,html[data-theme="light"] .analytics-kpi { background:#f7f8fa; color:#20262c; }
+        html[data-theme="light"] .catalog-choice.selected { background:#fff0eb; border-color:var(--accent); }
         html[data-theme="light"] option { background:#fff; color:#20262c; }
         html[data-theme="light"] .order-action,html[data-theme="light"] .compact-action,html[data-theme="light"] .client-actions button,html[data-theme="light"] .material-remove,html[data-theme="light"] .delete-icon-btn { background:#f4f6f8!important; }
         html[data-theme="light"] input:focus,html[data-theme="light"] textarea:focus,html[data-theme="light"] select:focus { background:#fff; }
@@ -981,7 +997,7 @@
 <div id="page-warehouse" class="page">
     <div class="page-heading"><div><h1>Склад</h1><p>Запчасти и расходные материалы</p></div></div>
     <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="search-warehouse" placeholder="Название или категория" oninput="renderWarehouse()"></div>
-    <div class="stock-filter"><select id="warehouse-filter" onchange="renderWarehouse()"><option value="all">Все позиции</option><option value="low">Только мало осталось</option></select></div>
+    <div class="stock-filter"><select id="warehouse-filter" onchange="renderWarehouse()"><option value="all">Все позиции (кроме архива)</option><option value="in_stock">В наличии</option><option value="low">Заканчиваются</option><option value="out">Нет в наличии</option></select></div>
     <div class="warehouse-toolbar"><button class="warehouse-new-btn" type="button" onclick="showNewWarehouseItemModal()"><span class="button-label"><svg class="ui-icon"><use href="#i-plus"></use></svg>Новая позиция</span></button><button class="btn-outline" type="button" onclick="showWarehouseHistory()"><span class="button-label"><svg class="ui-icon"><use href="#i-calendar"></use></svg>История движения</span></button><button class="btn-outline" type="button" onclick="switchTab('shopping')"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>Список покупок</span></button></div>
     <div id="warehouse-container"></div>
 </div>
@@ -1019,7 +1035,7 @@
 <!-- Отчёт -->
 <div id="page-stats" class="page">
     <div class="page-heading"><div><h1>Аналитический центр</h1><p>Финансы, эффективность, клиенты и склад</p></div></div>
-    <div class="filter-chips"><span class="chip" data-period="today" onclick="changePeriod('today',this)">Сегодня</span><span class="chip" data-period="week" onclick="changePeriod('week',this)">Неделя</span><span class="chip active" data-period="month" onclick="changePeriod('month',this)">Месяц</span><span class="chip" data-period="year" onclick="changePeriod('year',this)">Год</span><span class="chip" data-period="all" onclick="changePeriod('all',this)">Всё</span><span class="chip" data-period="custom" onclick="changePeriod('custom',this)">Период</span></div>
+    <div class="filter-chips analytics-period-chips"><span class="chip" data-period="today" onclick="changePeriod('today',this)">Сегодня</span><span class="chip" data-period="week" onclick="changePeriod('week',this)">Неделя</span><span class="chip active" data-period="month" onclick="changePeriod('month',this)">Месяц</span><span class="chip" data-period="year" onclick="changePeriod('year',this)">Год</span><span class="chip" data-period="all" onclick="changePeriod('all',this)">Всё</span><span class="chip" data-period="custom" onclick="changePeriod('custom',this)">Свой период</span></div>
     <div id="analytics-custom-period" class="custom-period" style="display:none;"><div class="form-group"><label>С</label><input type="date" id="analytics-date-from"></div><div class="form-group"><label>По</label><input type="date" id="analytics-date-to"></div><button type="button" onclick="applyCustomAnalyticsPeriod()">Показать</button></div>
     <div class="analytics-period-nav"><button type="button" onclick="shiftAnalyticsPeriod(-1)" aria-label="Предыдущий период"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div class="analytics-period-label"><b id="analytics-period-label">Текущий месяц</b><small id="analytics-period-dates"></small></div><button id="analytics-period-next" type="button" onclick="shiftAnalyticsPeriod(1)" aria-label="Следующий период"><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></button></div>
     <div id="stats-container"></div>
@@ -1062,7 +1078,7 @@
 
 <!-- Товарник -->
 <div id="page-receipts" class="page">
-    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарник</h1><p>Таблица товаров · без сохранения · v15</p></div></div>
+    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Товарник</h1><p>Таблица товаров · без сохранения · v16</p></div></div>
     <div class="card">
         <div class="card-title"><span class="card-title-icon"><svg class="ui-icon"><use href="#i-price"></use></svg></span>Новый товарник</div>
         <div class="row">
@@ -1179,7 +1195,7 @@
 <div class="modal-overlay" id="warehouse-history-overlay">
     <div class="modal" id="warehouse-history-modal">
         <h3><svg class="ui-icon"><use href="#i-calendar"></use></svg>История движения склада</h3>
-        <div class="history-toolbar"><input type="search" id="history-search" placeholder="Найти позицию или заявку" oninput="renderWarehouseHistory()"><select id="history-filter" onchange="renderWarehouseHistory()"><option value="all">Все движения</option><option value="purchase">Покупки и приходы</option><option value="order_out">Списания по заявкам</option><option value="order_return">Возвраты в склад</option><option value="manual">Ручные корректировки</option><option value="opening">Начальные остатки</option><option value="cancelled">Отменённые приходы</option></select></div>
+        <div class="history-toolbar"><input type="search" id="history-search" placeholder="Найти позицию или заявку" oninput="renderWarehouseHistory()"><select id="history-filter" onchange="renderWarehouseHistory()"><option value="all">Все движения</option><option value="purchase">Покупки и приходы</option><option value="order_out">Списания по заявкам</option><option value="order_return">Возвраты в склад</option><option value="manual">Ручные корректировки</option><option value="opening">Начальные остатки</option><option value="excluded">Исключённые из аналитики</option><option value="cancelled">Отменённые приходы</option></select></div>
         <div id="warehouse-history-list" class="service-catalog"></div>
         <button class="btn-outline" type="button" onclick="closeWarehouseHistory()">Закрыть</button>
     </div>
@@ -1316,13 +1332,23 @@ const SERVICE_CATALOG = {
         'Капиллярная система': [
             {name:'Чистка капиллярной трубки', price:2000},
             {name:'Замена капиллярной трубки', price:4000},
+            {name:'Промывка холодильного контура', price:2500},
             {name:'Припайка клапана Шредера', price:1200}
         ],
         'Фильтр-осушитель': [
             {name:'Замена фильтра-осушителя', price:2500}
         ],
         'ПЗР (пускозащитное реле)': [
+            {name:'Проверка ПЗР', price:500},
             {name:'Замена ПЗР', price:1500}
+        ],
+        'Терморегулятор': [
+            {name:'Проверка терморегулятора', price:500},
+            {name:'Замена терморегулятора', price:2000}
+        ],
+        'Холодильный контур': [
+            {name:'Ремонт участка трубопровода', price:2500},
+            {name:'Обрезка контура обогрева двери', price:3500}
         ],
         'Электрика': [
             {name:'Замена сетевого шнура', price:1000},
@@ -1337,6 +1363,8 @@ const SERVICE_CATALOG = {
         'Прочее': [
             {name:'Чистка дренажа', price:1000},
             {name:'Замена уплотнителя', price:4000},
+            {name:'Регулировка двери', price:1000},
+            {name:'Перевес двери', price:2500},
             {name:'Устранение засора', price:800}
         ]
     },
@@ -1354,9 +1382,18 @@ const SERVICE_CATALOG = {
         'Двигатель': [
             {name:'Проверка двигателя', price:600},
             {name:'Замена щёток', price:1500},
+            {name:'Замена приводного ремня', price:1500},
+            {name:'Проверка тахогенератора', price:500},
             {name:'Замена двигателя', price:5000}
         ],
+        'Нагрев и температура': [
+            {name:'Проверка ТЭНа', price:500},
+            {name:'Замена ТЭНа', price:2500},
+            {name:'Проверка датчика температуры', price:500},
+            {name:'Замена датчика температуры', price:1500}
+        ],
         'Сливная система': [
+            {name:'Диагностика сливной системы', price:500},
             {name:'Чистка слива', price:800},
             {name:'Замена насоса', price:2500},
             {name:'Чистка фильтра', price:500},
@@ -1365,7 +1402,9 @@ const SERVICE_CATALOG = {
         ],
         'Заливная система': [
             {name:'Проверка клапана подачи воды', price:500},
-            {name:'Замена клапана подачи воды', price:2000}
+            {name:'Замена клапана подачи воды', price:2000},
+            {name:'Чистка сетки заливного клапана', price:500},
+            {name:'Замена заливного шланга', price:1000}
         ],
         'Барабан': [
             {name:'Замена подшипников', price:4000},
@@ -1379,6 +1418,21 @@ const SERVICE_CATALOG = {
         'УБЛ': [
             {name:'Проверка УБЛ', price:500},
             {name:'Замена УБЛ', price:2000}
+        ],
+        'Люк и корпус': [
+            {name:'Замена ручки люка', price:1500},
+            {name:'Замена петли люка', price:1800},
+            {name:'Регулировка люка', price:800}
+        ],
+        'Протечки': [
+            {name:'Поиск места протечки', price:1000},
+            {name:'Замена сливного шланга', price:1200},
+            {name:'Устранение протечки соединения', price:1500}
+        ],
+        'Электрика': [
+            {name:'Ремонт проводки', price:1800},
+            {name:'Замена сетевого шнура', price:1000},
+            {name:'Замена сетевого фильтра', price:1800}
         ],
         'Амортизаторы': [
             {name:'Замена амортизаторов', price:2500}
@@ -1413,7 +1467,10 @@ const SERVICE_CATALOG = {
             {name:'Замена насоса', price:2000}
         ],
         'Датчики': [
-            {name:'Замена датчика уровня воды', price:2000}
+            {name:'Проверка датчика уровня воды', price:500},
+            {name:'Замена датчика уровня воды', price:2000},
+            {name:'Проверка датчика температуры', price:500},
+            {name:'Замена датчика температуры', price:1800}
         ],
         'Аквастоп': [
             {name:'Замена аквастопа', price:2500}
@@ -1424,6 +1481,11 @@ const SERVICE_CATALOG = {
         'Гидросистема': [
             {name:'Чистка гидросистемы', price:1500},
             {name:'Чистка разбрызгивателей', price:800}
+        ],
+        'Дверь и дозатор': [
+            {name:'Замена уплотнителя двери', price:2200},
+            {name:'Ремонт механизма двери', price:1800},
+            {name:'Замена дозатора моющего средства', price:2000}
         ]
     },
 
@@ -1446,6 +1508,18 @@ const SERVICE_CATALOG = {
         'Терморегулятор': [
             {name:'Проверка терморегулятора', price:500},
             {name:'Замена терморегулятора', price:2000}
+        ],
+        'Капиллярная система': [
+            {name:'Чистка капиллярной трубки', price:2000},
+            {name:'Замена капиллярной трубки', price:4000},
+            {name:'Замена фильтра-осушителя', price:2500},
+            {name:'Припайка клапана Шредера', price:1200}
+        ],
+        'Система оттайки': [
+            {name:'Проверка ТЭНа оттайки', price:700},
+            {name:'Замена ТЭНа оттайки', price:3500},
+            {name:'Проверка датчиков', price:500},
+            {name:'Замена датчика температуры', price:1500}
         ]
     },
 
@@ -1476,6 +1550,12 @@ const SERVICE_CATALOG = {
         ],
         'Освещение': [
             {name:'Замена лампы освещения', price:500}
+        ],
+        'Дверь': [
+            {name:'Регулировка двери', price:800},
+            {name:'Замена петли двери', price:1800},
+            {name:'Замена уплотнителя двери', price:1800},
+            {name:'Замена стекла двери', price:2500}
         ]
     },
 
@@ -1505,6 +1585,11 @@ const SERVICE_CATALOG = {
         ],
         'Стеклокерамика': [
             {name:'Замена стеклокерамики', price:6000}
+        ],
+        'Подключение и электрика': [
+            {name:'Проверка силовой проводки', price:600},
+            {name:'Замена клеммной колодки', price:1500},
+            {name:'Замена сетевого кабеля', price:1200}
         ]
     },
 
@@ -1537,7 +1622,13 @@ const SERVICE_CATALOG = {
             {name:'Полное техническое обслуживание', price:4000}
         ],
         'Дренаж': [
-            {name:'Чистка дренажа', price:1000}
+            {name:'Чистка дренажа', price:1000},
+            {name:'Устранение протечки дренажа', price:1500}
+        ],
+        'Электрика': [
+            {name:'Проверка пускового конденсатора', price:600},
+            {name:'Замена пускового конденсатора', price:1800},
+            {name:'Ремонт межблочного кабеля', price:2500}
         ]
     },
 
@@ -1548,7 +1639,9 @@ const SERVICE_CATALOG = {
         ],
         'ТЭН': [
             {name:'Проверка ТЭНа', price:500},
-            {name:'Замена ТЭНа', price:2500}
+            {name:'Замена ТЭНа', price:2500},
+            {name:'Чистка ТЭНа от накипи', price:1200},
+            {name:'Замена прокладки ТЭНа', price:1000}
         ],
         'Магниевый анод': [
             {name:'Проверка анода', price:400},
@@ -1568,6 +1661,38 @@ const SERVICE_CATALOG = {
         ],
         'Обслуживание': [
             {name:'Комплексное обслуживание', price:3000}
+        ]
+    },
+
+    'Сушильная машина': {
+        'Диагностика': [
+            {name:'Выезд мастера', price:500},
+            {name:'Общая диагностика', price:1500}
+        ],
+        'Нагрев и температура': [
+            {name:'Проверка ТЭНа', price:600},
+            {name:'Замена ТЭНа', price:2800},
+            {name:'Проверка датчика температуры', price:500},
+            {name:'Замена датчика температуры', price:1800}
+        ],
+        'Привод барабана': [
+            {name:'Проверка двигателя', price:600},
+            {name:'Замена приводного ремня', price:1800},
+            {name:'Замена двигателя', price:5000}
+        ],
+        'Воздушный тракт': [
+            {name:'Чистка воздушного тракта', price:1800},
+            {name:'Чистка теплообменника', price:1500},
+            {name:'Замена вентилятора', price:2500}
+        ],
+        'Слив конденсата': [
+            {name:'Чистка системы конденсата', price:1200},
+            {name:'Замена насоса конденсата', price:2500}
+        ],
+        'Плата управления': [
+            {name:'Диагностика платы', price:800},
+            {name:'Ремонт платы', price:3500},
+            {name:'Замена платы', price:5000}
         ]
     },
 
@@ -3031,7 +3156,7 @@ function toggleWarehouseGroup(encoded){
 function updateWarehouseFilter(items){
     const select=document.getElementById('warehouse-filter');if(!select)return;
     const current=select.dataset.restoreValue||select.value||'all',categories=[...new Set(items.map(item=>item.category||'Без категории'))].sort((a,b)=>a.localeCompare(b,'ru'));
-    select.innerHTML=`<option value="all">Активные позиции</option><option value="low">Только мало осталось</option><option value="unassigned">Без типа техники</option><option value="archived">Архив</option>${categories.map(category=>`<option value="cat:${encodeURIComponent(category)}">${category}</option>`).join('')}`;
+    select.innerHTML=`<option value="all">Все позиции (кроме архива)</option><option value="in_stock">В наличии</option><option value="low">Заканчиваются</option><option value="out">Нет в наличии</option><option value="unassigned">Без типа техники</option><option value="archived">Архив</option>${categories.map(category=>`<option value="cat:${encodeURIComponent(category)}">${category}</option>`).join('')}`;
     select.value=[...select.options].some(option=>option.value===current)?current:'all';
     delete select.dataset.restoreValue;
 }
@@ -3048,9 +3173,9 @@ function renderWarehouse(){
     const filter=document.getElementById('warehouse-filter')?.value||'all';
     let filtered=items.filter(item=>{
         const name=(item.name||'').toLowerCase(),category=(item.category||'Без категории').toLowerCase(),compat=compatibilityLabelList(item.compatibility).toLowerCase();
-        const isLow=availableWarehouseQuantity(item)<=Number(item.min||0);
+        const available=availableWarehouseQuantity(item),isLow=available<=Number(item.min||0),inStock=available>0;
         const visibility=filter==='archived'?Boolean(item.archived):!item.archived;
-        return visibility&&(!search||name.includes(search)||category.includes(search)||compat.includes(search))&&(filter==='all'||(filter==='low'&&isLow)||(filter==='unassigned'&&!itemHasCompatibility(item))||(filter.startsWith('cat:')&&category===decodeURIComponent(filter.slice(4)).toLowerCase())||filter==='archived');
+        return visibility&&(!search||name.includes(search)||category.includes(search)||compat.includes(search))&&(filter==='all'||(filter==='in_stock'&&inStock)||(filter==='low'&&isLow&&inStock)||(filter==='out'&&!inStock)||(filter==='unassigned'&&!itemHasCompatibility(item))||(filter.startsWith('cat:')&&category===decodeURIComponent(filter.slice(4)).toLowerCase())||filter==='archived');
     });
     const container=document.getElementById('warehouse-container');
     if(!filtered.length){
@@ -3093,11 +3218,49 @@ function showWarehouseHistory(){
     document.getElementById('warehouse-history-overlay').classList.add('active');
     renderWarehouseHistory();
 }
+function showExcludedWarehouseMovements(){
+    document.getElementById('warehouse-history-overlay').classList.add('active');
+    const search=document.getElementById('history-search'),filter=document.getElementById('history-filter');if(search)search.value='';if(filter)filter.value='excluded';renderWarehouseHistory();
+}
+function showWarehouseHistoryForItem(id){
+    const item=DB.warehouse().find(entry=>entry.id===id);document.getElementById('warehouse-history-overlay').classList.add('active');
+    const search=document.getElementById('history-search'),filter=document.getElementById('history-filter');if(search)search.value=item?.name||'';if(filter)filter.value='order_out';renderWarehouseHistory();
+}
 
 function movementTypeLabel(type){
     return type==='purchase'?'Покупка':type==='manual_in'?'Ручной приход':type==='opening'?'Начальный остаток':type==='order_out'?'Списание по заявке':type==='order_return'?'Возврат в склад':'Ручное списание';
 }
 function formatWarehouseQty(value){return formatQuantity(value);}
+function warehouseMovementIsOrphan(movement){return Boolean(movement?.warehouseId&&!DB.warehouse().some(item=>item.id===movement.warehouseId));}
+function warehouseMovementAnalyticsCost(movement){
+    if(!movement||movement.analyticsExcluded)return 0;
+    const override=Number(movement.analyticsCostOverride);if(movement.analyticsCostOverride!==undefined&&Number.isFinite(override)&&override>=0)return Math.round(override*100)/100;
+    const qty=Math.abs(Number(movement.qty)||0),unitPrice=Number(movement.unitPrice);
+    if(Number.isFinite(unitPrice)&&unitPrice>=0)return Math.round(qty*unitPrice*100)/100;
+    return Math.max(0,Math.round((Number(movement.amount)||0)*100)/100);
+}
+function warehouseMovementCountsInAnalytics(movement){return Boolean(movement&&!movement.cancelled&&!movement.analyticsExcluded&&movement.type==='order_out'&&!warehouseMovementIsOrphan(movement));}
+function refreshWarehouseMovementViews(){renderWarehouseHistory();if(document.getElementById('page-stats')?.classList.contains('active'))renderStats();maybeAutoBackup();}
+function showWarehouseMovementCostModal(id){
+    const movement=DB.warehouseMovements().find(entry=>entry.id===id);if(!movement)return;
+    const orphan=warehouseMovementIsOrphan(movement),cost=warehouseMovementAnalyticsCost(movement);
+    document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('edit')}Себестоимость списания</h3><div class="data-warning"><b>${escapeHtml(movement.name||'Позиция')}</b><small>Списано ${formatQuantity(movement.inputQty??movement.qty)} ${escapeHtml(movement.inputUnit||movement.unit||'шт.')} · ${movement.orderNumber||U.formatOrderId(movement.orderId||'')}</small></div>${orphan?'<div class="data-warning"><b>Позиции уже нет на складе</b><small>Эта старая бесхозная запись автоматически не участвует в аналитике.</small></div>':''}<div class="form-group"><label>Себестоимость всего списания</label><input type="number" id="movement-analytics-cost" min="0" step="0.01" value="${cost}" inputmode="decimal"><div class="field-hint">Меняется только сумма в аналитике. Количество на складе и сама заявка не изменятся.</div></div><div class="modal-form-actions"><button type="button" onclick="saveWarehouseMovementAnalyticsCost('${id}')">Сохранить сумму</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button></div>${movement.analyticsExcluded?`<button type="button" class="btn-green" onclick="restoreWarehouseMovementAnalytics('${id}')">Вернуть сумму в аналитику</button>`:`<button type="button" class="btn-red" onclick="excludeWarehouseMovementFromAnalytics('${id}')">Удалить сумму из аналитики</button>`}`;
+    document.getElementById('modal-overlay').classList.add('active');
+}
+function saveWarehouseMovementAnalyticsCost(id){
+    const movements=DB.warehouseMovements(),movement=movements.find(entry=>entry.id===id);if(!movement)return;
+    const value=Number(document.getElementById('movement-analytics-cost')?.value);if(!Number.isFinite(value)||value<0){toast('❌ Укажи корректную сумму',true);return;}
+    movement.analyticsCostOverride=Math.round(value*100)/100;movement.analyticsExcluded=false;movement.analyticsAdjustedAt=U.nowISO();DB.saveWarehouseMovements(movements);closeModal();refreshWarehouseMovementViews();toast('✅ Сумма списания исправлена');
+}
+function excludeWarehouseMovementFromAnalytics(id){
+    if(!confirm('Удалить эту сумму из аналитики? Остаток склада и заявка не изменятся.'))return;
+    const movements=DB.warehouseMovements(),movement=movements.find(entry=>entry.id===id);if(!movement)return;
+    movement.analyticsExcluded=true;movement.analyticsExcludedAt=U.nowISO();DB.saveWarehouseMovements(movements);closeModal();refreshWarehouseMovementViews();toast('✅ Ошибочная сумма больше не учитывается');
+}
+function restoreWarehouseMovementAnalytics(id){
+    const movements=DB.warehouseMovements(),movement=movements.find(entry=>entry.id===id);if(!movement)return;
+    movement.analyticsExcluded=false;movement.analyticsExcludedAt=null;DB.saveWarehouseMovements(movements);closeModal();refreshWarehouseMovementViews();toast('↩️ Сумма возвращена в аналитику');
+}
 
 function movementFilterMatch(movement,filter){
     if(filter==='all')return true;
@@ -3106,6 +3269,7 @@ function movementFilterMatch(movement,filter){
     if(filter==='order_return')return movement.type==='order_return';
     if(filter==='opening')return movement.type==='opening';
     if(filter==='manual')return movement.type==='manual_out'||movement.type==='adjustment';
+    if(filter==='excluded')return movement.analyticsExcluded===true||(movement.type==='order_out'&&warehouseMovementIsOrphan(movement));
     if(filter==='cancelled')return movement.cancelled===true;
     return true;
 }
@@ -3124,10 +3288,11 @@ function renderWarehouseHistory(){
         (groups[key]??=[]).push(movement);
     });
     container.innerHTML=Object.entries(groups).map(([group,items])=>`<section class="card" style="margin:8px 0;"><div class="card-title" style="font-size:14px;margin-bottom:4px;"><span class="card-title-icon">${iconSvg(items[0].orderId?'clipboard':'folder')}</span>${group}</div>${items.map(movement=>{
-        const isCancelled=movement.cancelled===true,isIn=movement.type==='purchase'||movement.type==='manual_in'||movement.type==='opening',isReturn=movement.type==='order_return',kind=isCancelled?'cancelled':isIn?'in':isReturn?'return':'out',sign=isCancelled?'×':isIn?'+':isReturn?'↩':'−';
+        const isCancelled=movement.cancelled===true,isOrphan=warehouseMovementIsOrphan(movement),isAnalyticsIgnored=movement.analyticsExcluded===true||(movement.type==='order_out'&&isOrphan),isIn=movement.type==='purchase'||movement.type==='manual_in'||movement.type==='opening',isReturn=movement.type==='order_return',kind=isCancelled||isAnalyticsIgnored?'cancelled':isIn?'in':isReturn?'return':'out',sign=isCancelled?'×':isIn?'+':isReturn?'↩':'−';
         const converted=movement.inputQty!==null&&movement.inputQty!==undefined&&movement.inputUnit&&canonicalUnit(movement.inputUnit)!==canonicalUnit(movement.unit);
         const qtyText=converted?`${sign}${formatWarehouseQty(movement.inputQty)} ${movement.inputUnit} → ${formatWarehouseQty(movement.qty)} ${movement.unit||'шт.'}`:`${sign}${formatWarehouseQty(movement.qty)} ${movement.unit||'шт.'}`;
-        return `<div class="movement-row"><span class="movement-icon ${kind}">${iconSvg(isCancelled?'minus':isIn?'plus':isReturn?'refresh':'minus')}</span><div class="movement-copy"><b>${movement.name||'Позиция'}</b><small>${isCancelled?'Приход отменён':movementTypeLabel(movement.type)} · ${U.dateTime(movement.date)}${movement.note?' · '+movement.note:''}${movement.cancelReason?' · '+movement.cancelReason:''}${movement.amount?` · ${U.money(movement.amount)}`:''}${movement.type==='purchase'&&movement.unitPrice?` · ${U.money(movement.unitPrice)}/${movement.unit||'шт.'}`:''}</small>${movement.type==='purchase'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="cancelWarehousePurchaseMovement('${movement.id}')" style="margin-top:5px;">Отменить приход</button>`:''}</div><span class="movement-qty ${kind}">${qtyText}</span></div>`;
+        const analyticsCost=movement.type==='order_out'?warehouseMovementAnalyticsCost(movement):Number(movement.amount)||0;
+        return `<div class="movement-row ${isAnalyticsIgnored?'movement-excluded':''}"><span class="movement-icon ${kind}">${iconSvg(isCancelled?'minus':isIn?'plus':isReturn?'refresh':'minus')}</span><div class="movement-copy"><b>${movement.name||'Позиция'}</b><small>${isCancelled?'Приход отменён':movementTypeLabel(movement.type)} · ${U.dateTime(movement.date)}${movement.note?' · '+movement.note:''}${movement.cancelReason?' · '+movement.cancelReason:''}${isAnalyticsIgnored?' · не учитывается в аналитике':analyticsCost?` · себестоимость ${U.money(analyticsCost)}`:''}${movement.type==='purchase'&&movement.unitPrice?` · ${U.money(movement.unitPrice)}/${movement.unit||'шт.'}`:''}</small>${movement.type==='purchase'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="cancelWarehousePurchaseMovement('${movement.id}')" style="margin-top:5px;">Отменить приход</button>`:''}${movement.type==='order_out'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="showWarehouseMovementCostModal('${movement.id}')" style="margin-top:5px;">${movement.analyticsExcluded?'Вернуть / исправить':'Исправить сумму'}</button>`:''}</div><span class="movement-qty ${kind}">${qtyText}</span></div>`;
     }).join('')}</section>`).join('');
 }
 
@@ -3304,21 +3469,22 @@ function renderStats(period){
     const techStats={};metrics.closed.forEach(order=>{const key=order.tech||'Другое',entry=techStats[key]||={count:0,revenue:0,duration:0};entry.count++;entry.revenue+=U.finalAmount(order);entry.duration+=analyticsOrderDuration(order);});
     const services={};metrics.closed.forEach(order=>(order.services||[]).forEach(service=>{const name=service.name||'Услуга',qty=Math.max(1,Number(service.qty)||1),entry=services[name]||={count:0,revenue:0};entry.count+=qty;entry.revenue+=(Number(service.price)||0)*qty;}));
     const lowStock=DB.warehouse().filter(item=>!item.archived&&(item.tracking||'exact')!=='presence'&&availableWarehouseQuantity(item)<=Number(item.min||0)),stockValue=DB.warehouse().filter(item=>!item.archived).reduce((sum,item)=>sum+(Number(item.quantity)||0)*(Number(item.price)||0),0);
-    const consumedMovements=DB.warehouseMovements().filter(movement=>!movement.cancelled&&movement.type==='order_out'&&analyticsInRange(movement.date,range)),consumedCost=consumedMovements.reduce((sum,movement)=>sum+(Number(movement.amount)||0),0),consumed={};consumedMovements.forEach(movement=>{const key=`${movement.name||'Позиция'}|${movement.unit||'шт.'}`,entry=consumed[key]||={name:movement.name||'Позиция',unit:movement.unit||'шт.',qty:0,amount:0};entry.qty+=Number(movement.qty)||0;entry.amount+=Number(movement.amount)||0;});
+    const periodOrderOut=DB.warehouseMovements().filter(movement=>!movement.cancelled&&movement.type==='order_out'&&analyticsInRange(movement.date,range)),ignoredConsumption=periodOrderOut.filter(movement=>!warehouseMovementCountsInAnalytics(movement)),consumedMovements=periodOrderOut.filter(warehouseMovementCountsInAnalytics),consumedCost=consumedMovements.reduce((sum,movement)=>sum+warehouseMovementAnalyticsCost(movement),0),consumed={};
+    consumedMovements.forEach(movement=>{const key=movement.warehouseId||`${movement.name||'Позиция'}|${movement.unit||'шт.'}`,stock=DB.warehouse().find(item=>item.id===movement.warehouseId),entry=consumed[key]||={warehouseId:movement.warehouseId||'',name:movement.name||stock?.name||'Позиция',unit:movement.unit||stock?.unit||'шт.',qty:0,amount:0,remaining:Number(stock?.quantity)||0};entry.qty+=Number(movement.qty)||0;entry.amount+=warehouseMovementAnalyticsCost(movement);entry.remaining=Number(stock?.quantity)||0;});
     document.querySelectorAll('#page-stats .chip').forEach(chip=>chip.classList.toggle('active',chip.dataset.period===analyticsState.period));
     const custom=document.getElementById('analytics-custom-period');if(custom)custom.style.display=analyticsState.period==='custom'?'grid':'none';
     const label=document.getElementById('analytics-period-label'),dates=document.getElementById('analytics-period-dates'),next=document.getElementById('analytics-period-next');if(label)label.textContent=range.title;if(dates)dates.textContent=range.dateText;if(next)next.disabled=analyticsState.offset>=0||['all','custom'].includes(analyticsState.period);
     const fromInput=document.getElementById('analytics-date-from'),toInput=document.getElementById('analytics-date-to');if(fromInput&&analyticsState.customFrom)fromInput.value=analyticsState.customFrom;if(toInput&&analyticsState.customTo)toInput.value=analyticsState.customTo;
     const techRows=Object.entries(techStats).sort(([,a],[,b])=>b.revenue-a.revenue).map(([tech,data])=>`<tr><td>${escapeHtml(tech)}</td><td>${data.count}</td><td>${U.money(data.revenue)}</td><td>${U.money(Math.round(data.revenue/data.count))}</td><td>${analyticsDuration(data.duration/data.count)}</td></tr>`).join('');
     const serviceRows=Object.entries(services).sort(([,a],[,b])=>b.revenue-a.revenue).slice(0,8).map(([name,data])=>`<div class="analytics-row"><span><b>${escapeHtml(name)}</b><small>${formatQuantity(data.count)} выполн.</small></span><strong>${U.money(data.revenue)}</strong></div>`).join('');
-    const consumedRows=Object.values(consumed).sort((a,b)=>b.amount-a.amount).slice(0,6).map(item=>`<div class="analytics-row"><span><b>${escapeHtml(item.name)}</b><small>${formatQuantity(item.qty)} ${escapeHtml(item.unit)} списано</small></span><strong>${U.money(item.amount)}</strong></div>`).join('');
+    const consumedRows=Object.values(consumed).sort((a,b)=>b.amount-a.amount).slice(0,8).map(item=>`<div class="analytics-row"><span><b>${escapeHtml(item.name)}</b><small>Израсходовано ${formatQuantity(item.qty)} ${escapeHtml(item.unit)} · осталось ${formatQuantity(item.remaining)} ${escapeHtml(item.unit)}</small></span><span class="analytics-row-actions"><strong>${U.money(item.amount)}</strong>${item.warehouseId?`<button type="button" class="btn-outline" onclick="showWarehouseHistoryForItem('${item.warehouseId}')">Проверить</button>`:''}</span></div>`).join('');
     document.getElementById('stats-container').innerHTML=`
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('diamond')}Главные показатели</h3><small style="color:var(--sub);">по закрытым заявкам</small></div><div class="analytics-kpis">
             <div class="analytics-kpi"><small>Закрыто</small><b>${metrics.closed.length}</b>${analyticsDelta(metrics.closed.length,previous?.closed.length)}</div>
-            <div class="analytics-kpi"><small>Выручка</small><b style="color:var(--blue);">${U.money(metrics.revenue)}</b>${analyticsDelta(metrics.revenue,previous?.revenue)}</div>
-            <div class="analytics-kpi"><small>На руки</small><b style="color:var(--green);">${U.money(metrics.earned)}</b>${analyticsDelta(metrics.earned,previous?.earned)}</div>
-            <div class="analytics-kpi"><small>Расходы</small><b style="color:var(--red);">${U.money(metrics.allExpenses)}</b>${analyticsDelta(metrics.allExpenses,previous?.allExpenses,false)}</div>
-            <div class="analytics-kpi"><small>Денежный результат</small><b style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</b>${analyticsDelta(metrics.cashResult,previous?.cashResult)}</div>
+            <div class="analytics-kpi"><small>Выручка клиентов</small><b style="color:var(--blue);">${U.money(metrics.revenue)}</b>${analyticsDelta(metrics.revenue,previous?.revenue)}</div>
+            <div class="analytics-kpi"><small>Получил чистыми</small><b style="color:var(--green);">${U.money(metrics.earned)}</b>${analyticsDelta(metrics.earned,previous?.earned)}</div>
+            <div class="analytics-kpi"><small>Потратил всего</small><b style="color:var(--red);">${U.money(metrics.allExpenses)}</b>${analyticsDelta(metrics.allExpenses,previous?.allExpenses,false)}</div>
+            <div class="analytics-kpi"><small>Осталось денег</small><b style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</b>${analyticsDelta(metrics.cashResult,previous?.cashResult)}</div>
             <div class="analytics-kpi"><small>Средний чек</small><b style="color:var(--yellow);">${U.money(metrics.avgCheck)}</b>${analyticsDelta(metrics.avgCheck,previous?.avgCheck)}</div>
         </div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('alert')}Фокус внимания</h3></div><div class="attention-grid"><div class="attention-item" onclick="analyticsOpenFilter('overdue')"><b>${overdue.length}</b><small>просроченных визитов</small></div><div class="attention-item" onclick="analyticsOpenFilter('low')"><b>${lowStock.length}</b><small>позиций заканчивается</small></div><div class="attention-item" ${oldest?`onclick="editOrder('${oldest.id}')"`:''}><b>${oldestDays}</b><small>дней самой старой заявке</small></div></div></section>
@@ -3329,16 +3495,16 @@ function renderStats(period){
             <div class="analytics-row"><span><b>Средний срок ремонта</b><small>по закрытым в выбранном периоде</small></span><strong>${analyticsDuration(avgDuration)}</strong></div>
             <div class="analytics-row"><span><b>Создано заявок</b><small>по дате создания</small></span><strong>${metrics.created.length}</strong></div>
         </div></section>
-        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('finance')}Два взгляда на деньги</h3></div><div class="analytics-list">
-            <div class="analytics-row"><span><b>Денежный результат</b><small>на руки − все фактические расходы периода</small></span><strong style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</strong></div>
-            <div class="analytics-row"><span><b>Результат выполненных работ</b><small>на руки − материалы заявок − расходы без закупок склада</small></span><strong style="color:${metrics.workResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.workResult)}</strong></div>
-            <div class="analytics-row"><span><b>Закупки склада</b><small>оплаченные приходы за период</small></span><strong>${U.money(metrics.stockPurchases)}</strong></div>
-            <div class="analytics-row"><span><b>Материалы в закрытых заявках</b><small>по сохранённой себестоимости списания</small></span><strong>${U.money(metrics.materials)}</strong></div>
-        </div>${analyticsChart(metrics.closed,range)}</section>
+        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('finance')}Деньги простым языком</h3></div><div class="analytics-list">
+            <div class="analytics-row"><span><b>Получил чистыми</b><small>твоя сумма «На руки» по закрытым заявкам</small></span><strong style="color:var(--green);">${U.money(metrics.earned)}</strong></div>
+            <div class="analytics-row"><span><b>Купил запчастей и расходников</b><small>оплаченные приходы на склад в выбранном периоде</small></span><strong style="color:var(--red);">−${U.money(metrics.stockPurchases)}</strong></div>
+            <div class="analytics-row"><span><b>Другие расходы</b><small>все расходы периода, кроме закупок склада</small></span><strong style="color:var(--red);">−${U.money(metrics.nonStockExpenses)}</strong></div>
+            <div class="analytics-row"><span><b>Осталось денег</b><small>получил чистыми минус все реальные расходы периода</small></span><strong style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</strong></div>
+        </div><div class="analytics-explain">Израсходованные в ремонте детали второй раз из денег не вычитаются: ты уже оплатил их при закупке. Ниже они показываются отдельно — как расход количества и себестоимости со склада.</div>${analyticsChart(metrics.closed,range)}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('users')}Клиенты</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Новые</small><b>${newClients}</b></div><div class="analytics-kpi"><small>Повторные</small><b>${repeatClients}</b></div><div class="analytics-kpi"><small>Всего клиентов</small><b>${phones.length}</b></div><div class="analytics-kpi"><small>Доля повторных</small><b>${repeatRate}%</b></div></div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('wrench')}По типам техники</h3></div>${techRows?`<div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Техника</th><th>Заявок</th><th>Выручка</th><th>Ср. чек</th><th>Срок</th></tr></thead><tbody>${techRows}</tbody></table></div>`:'<div class="analytics-empty">Нет закрытых заявок для сравнения.</div>'}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('list')}Популярные услуги</h3></div><div class="analytics-list">${serviceRows||'<div class="analytics-empty">Услуги пока не накопились.</div>'}</div></section>
-        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('warehouse')}Склад</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Стоимость остатка</small><b>${U.money(Math.round(stockValue))}</b></div><div class="analytics-kpi"><small>Куплено</small><b>${U.money(metrics.stockPurchases)}</b></div><div class="analytics-kpi"><small>Списано по заявкам</small><b>${U.money(consumedCost)}</b></div><div class="analytics-kpi"><small>Мало осталось</small><b>${lowStock.length}</b></div></div><div class="analytics-list" style="margin-top:8px;">${consumedRows||'<div class="analytics-empty">Списаний со склада в периоде нет.</div>'}</div></section>`;
+        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('warehouse')}Запчасти и расходники</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Остаток склада сейчас</small><b>${U.money(Math.round(stockValue))}</b></div><div class="analytics-kpi"><small>Куплено за период</small><b>${U.money(metrics.stockPurchases)}</b></div><div class="analytics-kpi"><small>Израсходовано в ремонтах</small><b>${U.money(consumedCost)}</b></div><div class="analytics-kpi"><small>Заканчивается</small><b>${lowStock.length}</b></div></div><div class="analytics-explain">Стоимость остатка — это примерная себестоимость того, что физически лежит на складе сейчас. В списке ниже видно, сколько каждой позиции ушло за выбранный период и сколько осталось.</div>${ignoredConsumption.length?`<div class="data-warning"><b>Не учтено подозрительных записей: ${ignoredConsumption.length}</b><small>Это удалённые позиции склада или суммы, которые ты сам исключил. Они не влияют на результат.</small><button type="button" class="btn-sm btn-outline" onclick="showExcludedWarehouseMovements()">Проверить записи</button></div>`:''}<div class="analytics-list" style="margin-top:8px;">${consumedRows||'<div class="analytics-empty">Списаний со склада в периоде нет.</div>'}</div></section>`;
     persistCurrentView('stats',false);
 }
 
@@ -3482,6 +3648,8 @@ function createOrderForClient(phone, name){
 // Товарник — временный расчёт строк и цен. Он не связан с услугами,
 // складской себестоимостью или итогом заявки и отдельно не сохраняется.
 let receiptDraft=null;
+let receiptCatalogSelection=new Set();
+let receiptCatalogInitial=false;
 // Стартовый прайс товарника. Это ориентиры по присланным фотографиям,
 // а не складские цены: пользователь может изменить любую позицию.
 const PRODUCT_CATALOG_DEFAULTS=[
@@ -3562,7 +3730,7 @@ function normaliseReceiptLine(line){
     const item=line||{};
     const sourcePrice=item.price===undefined||item.price===null?item.basePrice:item.price;
     const basePrice=roundReceiptPrice(item.basePrice===undefined||item.basePrice===null?sourcePrice:item.basePrice);
-    return {id:item.id||U.uid(),name:String(item.name||'').trim(),qty:item.qty===undefined||item.qty===null?'1':String(item.qty),unit:canonicalUnit(item.unit||'шт.'),price:roundReceiptPrice(sourcePrice),basePrice,kind:'material'};
+    return {id:item.id||U.uid(),priceId:item.priceId||null,name:String(item.name||'').trim(),qty:item.qty===undefined||item.qty===null?'1':String(item.qty),unit:canonicalUnit(item.unit||'шт.'),price:roundReceiptPrice(sourcePrice),basePrice,kind:'material'};
 }
 function receiptLinesFromOrder(order){
     return (order?.materials||[]).filter(raw=>raw?.kind!=='service'&&raw?.type!=='service').map(raw=>{
@@ -3575,7 +3743,9 @@ function receiptLinesFromOrder(order){
 }
 function newReceipt(){
     receiptDraft={id:null,lines:[],targetTotal:'',sourceOrderId:null,techKey:'refrigeration_home',createdAt:U.nowISO(),updatedAt:U.nowISO()};
-    openReceiptEditor();
+    const card=document.getElementById('receipt-editor-card');if(card)card.style.display='none';
+    const previewCard=document.getElementById('receipt-table-preview-card');if(previewCard)previewCard.style.display='none';
+    showReceiptCatalogModal(true);
 }
 function createReceiptFromSelectedOrder(){
     const id=document.getElementById('receipt-order-source')?.value;
@@ -3611,15 +3781,28 @@ function openReceiptEditor(){
 function renderReceiptPriceChoices(){
     const trigger=document.getElementById('receipt-catalog-trigger');if(!trigger)return;
     const tech=receiptDraft?.techKey||'refrigeration_home',count=DB.receiptPrices().filter(item=>isReceiptMaterialPrice(item)&&receiptPriceCompatible(item,tech)).length;
-    trigger.innerHTML=`<span>${iconSvg('search')}<b>Выбрать товар · ${escapeHtml(receiptTechLabel(tech))}</b></span><small>${count} поз.</small>`;
+    trigger.innerHTML=`<span>${iconSvg('search')}<b>Добавить товары · ${escapeHtml(receiptTechLabel(tech))}</b></span><small>${count} поз.</small>`;
 }
 function changeReceiptTech(value){
     if(!receiptDraft)return;receiptDraft.techKey=RECEIPT_TECH_KEYS.includes(value)?value:'refrigeration_home';renderReceiptPriceChoices();
 }
-function showReceiptCatalogModal(){
-    if(!receiptDraft)newReceipt();
-    document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('price')}Каталог · ${escapeHtml(receiptTechLabel(receiptDraft.techKey))}</h3><div class="search-box"><span class="search-icon">${iconSvg('search')}</span><input id="receipt-catalog-search" type="search" placeholder="Название товара" oninput="renderReceiptCatalogModal()"></div><div id="receipt-catalog-list" class="catalog-list"></div><button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;
-    document.getElementById('modal-overlay').classList.add('active');renderReceiptCatalogModal();document.getElementById('receipt-catalog-search')?.focus();
+function receiptLineAlreadyHasPriceItem(item){
+    if(!receiptDraft||!item)return false;
+    return receiptDraft.lines.some(line=>String(line.priceId||'')===String(item.id)||(!line.priceId&&receiptNameKey(line.name)===receiptNameKey(item.name)&&canonicalUnit(line.unit||'шт.')===canonicalUnit(item.unit||'шт.')));
+}
+function showReceiptCatalogModal(initial=false){
+    if(!receiptDraft)receiptDraft={id:null,lines:[],targetTotal:'',sourceOrderId:null,techKey:'refrigeration_home',createdAt:U.nowISO(),updatedAt:U.nowISO()};
+    receiptCatalogInitial=Boolean(initial);
+    receiptCatalogSelection=new Set();
+    document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('price')}${initial?'Сначала выбери товары':'Добавить товары'}</h3><div class="field-hint" style="margin:-2px 0 9px;">Отметь сразу несколько позиций. Цены подставятся из прайса, а количество и любую цену изменишь на следующем экране.</div><div class="receipt-catalog-toolbar"><div class="form-group" style="margin:0;"><label>Для какой техники</label><select id="receipt-catalog-tech" onchange="changeReceiptCatalogTech(this.value)">${receiptTechOptions(receiptDraft.techKey)}</select></div><div class="search-box"><span class="search-icon">${iconSvg('search')}</span><input id="receipt-catalog-search" type="search" placeholder="Найти товар" oninput="renderReceiptCatalogModal()"></div></div><div id="receipt-catalog-list" class="catalog-list"></div><div class="receipt-catalog-actions"><button type="button" class="btn-outline" onclick="continueReceiptWithoutCatalog()">${initial?'Продолжить без выбора':'Закрыть'}</button><button id="receipt-catalog-add" type="button" onclick="applyReceiptCatalogSelection()">Добавить выбранные</button></div>`;
+    document.getElementById('modal-overlay').classList.add('active');renderReceiptCatalogModal();
+}
+function changeReceiptCatalogTech(value){
+    if(!receiptDraft)return;
+    receiptDraft.techKey=RECEIPT_TECH_KEYS.includes(value)?value:'refrigeration_home';
+    receiptCatalogSelection.clear();
+    const editorTech=document.getElementById('receipt-tech-filter');if(editorTech)editorTech.value=receiptDraft.techKey;
+    renderReceiptPriceChoices();renderReceiptCatalogModal();
 }
 function renderReceiptCatalogModal(){
     const container=document.getElementById('receipt-catalog-list');if(!container||!receiptDraft)return;
@@ -3627,15 +3810,34 @@ function renderReceiptCatalogModal(){
     let prices=DB.receiptPrices().filter(item=>isReceiptMaterialPrice(item)&&receiptPriceCompatible(item,tech));
     if(search)prices=prices.filter(item=>`${item.name||''} ${item.category||''}`.toLowerCase().includes(search));
     prices.sort((a,b)=>`${a.category||'Товары'} ${a.name||''}`.localeCompare(`${b.category||'Товары'} ${b.name||''}`,'ru'));
+    const addButton=document.getElementById('receipt-catalog-add');
+    if(addButton){addButton.textContent=receiptCatalogSelection.size?`Добавить выбранные (${receiptCatalogSelection.size})`:'Добавить выбранные';addButton.disabled=receiptCatalogSelection.size===0;}
     if(!prices.length){container.innerHTML='<div class="analytics-empty">Для этой техники ничего не найдено. Новый товар можно вписать вручную.</div>';return;}
-    let last='';container.innerHTML=prices.map(item=>{const category=item.category||'Товары',heading=category!==last?`<div class="catalog-group-title">${escapeHtml(category)}</div>`:'';last=category;return `${heading}<button type="button" class="catalog-choice" onclick="selectReceiptPriceItem('${item.id}')"><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.unit||'шт.')} · ${escapeHtml(receiptTechLabel(tech))}</small></span><strong>${receiptMoney(item.price)}</strong></button>`;}).join('');
+    let last='';container.innerHTML=prices.map(item=>{
+        const category=item.category||'Товары',heading=category!==last?`<div class="catalog-group-title">${escapeHtml(category)}</div>`:'';last=category;
+        const selected=receiptCatalogSelection.has(String(item.id)),already=receiptLineAlreadyHasPriceItem(item);
+        return `${heading}<button type="button" class="catalog-choice ${selected?'selected':''} ${already?'already-added':''}" onclick="toggleReceiptCatalogItem('${item.id}')" ${already?'disabled':''}><span><i class="catalog-check">${selected?'✓':already?'✓':''}</i><span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.unit||'шт.')} · ${already?'уже добавлен':escapeHtml(receiptTechLabel(tech))}</small></span></span><strong>${receiptMoney(item.price)}</strong></button>`;
+    }).join('');
 }
-function selectReceiptPriceItem(id){
-    if(!id)return;
-    const item=DB.receiptPrices().find(entry=>String(entry.id)===String(id));if(!item)return;
-    const name=document.getElementById('receipt-add-name'),unit=document.getElementById('receipt-add-unit'),price=document.getElementById('receipt-add-price');
-    if(name)name.value=item.name||'';if(unit)unit.value=canonicalUnit(item.unit||'шт.');if(price)price.value=roundReceiptPrice(item.price);
-    closeModal();document.getElementById('receipt-add-qty')?.focus();
+function toggleReceiptCatalogItem(id){
+    const key=String(id||''),item=DB.receiptPrices().find(entry=>String(entry.id)===key);if(!item||receiptLineAlreadyHasPriceItem(item))return;
+    if(receiptCatalogSelection.has(key))receiptCatalogSelection.delete(key);else receiptCatalogSelection.add(key);
+    renderReceiptCatalogModal();
+}
+function applyReceiptCatalogSelection(){
+    if(!receiptDraft||!receiptCatalogSelection.size)return;
+    const prices=DB.receiptPrices();let added=0;
+    receiptCatalogSelection.forEach(id=>{
+        const item=prices.find(entry=>String(entry.id)===String(id));if(!item||receiptLineAlreadyHasPriceItem(item))return;
+        const price=roundReceiptPrice(item.price);
+        receiptDraft.lines.push(normaliseReceiptLine({priceId:item.id,name:item.name,qty:1,unit:item.unit||'шт.',price,basePrice:price}));added++;
+    });
+    receiptCatalogSelection.clear();closeModal();openReceiptEditor();
+    if(added)toast(`✅ Добавлено товаров: ${added}`);
+}
+function continueReceiptWithoutCatalog(){
+    const shouldOpen=receiptCatalogInitial;receiptCatalogSelection.clear();closeModal();
+    if(shouldOpen)openReceiptEditor();
 }
 function syncReceiptDraftFromForm(){
     if(!receiptDraft)return null;
@@ -4014,7 +4216,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:13,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:14,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -4209,7 +4411,7 @@ if ('serviceWorker' in navigator) {
             window.location.reload();
         }
     });
-    navigator.serviceWorker.register('./sw.js?v=15',{updateViaCache:'none'})
+    navigator.serviceWorker.register('./sw.js?v=16',{updateViaCache:'none'})
         .then(registration=>{
             console.log('✅ Service Worker зарегистрирован');
             if(registration.waiting)registration.waiting.postMessage({type:'SKIP_WAITING'});
