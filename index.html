@@ -909,6 +909,26 @@
         .stock-group-items>.card{padding:10px!important}
         @media(min-width:620px){.compact-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important}.warranty-scope-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
         @media(max-width:430px){.warranty-grid{grid-template-columns:1fr}.warehouse-card-icon{width:40px;height:40px}.warehouse-card-copy b{font-size:13px}.warehouse-stock b{font-size:13px}.stock-group-items{padding-left:6px!important;padding-right:6px!important}}
+
+        /* ===== Арсенал мастера v18.5 ===== */
+        .tool-hero{padding:0;overflow:hidden;background:linear-gradient(145deg,#121820,#0b1015);}
+        .tool-hero-cover{min-height:132px;padding:18px;display:flex;align-items:flex-end;background:radial-gradient(circle at 80% 20%,rgba(247,129,102,.24),transparent 42%),linear-gradient(120deg,#151c23,#0c1116);}
+        .tool-hero-cover h2{margin:0;font-size:25px}.tool-hero-cover p{margin:4px 0 0;color:var(--sub);font-size:13px}
+        .tool-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border)}
+        .tool-stat{padding:13px 6px;text-align:center;border-right:1px solid var(--border)}.tool-stat:last-child{border-right:0}.tool-stat b{display:block;font-size:20px}.tool-stat small{color:var(--sub);font-size:10px}
+        .tool-toolbar{display:flex;gap:8px;margin:10px 0}.tool-toolbar .search-box{margin:0;flex:1}.tool-toolbar button{width:auto;min-width:52px;margin:0}
+        .tool-status-chips{display:flex;gap:7px;overflow:auto;padding-bottom:4px;scrollbar-width:none}.tool-status-chips::-webkit-scrollbar{display:none}.tool-status-chips .chip{white-space:nowrap}
+        .tool-category-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+        .tool-category-card{position:relative;min-height:155px;padding:13px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,var(--card),var(--input));overflow:hidden;cursor:pointer}
+        .tool-category-card h3{font-size:15px;margin:0 0 3px;max-width:75%}.tool-category-card small{color:var(--accent);font-weight:700}.tool-category-visual{position:absolute;right:-4px;bottom:-8px;font-size:68px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.38));opacity:.92}.tool-category-card .tool-mini-photo{position:absolute;inset:55px 8px 8px 45%;width:52%;height:85px;object-fit:contain;border-radius:12px}
+        .tool-list{display:grid;gap:9px;margin-top:10px}.tool-item-card{display:grid;grid-template-columns:78px 1fr auto;gap:11px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:17px;background:var(--card)}
+        .tool-thumb{width:78px;height:72px;border-radius:13px;background:var(--input);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden}.tool-thumb img{width:100%;height:100%;object-fit:cover}
+        .tool-item-card h3{font-size:15px;margin:0 0 4px}.tool-item-card p{font-size:11px;color:var(--sub);margin:2px 0}.tool-price{font-size:13px;font-weight:800;text-align:right}.tool-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}.tool-actions button{min-height:34px;padding:6px 9px;margin:0;width:auto}
+        .tool-status{font-size:11px;font-weight:800}.tool-status.have{color:#56d881}.tool-status.want{color:#58a6ff}.tool-status.plan{color:#b987ff}.tool-status.repair{color:#ff9d57}.tool-status.none{color:#ff6b6b}
+        .tool-detail-photo{width:100%;height:250px;object-fit:contain;background:linear-gradient(145deg,#111820,#080c10);border-radius:18px;border:1px solid var(--border)}
+        .tool-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.tool-detail-cell{padding:10px;border:1px solid var(--border);border-radius:13px;background:var(--input)}.tool-detail-cell small{display:block;color:var(--sub);font-size:10px}.tool-detail-cell b{font-size:13px}
+        .tool-share-card{background:#fff;color:#14171b;border-radius:22px;padding:20px}.tool-share-card h2{margin:0 0 3px}.tool-share-card p{color:#626a72;font-size:12px}.tool-share-list{display:grid;gap:8px;margin:16px 0}.tool-share-list div:before{content:'✓';color:#ff643f;font-weight:900;margin-right:8px}.tool-share-footer{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid #ddd;padding-top:14px;text-align:center}.tool-share-footer b{display:block;font-size:18px}.tool-share-footer small{font-size:9px;color:#6c737a}
+        @media(max-width:370px){.tool-category-grid{grid-template-columns:1fr}.tool-item-card{grid-template-columns:64px 1fr}.tool-price{grid-column:2;text-align:left}.tool-thumb{width:64px;height:64px}}
     </style>
 </head>
 <body>
@@ -1025,7 +1045,7 @@
         </div>
         <div class="form-group"><label>Фото</label><input type="file" id="n-photos" accept="image/*" multiple onchange="previewPhotos()"></div>
         <div id="photo-preview" class="photo-gallery"></div>
-        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option><option value="Отказ">Отказ от ремонта</option></select></div>
+        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option></select></div>
         <div class="row date-fields" id="order-date-fields"><div class="form-group"><label>Дата создания</label><input type="date" id="n-created-date"></div><div class="form-group"><label>Дата закрытия</label><input type="date" id="n-completed-date"></div></div>
         <div class="form-group"><label>Следующий визит</label><input type="datetime-local" id="n-next-visit"><div class="field-hint">Необязательно. Поможет не забыть дату и время выезда.</div></div>
         <div id="edit-indicator" style="display:none;background:var(--yellow);color:#000;padding:7px 9px;border-radius:8px;margin-bottom:8px;font-size:12px;"><svg class="ui-icon" style="display:inline-block;width:15px;height:15px;vertical-align:-3px;"><use href="#i-edit"></use></svg> Редактирование заявки</div>
@@ -1065,19 +1085,17 @@
     <div id="shopping-list-container"></div>
 </div>
 
-<!-- Инструмент -->
-<div id="page-tools" class="page"><div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Инструмент</h1><p>Есть, хочу купить и в планах</p></div></div><div class="card"><div class="form-group"><label>Название</label><input id="tool-name" placeholder="Название инструмента"></div><div class="row"><div class="form-group"><label>Статус</label><select id="tool-status"><option value="owned">Есть</option><option value="wanted">Хочу купить</option><option value="planned">В планах</option><option value="repair">Нужен ремонт</option></select></div><div class="form-group"><label>Цена / бюджет</label><input type="number" id="tool-price" min="0"></div></div><div class="form-group"><label>Комментарий</label><input id="tool-note" placeholder="Модель или заметка"></div><button onclick="addToolItem()">Добавить</button></div><div id="tools-container"></div></div>
-
 <!-- Дополнительные разделы -->
 <div id="page-more" class="page">
     <div class="page-heading"><div><h1>Ещё</h1><p>Финансы, документы, прайс и настройки</p></div></div>
     <div class="more-grid">
         <button class="more-item" onclick="switchTab('expenses')"><span class="more-icon green"><svg class="ui-icon"><use href="#i-finance"></use></svg></span><span><b>Финансы</b><small>Личные расходы вне заявок</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('shopping')"><span class="more-icon yellow"><svg class="ui-icon"><use href="#i-list"></use></svg></span><span><b>Список покупок</b><small>Позиции ниже минимального остатка</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
-        <button class="more-item" onclick="switchTab('tools')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-settings"></use></svg></span><span><b>Инструмент</b><small>Есть, хочу купить и в планах</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button><button class="more-item" onclick="switchTab('clients')"><span class="more-icon blue"><svg class="ui-icon"><use href="#i-users"></use></svg></span><span><b>Клиенты</b><small>История обращений и ремонтов</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
+        <button class="more-item" onclick="switchTab('clients')"><span class="more-icon blue"><svg class="ui-icon"><use href="#i-users"></use></svg></span><span><b>Клиенты</b><small>История обращений и ремонтов</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('price')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-price"></use></svg></span><span><b>Прайс-лист</b><small>Каталог услуг и свои позиции</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" id="more-act-document" onclick="switchTab('print')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Акт</b><small>Подготовка и печать документа</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" id="more-receipt-document" onclick="switchTab('receipts')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-price"></use></svg></span><span><b>Товарник</b><small>Товары из заявки или вручную</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
+        <button class="more-item" onclick="switchTab('tools')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-box"></use></svg></span><span><b>Арсенал мастера</b><small>Инструменты, оснащение и витрина</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('settings')"><span class="more-icon gray"><svg class="ui-icon"><use href="#i-settings"></use></svg></span><span><b>Настройки</b><small>Бэкапы и оформление приложения</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
     </div>
 </div>
@@ -1196,6 +1214,16 @@
     </details>
 </div>
 
+
+<!-- Арсенал мастера -->
+<div id="page-tools" class="page">
+    <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Арсенал мастера</h1><p>Профессиональное оснащение</p></div><button class="heading-action" onclick="showToolEditor()" aria-label="Добавить инструмент"><svg class="ui-icon"><use href="#i-plus"></use></svg></button></div>
+    <div class="card tool-hero"><div class="tool-hero-cover"><div><h2>Мой арсенал</h2><p>Всё необходимое для диагностики и ремонта</p></div></div><div class="tool-stats"><div class="tool-stat"><b id="tool-total">0</b><small>инструментов</small></div><div class="tool-stat"><b id="tool-have">0</b><small>в наличии</small></div><div class="tool-stat"><b id="tool-value">0 ₽</b><small>стоимость</small></div></div></div>
+    <div class="tool-toolbar"><div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input id="tool-search" type="search" placeholder="Найти инструмент" oninput="renderTools()"></div><button class="btn-outline" onclick="showToolShare()" aria-label="Поделиться"><svg class="ui-icon"><use href="#i-telegram"></use></svg></button></div>
+    <div class="tool-status-chips" id="tool-status-chips"><button class="chip active" onclick="setToolFilter('all',this)">Все</button><button class="chip" onclick="setToolFilter('have',this)">Есть</button><button class="chip" onclick="setToolFilter('want',this)">Хочу</button><button class="chip" onclick="setToolFilter('plan',this)">Планирую</button><button class="chip" onclick="setToolFilter('repair',this)">Ремонт</button></div>
+    <div id="tool-content"></div>
+</div>
+
 <!-- Настройки -->
 <div id="page-settings" class="page">
     <div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')" aria-label="Назад"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Настройки</h1><p>Персонализация и данные</p></div></div>
@@ -1227,8 +1255,8 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v18.4</b></span>
-            <span>Сборка: <b>23.07.2026</b></span>
+            <span>Версия: <b>v18.5</b></span>
+            <span>Сборка: <b>24.07.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
         <button type="button" class="btn-outline" onclick="showChangelog()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>История изменений</span></button>
@@ -2062,8 +2090,8 @@ function showUndo(message,action){
 
 // ==================== ТАБЫ И СОСТОЯНИЕ ЭКРАНА ====================
 const VIEW_STATE_KEY='repair_view_state_v1';
-const VALID_TABS=new Set(['new','orders','warehouse','shopping','more','expenses','tools','stats','clients','price','print','receipts','settings']);
-const SCROLL_TABS=new Set(['orders','warehouse','shopping','expenses','tools','stats','clients','price','receipts']);
+const VALID_TABS=new Set(['new','orders','warehouse','shopping','more','expenses','stats','clients','price','print','receipts','tools','settings']);
+const SCROLL_TABS=new Set(['orders','warehouse','shopping','expenses','stats','clients','price','receipts','tools']);
 let currentTab='orders',viewSaveTimer=null;
 function readViewState(){
     try{
@@ -2106,19 +2134,19 @@ function switchTab(tab,options={}) {
     if(!options.initial)persistCurrentView(currentTab,true);
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     page.classList.add('active');currentTab=tab;
-    const secondary=['expenses','tools','clients','price','print','receipts','settings'];
+    const secondary=['expenses','clients','price','print','receipts','tools','settings'];
     const navTab=tab==='new'?'orders':(tab==='shopping'?'warehouse':(secondary.includes(tab)?'more':tab));
     document.querySelectorAll('.nav-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===navTab));
     if(tab==='orders')renderOrders();
     if(tab==='warehouse')renderWarehouse();
     if(tab==='shopping')renderShoppingList();
     if(tab==='expenses')renderExpenses();
-    if(tab==='tools')renderTools();
     if(tab==='stats')renderStats();
     if(tab==='clients')renderClients();
     if(tab==='price')renderPriceList();
     if(tab==='print')renderPrintSelect();
     if(tab==='receipts')renderReceipts();
+    if(tab==='tools')renderTools();
     if(tab==='settings'){loadSettings();updateStorageInfo();}
     persistCurrentView(tab,false);
     if(options.restore!==false&&SCROLL_TABS.has(tab))restoreTabScroll(tab);else window.scrollTo({top:0,left:0,behavior:'auto'});
@@ -2328,7 +2356,7 @@ function renderMaterialCatalog(){
     const showAll=Boolean(window.materialShowAll);
     const hint=document.getElementById('material-filter-hint');
     if(hint)hint.innerHTML=tech?`Фильтр: <b>${tech}</b> · ${showAll?'показан весь склад':'подходящие позиции и универсальные'}. <button type="button" class="btn-xs btn-outline" style="margin:3px 0 0;" onclick="toggleAllWarehouseMaterials()">${showAll?'Только подходящие':'Показать весь склад'}</button>`:'Выбери тип техники, чтобы скрыть неподходящие позиции. Сейчас показаны все неархивные позиции.';
-    let items=DB.warehouse().filter(item=>!item.archived&&item.showInOrders!==false);
+    let items=DB.warehouse().filter(item=>!item.archived);
     if(!showAll&&tech)items=items.filter(item=>itemCompatibleWithTech(item,tech));
     if(search)items=items.filter(item=>`${item.name||''} ${item.category||''} ${compatibilityLabelList(item.compatibility)} ${inferRefrigerant(item)||''}`.toLowerCase().includes(search));
     items=items.slice().sort((a,b)=>`${a.category||''} ${a.name||''}`.localeCompare(`${b.category||''} ${b.name||''}`,'ru'));
@@ -2843,7 +2871,6 @@ function snapshotWarehouseMaterialCosts(materials,previousOrder=null){
     });
 }
 function confirmOrderClosure(order,wasClosed=false){
-    if(order.status==='Отказ')return confirm(`Сохранить отказ от ремонта ${U.formatOrderId(order.id)}?\n\nПолучено: ${U.money(U.finalAmount(order))}\nСумма попадёт в выручку, но не в средний чек.`);
     if(order.status!=='Закрыта'||wasClosed)return true;
     const writeOff=(order.materials||[]).map(normaliseMaterial).filter(material=>material.warehouseId&&material.writeOff&&material.tracking!=='presence'&&(Number(material.qty)||0)>0);
     const materialLines=writeOff.length?writeOff.slice(0,5).map(material=>`• ${material.name}: ${formatQuantity(material.qty)} ${material.unit}`).join('\n'):'• количественных списаний нет';
@@ -2865,7 +2892,7 @@ function saveOrder(){
     const white = parseInt(document.getElementById('n-white').value) || 0;
     const status=document.getElementById('n-status').value;
     const created=U.dateInputToISO(document.getElementById('n-created-date').value,existing?.created||U.nowISO());
-    const completed=['Закрыта','Отказ'].includes(status)?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
+    const completed=status==='Закрыта'?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
 
     if(gray > sum){
         toast('⚠️ Серые расходы не могут превышать сумму заявки!', true);
@@ -2909,13 +2936,12 @@ function saveOrder(){
         photos:tempPhotos.length>0 ? tempPhotos : (existing?.photos||[]),
         created,
         completed,
-        nextVisit:['Закрыта','Отказ'].includes(status)?null:U.dateTimeInputToISO(document.getElementById('n-next-visit').value)
+        nextVisit:status==='Закрыта'?null:U.dateTimeInputToISO(document.getElementById('n-next-visit').value)
     };
-    if(['Закрыта','Отказ'].includes(order.status))order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
+    if(order.status==='Закрыта')order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
     if(!validateOpenOrderReservations(order))return;
     if(!validateMaterialUnits(order.materials))return;
     if(!confirmOrderClosure(order,existing?.status==='Закрыта'))return;
-    if(order.status==='Отказ')order.materials=(order.materials||[]).map(material=>({...normaliseMaterial(material),writeOff:false}));
     if(!syncWarehouseForOrder(existing,order))return;
     let orders=DB.orders();
     if(editingId) orders=orders.map(o=>o.id===editingId ? order : o);
@@ -3200,7 +3226,7 @@ function addWarehouseItem(){
     if(!unitsCompatible(consumeUnit,unit)){toast('❌ Единица списания должна соответствовать единице хранения',true);return;}
     if(quantity<=0&&totalCost>0){toast('❌ Для закупки укажи количество',true);return;}
     localStorage.setItem('repair_last_warehouse_tech',tech);
-    const item={id:U.uid(),name,category:document.getElementById('wh-cat')?.value.trim()||'Без категории',refrigerant:null,compatibility,quantity:roundQuantity(quantity),min:roundQuantity(min),price:0,lastPurchasePrice:0,lastPurchaseAt:null,unit,consumeUnit,tracking:document.getElementById('wh-track')?.value||'exact',showInOrders:true,archived:false};
+    const item={id:U.uid(),name,category:document.getElementById('wh-cat')?.value.trim()||'Без категории',refrigerant:null,compatibility,quantity:roundQuantity(quantity),min:roundQuantity(min),price:0,lastPurchasePrice:0,lastPurchaseAt:null,unit,consumeUnit,tracking:document.getElementById('wh-track')?.value||'exact',archived:false};
     const items=DB.warehouse();
     const duplicate=items.find(entry=>!entry.archived&&(entry.name||'').trim().toLowerCase()===name.toLowerCase()&&(entry.category||'Без категории').toLowerCase()===item.category.toLowerCase());
     if(duplicate&&unitsCompatible(unit,duplicate.unit||'шт.')&&sameCompatibility(duplicate.compatibility,compatibility)&&confirm(`Позиция «${duplicate.name}» уже есть. Добавить этот приход к существующему остатку?`)){
@@ -3259,7 +3285,7 @@ function editWarehouseItem(id){
             <div class="form-group"><label>Минимальный остаток</label><input type="number" id="whe-min" value="${Number(item.min)||0}" step="0.001"></div>
             <div class="form-group"><label>Списывать по умолчанию</label><select id="whe-consume-unit">${unitSelectOptions(consumeUnit,units)}</select></div>
             <div class="form-group wide"><label>Текущая себестоимость за ${item.unit||'шт.'}</label><input type="number" id="whe-price" min="0" step="0.000001" value="${Number(item.price)||0}"><div class="field-hint">Изменение применяется только к будущим списаниям. Старые расходы, закупки и закрытые заявки не пересчитываются.</div></div>
-            <div class="form-group wide"><label>Учёт расхода</label><select id="whe-track"><option value="exact" ${item.tracking==='exact'?'selected':''}>Точный</option><option value="approx" ${item.tracking==='approx'?'selected':''}>Примерный</option><option value="presence" ${item.tracking==='presence'?'selected':''}>Только наличие</option></select></div><div class="form-group wide"><label class="compat-option"><input type="checkbox" id="whe-show-orders" ${item.showInOrders!==false?'checked':''}> Показывать при заполнении заявки</label><div class="field-hint">Отключи для масла вакууматора, MAP-газ и других общих покупок.</div></div>
+            <div class="form-group wide"><label>Учёт расхода</label><select id="whe-track"><option value="exact" ${item.tracking==='exact'?'selected':''}>Точный</option><option value="approx" ${item.tracking==='approx'?'selected':''}>Примерный</option><option value="presence" ${item.tracking==='presence'?'selected':''}>Только наличие</option></select></div>
         </div>
         <div class="modal-form-actions"><button type="button" onclick="saveWarehouseItemEdit('${id}')">Сохранить</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button></div>`;
     setCompatibilityValues(item.compatibility,'whe');
@@ -3271,7 +3297,7 @@ function saveWarehouseItemEdit(id){
     const consumeUnit=canonicalUnit(document.getElementById('whe-consume-unit')?.value||item.unit),price=Number(document.getElementById('whe-price')?.value);
     if(!unitsCompatible(consumeUnit,item.unit||'шт.')){toast('❌ Единица списания не соответствует единице хранения',true);return;}
     if(!Number.isFinite(price)||price<0){toast('❌ Себестоимость не может быть отрицательной',true);return;}
-    item.name=name;item.category=document.getElementById('whe-cat').value.trim()||'Без категории';item.compatibility=selectedCompatibilityValues('whe');item.min=roundQuantity(Math.max(0,parseFloat(document.getElementById('whe-min').value)||0));item.consumeUnit=consumeUnit;item.price=Math.round(price*1000000)/1000000;item.tracking=document.getElementById('whe-track').value;item.showInOrders=document.getElementById('whe-show-orders')?.checked!==false;
+    item.name=name;item.category=document.getElementById('whe-cat').value.trim()||'Без категории';item.compatibility=selectedCompatibilityValues('whe');item.min=roundQuantity(Math.max(0,parseFloat(document.getElementById('whe-min').value)||0));item.consumeUnit=consumeUnit;item.price=Math.round(price*1000000)/1000000;item.tracking=document.getElementById('whe-track').value;
     DB.saveWarehouse(items);closeModal();renderWarehouse();maybeAutoBackup();toast('✅ Позиция настроена');
 }
 
@@ -3433,13 +3459,6 @@ function renderWarehouseHistory(){
     }).join('')}</section>`).join('');
 }
 
-// ==================== ИНСТРУМЕНТ ====================
-const TOOL_STATUS_LABELS={owned:'Есть',wanted:'Хочу купить',planned:'В планах',repair:'Нужен ремонт'};
-function addToolItem(){const name=document.getElementById('tool-name')?.value.trim();if(!name){toast('❌ Укажи название',true);return;}const tools=DB.tools();tools.unshift({id:U.uid(),name,status:document.getElementById('tool-status')?.value||'owned',price:Math.max(0,Number(document.getElementById('tool-price')?.value)||0),note:document.getElementById('tool-note')?.value.trim()||'',created:U.nowISO()});DB.saveTools(tools);['tool-name','tool-price','tool-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});renderTools();maybeAutoBackup();}
-function deleteToolItem(id){if(!confirm('Удалить инструмент?'))return;DB.saveTools(DB.tools().filter(item=>item.id!==id));renderTools();maybeAutoBackup();}
-function cycleToolStatus(id){const seq=['owned','wanted','planned','repair'],tools=DB.tools(),item=tools.find(x=>x.id===id);if(!item)return;item.status=seq[(seq.indexOf(item.status)+1)%seq.length];DB.saveTools(tools);renderTools();maybeAutoBackup();}
-function renderTools(){const c=document.getElementById('tools-container');if(!c)return;const items=DB.tools();c.innerHTML=items.length?items.map(item=>`<div class="card"><div class="expense-card-header"><div><b>${escapeHtml(item.name)}</b><div class="field-hint">${TOOL_STATUS_LABELS[item.status]||item.status}${item.price?` · ${U.money(item.price)}`:''}${item.note?` · ${escapeHtml(item.note)}`:''}</div></div><button class="delete-icon-btn" onclick="deleteToolItem('${item.id}')">${iconSvg('delete')}</button></div><button class="btn-xs btn-outline" onclick="cycleToolStatus('${item.id}')">Сменить статус</button></div>`).join(''):'<div class="empty-state">Инструменты пока не добавлены</div>';}
-
 // ==================== РАСХОДЫ ====================
 function addExpense(){
     const amount = parseInt(document.getElementById('exp-amount').value);
@@ -3457,14 +3476,22 @@ function addExpense(){
 
 function deleteExpense(id){
     const expenses=DB.expenses(),index=expenses.findIndex(e=>e.id===id);if(index<0)return;const removed=expenses[index];
-    if(removed.orderId){toast('ℹ️ Расход, связанный с заявкой, исправляется через заявку.',true);return;}
     if(removed.source==='warehouse_purchase'&&!removed.cancelled){
-        document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('delete')}Исправить старый расход</h3><div class="data-warning"><b>${escapeHtml(removed.description||'Закупка склада')}</b><small>${U.money(removed.amount)}</small></div><button type="button" onclick="excludeExpenseFromAccounting('${removed.id}')">Удалить только из финансов</button><div class="field-hint" style="margin:5px 0 10px;">Остаток и история склада сохранятся.</div><button type="button" class="btn-red" onclick="closeModal();deleteExpenseAndCancelPurchase('${removed.id}')">Отменить приход и расход полностью</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button>`;document.getElementById('modal-overlay').classList.add('active');return;
+        const itemExists=DB.warehouse().some(item=>item.id===removed.warehouseId);
+        if(itemExists){toast('⚠️ Этот расход связан с приходом на склад. Исправляй приход через склад, чтобы остаток и финансы не разошлись.',true);return;}
+        if(!confirm('Позиция уже удалена со склада. Отменить и этот связанный расход?'))return;
+        const movementId=removed.movementId;
+        const cancelled=cancelWarehousePurchaseRecords(record=>record.id===removed.id||(movementId&& (record.id===movementId||record.movementId===movementId)),'Расход отменён из раздела финансов');
+        renderExpenses();maybeAutoBackup();
+        showUndo('Складской расход отменён',()=>{restoreWarehousePurchaseRecords(cancelled);renderExpenses();maybeAutoBackup();});
+        return;
     }
-    if(!confirm('Удалить этот расход?'))return;expenses.splice(index,1);DB.saveExpenses(expenses);renderExpenses();renderStats();maybeAutoBackup();
+    if(!confirm('Удалить этот расход?')) return;
+    expenses.splice(index,1);DB.saveExpenses(expenses);
+    renderExpenses();
+    maybeAutoBackup();
+    showUndo('Расход удалён',()=>{const restored=DB.expenses();restored.splice(Math.min(index,restored.length),0,removed);DB.saveExpenses(restored);renderExpenses();maybeAutoBackup();});
 }
-function excludeExpenseFromAccounting(id){const expenses=DB.expenses(),expense=expenses.find(e=>e.id===id);if(!expense)return;expense.cancelled=true;expense.cancelReason='Удалено из финансов вручную';expense.cancelledAt=U.nowISO();DB.saveExpenses(expenses);const movements=DB.warehouseMovements(),movement=movements.find(m=>m.id===expense.movementId);if(movement){movement.analyticsExcluded=true;movement.analyticsExcludeReason='Удалено из финансов вручную';DB.saveWarehouseMovements(movements);}closeModal();renderExpenses();renderWarehouseHistory();renderStats();maybeAutoBackup();toast('✅ Расход удалён из финансов');}
-function deleteExpenseAndCancelPurchase(id){const removed=DB.expenses().find(e=>e.id===id);if(!removed)return;cancelWarehousePurchaseRecords(expense=>expense.id===removed.id,'Приход и расход отменены вручную');renderExpenses();renderWarehouseHistory();renderWarehouse();renderStats();maybeAutoBackup();}
 
 let expenseCollapsed=new Set(JSON.parse(localStorage.getItem('repair_expense_collapsed')||'[]'));
 
@@ -3576,14 +3603,13 @@ function analyticsMetrics(range){
     const allOrders=DB.orders();
     const allCreated=allOrders.filter(order=>analyticsInRange(order.created,range));
     const allClosed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range));
-    const refused=allOrders.filter(order=>order.status==='Отказ'&&analyticsOrderCountsAsRegular(order)&&analyticsInRange(order.completed||order.created,range));
     const created=allCreated.filter(analyticsOrderCountsAsRegular);
     const closed=allClosed.filter(analyticsOrderCountsAsRegular);
     const warrantyCases=allClosed.filter(order=>order.isWarrantyCase&&order.warrantyResult!=='non_warranty');
     const expenses=DB.expenses().filter(expense=>isActiveExpense(expense)&&analyticsInRange(expense.date,range));
-    const revenue=[...closed,...refused].reduce((sum,order)=>sum+U.finalAmount(order),0),earned=[...closed,...refused].reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    const revenue=closed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=closed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
     const stockPurchases=expenses.filter(expense=>expense.source==='warehouse_purchase').reduce((sum,expense)=>sum+(Number(expense.amount)||0),0),nonStockExpenses=allExpenses-stockPurchases;
-    return{created,closed,refused,allCreated,allClosed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0,warrantyCases};
+    return{created,closed,allCreated,allClosed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0,warrantyCases};
 }
 function analyticsDelta(current,previous,positiveGood=true){
     if(previous===null||previous===undefined)return '<span class="delta">без сравнения</span>';
@@ -4468,10 +4494,53 @@ function updateBackupInfo(){
 }
 
 
+
+// ==================== АРСЕНАЛ МАСТЕРА ====================
+let toolFilter='all';
+const TOOL_CATEGORIES={
+ 'Диагностика':'🌡️','Холодильное оборудование':'❄️','Электрика':'⚡','Ручной инструмент':'🧰','Расходные материалы':'🧷','Специальное оборудование':'🛠️','Другое':'🔧'
+};
+const TOOL_STATUS={have:'Есть в наличии',want:'Хочу купить',plan:'Планирую',repair:'Нужен ремонт',none:'Нет'};
+function toolMoney(v){return U.money(Math.round(Number(v)||0));}
+function setToolFilter(value,button){toolFilter=value;document.querySelectorAll('#tool-status-chips .chip').forEach(x=>x.classList.toggle('active',x===button));renderTools();}
+function toolImage(item){return item.photo?`<img src="${item.photo}" alt="">`:(TOOL_CATEGORIES[item.category]||'🔧');}
+function renderTools(){
+ const all=DB.tools();const q=(document.getElementById('tool-search')?.value||'').trim().toLowerCase();
+ const filtered=all.filter(x=>(toolFilter==='all'||x.status===toolFilter)&&(!q||`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q)));
+ const have=all.filter(x=>x.status==='have');
+ const total=document.getElementById('tool-total'),haveEl=document.getElementById('tool-have'),value=document.getElementById('tool-value');
+ if(total)total.textContent=all.length;if(haveEl)haveEl.textContent=have.length;if(value)value.textContent=toolMoney(have.reduce((a,x)=>a+(Number(x.price)||0),0));
+ const root=document.getElementById('tool-content');if(!root)return;
+ if(!all.length){root.innerHTML=`<div class="empty-state"><svg class="ui-icon"><use href="#i-box"></use></svg><b>Арсенал пока пуст</b><p>Добавь первый инструмент и фотографию. Всё сохранится в твоём бэкапе.</p><button onclick="showToolEditor()">Добавить инструмент</button></div>`;return;}
+ if(toolFilter==='all'&&!q){
+   const cats=Object.keys(TOOL_CATEGORIES).map(cat=>{const items=all.filter(x=>x.category===cat);if(!items.length)return'';const first=items.find(x=>x.photo)||items[0];return `<div class="tool-category-card" onclick="openToolCategory('${cat.replace(/'/g,"\\'")}')"><h3>${cat}</h3><small>${items.length} ${items.length===1?'инструмент':'инструментов'}</small>${first.photo?`<img class="tool-mini-photo" src="${first.photo}">`:`<div class="tool-category-visual">${TOOL_CATEGORIES[cat]}</div>`}</div>`}).join('');
+   root.innerHTML=`<div class="tool-category-grid">${cats}</div>`;return;
+ }
+ root.innerHTML=filtered.length?`<div class="tool-list">${filtered.map(toolCard).join('')}</div>`:`<div class="analytics-empty">Ничего не найдено.</div>`;
+}
+function openToolCategory(category){toolFilter='all';document.querySelectorAll('#tool-status-chips .chip').forEach((x,i)=>x.classList.toggle('active',i===0));const all=DB.tools().filter(x=>x.category===category);document.getElementById('tool-content').innerHTML=`<div class="card-title" style="margin:12px 0 4px"><span>${TOOL_CATEGORIES[category]||'🔧'}</span>${category}<small style="margin-left:auto;color:var(--sub)">${all.length}</small></div><div class="tool-list">${all.map(toolCard).join('')}</div>`;}
+function toolCard(item){return `<div class="tool-item-card" onclick="showToolDetail('${item.id}')"><div class="tool-thumb">${toolImage(item)}</div><div><h3>${U.escape(item.name)}</h3><div class="tool-status ${item.status}">${TOOL_STATUS[item.status]||'Есть'}</div><p>${U.escape(item.category||'Другое')}</p></div><div><div class="tool-price">${Number(item.price)?toolMoney(item.price):''}</div><div class="tool-actions"><button class="btn-outline" onclick="event.stopPropagation();showToolEditor('${item.id}')">✎</button><button class="btn-red" onclick="event.stopPropagation();deleteTool('${item.id}')">🗑</button></div></div></div>`;}
+function readToolPhoto(input,done){const file=input.files?.[0];if(!file){done('');return;}const r=new FileReader();r.onload=e=>compressImage(e.target.result,900,.72,done);r.readAsDataURL(file);}
+function showToolEditor(id=''){
+ const item=DB.tools().find(x=>x.id===id)||{status:'have',category:'Холодильное оборудование',name:'',price:'',bought:'',description:'',photo:''};
+ document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('box')}${id?'Редактировать':'Добавить'} инструмент</h3><div class="tool-status-chips">${Object.entries(TOOL_STATUS).filter(([k])=>k!=='none').map(([k,v])=>`<button type="button" class="chip ${item.status===k?'active':''}" onclick="document.querySelectorAll('#tool-edit-status .chip').forEach(x=>x.classList.remove('active'));this.classList.add('active');document.getElementById('tool-status').value='${k}'">${v}</button>`).join('')}</div><div id="tool-edit-status"><input type="hidden" id="tool-status" value="${item.status}"></div><div class="form-group"><label>Фотография</label><input id="tool-photo" type="file" accept="image/*"><div class="field-hint">Фото сожмётся и сохранится внутри бэкапа CRM.</div></div><div class="form-group"><label>Название *</label><input id="tool-name" value="${U.escape(item.name)}" placeholder="Например, цифровая манометрическая станция"></div><div class="form-group"><label>Категория</label><select id="tool-category">${Object.keys(TOOL_CATEGORIES).map(x=>`<option ${x===item.category?'selected':''}>${x}</option>`).join('')}</select></div><div class="row"><div class="form-group"><label>Цена</label><input id="tool-price" type="number" value="${Number(item.price)||''}" placeholder="0"></div><div class="form-group"><label>Дата покупки</label><input id="tool-bought" type="date" value="${item.bought||''}"></div></div><div class="form-group"><label>Описание</label><textarea id="tool-description" placeholder="Для чего используется, особенности, комплектация">${U.escape(item.description||'')}</textarea></div><button onclick="saveTool('${id}')">Сохранить</button><button class="btn-outline" onclick="closeModal()">Отмена</button>`;
+ document.getElementById('modal-overlay').classList.add('active');
+}
+function saveTool(id=''){
+ const name=document.getElementById('tool-name').value.trim();if(!name){toast('Укажи название');return;}
+ const tools=DB.tools(),old=tools.find(x=>x.id===id);const finish=photo=>{const item={id:id||U.uid(),name,category:document.getElementById('tool-category').value,status:document.getElementById('tool-status').value,price:Number(document.getElementById('tool-price').value)||0,bought:document.getElementById('tool-bought').value,description:document.getElementById('tool-description').value.trim(),photo:photo||old?.photo||'',created:old?.created||U.nowISO()};const idx=tools.findIndex(x=>x.id===id);if(idx>=0)tools[idx]=item;else tools.unshift(item);DB.saveTools(tools);closeModal();renderTools();toast('🧰 Инструмент сохранён');};
+ const input=document.getElementById('tool-photo');if(input.files?.length)readToolPhoto(input,finish);else finish('');
+}
+function deleteTool(id){const item=DB.tools().find(x=>x.id===id);if(!item)return;if(!confirm(`Удалить «${item.name}»? Это удалит карточку и фото из арсенала.`))return;DB.saveTools(DB.tools().filter(x=>x.id!==id));renderTools();toast('Инструмент удалён');}
+function showToolDetail(id){const item=DB.tools().find(x=>x.id===id);if(!item)return;document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('box')}${U.escape(item.name)}</h3><div class="tool-detail-photo" style="display:flex;align-items:center;justify-content:center;font-size:110px">${toolImage(item)}</div><div class="tool-detail-grid"><div class="tool-detail-cell"><small>Категория</small><b>${U.escape(item.category)}</b></div><div class="tool-detail-cell"><small>Статус</small><b class="tool-status ${item.status}">${TOOL_STATUS[item.status]}</b></div><div class="tool-detail-cell"><small>Дата покупки</small><b>${item.bought?U.date(item.bought):'—'}</b></div><div class="tool-detail-cell"><small>Стоимость</small><b>${Number(item.price)?toolMoney(item.price):'—'}</b></div></div>${item.description?`<p>${U.escape(item.description)}</p>`:''}<div class="row"><button onclick="closeModal();showToolEditor('${id}')">Редактировать</button><button class="btn-red" onclick="closeModal();deleteTool('${id}')">Удалить</button></div><button class="btn-outline" onclick="closeModal()">Закрыть</button>`;document.getElementById('modal-overlay').classList.add('active');}
+function showToolShare(){const tools=DB.tools().filter(x=>x.status==='have');const value=tools.reduce((a,x)=>a+(Number(x.price)||0),0);const top=tools.slice(0,9);document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('telegram')}Поделиться арсеналом</h3><div class="tool-share-card" id="tool-share-card"><h2>🛠️ Оснащение мастера</h2><p>Профессиональный инструмент для качественного ремонта</p><div class="tool-share-list">${top.map(x=>`<div>${U.escape(x.name)}</div>`).join('')}${tools.length>top.length?`<div>И ещё ${tools.length-top.length} позиций</div>`:''}</div><div class="tool-share-footer"><div><b>${tools.length}</b><small>ИНСТРУМЕНТОВ</small></div><div><b>${Object.keys(groupByToolCategory(tools)).length}</b><small>КАТЕГОРИЙ</small></div><div><b>${toolMoney(value)}</b><small>СТОИМОСТЬ</small></div></div><p style="text-align:center;margin:16px 0 0">CRM by <b style="color:#ff643f">Romanychev 😎</b></p></div><button onclick="shareToolText()">Отправить список</button><button class="btn-outline" onclick="closeModal()">Закрыть</button>`;document.getElementById('modal-overlay').classList.add('active');}
+function groupByToolCategory(items){return items.reduce((a,x)=>((a[x.category]=a[x.category]||[]).push(x),a),{});}
+async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have');const text=`Оснащение мастера\n\n${tools.map(x=>'✓ '+x.name).join('\n')}\n\nВсего: ${tools.length} инструментов\nCRM by Romanychev 😎`;try{if(navigator.share)await navigator.share({title:'Оснащение мастера',text});else{await navigator.clipboard.writeText(text);toast('Список скопирован');}}catch(e){} }
+
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
-        <div class="data-warning"><b>v18.4</b><small>Добавлены очистка старых складских расходов, скрытие общих позиций из заявки, вкладка «Инструмент» и статус «Отказ от ремонта» без влияния на средний чек.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
+        <div class="data-warning"><b>v18.5</b><small>Полностью переработан раздел «Арсенал мастера»: категории, фотографии, статусы, карточки, поиск, витрина, редактирование и удаление. Инструменты включены в резервную копию.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций: приход теперь отменяется отдельно вместе с расходом, а ручное списание можно вернуть без создания заявки и без повторного расхода.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
         <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
         <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
         <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;
@@ -4538,7 +4607,6 @@ function migrateStoredData(){
     });
     const warehouse=DB.warehouse();let warehouseChanged=false;
     warehouse.forEach(item=>{
-        if(item.showInOrders===undefined){item.showInOrders=true;warehouseChanged=true;}
         if(!item.unit){item.unit='шт.';warehouseChanged=true;}else if(item.unit!==canonicalUnit(item.unit)){item.unit=canonicalUnit(item.unit);warehouseChanged=true;}
         const consumeUnit=canonicalUnit(item.consumeUnit||defaultConsumeUnitForStorage(item.unit));
         if(item.consumeUnit!==consumeUnit||!unitsCompatible(consumeUnit,item.unit)){item.consumeUnit=unitsCompatible(consumeUnit,item.unit)?consumeUnit:defaultConsumeUnitForStorage(item.unit);warehouseChanged=true;}
