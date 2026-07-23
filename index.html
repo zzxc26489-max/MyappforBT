@@ -1224,7 +1224,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v18.3</b></span>
+            <span>Версия: <b>v18.3.1</b></span>
             <span>Сборка: <b>23.07.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -3584,6 +3584,60 @@ function analyticsChart(closed,range){
     const keys=Object.keys(groups).sort(),max=Math.max(1,...keys.map(key=>groups[key]));
     return `<div class="chart-container"><div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);margin-bottom:6px;">${iconSvg('chart')} Заработано по ${monthly?'месяцам':'дням'}</div><div class="chart-bar-container">${keys.map(key=>{const date=new Date(`${key}${monthly?'-01':''}T12:00:00`),label=date.toLocaleDateString('ru-RU',monthly?{month:'short',year:'2-digit'}:{day:'2-digit',month:'2-digit'}),value=groups[key];return `<div class="chart-bar-wrapper"><div class="chart-bar-value">${U.money(value)}</div><div class="chart-bar" style="height:${Math.max(5,value/max*100)}px;"></div><div class="chart-bar-label">${label}</div></div>`;}).join('')}</div></div>`;
 }
+
+function openAnalyticsExpenseOrder(orderId){
+    closeModal();
+    if(!orderId)return;
+    const order=DB.orders().find(item=>item.id===orderId);
+    if(!order){toast('Заявка не найдена');return;}
+    editOrder(orderId);
+}
+
+function openAnalyticsExpenseWarehouse(warehouseId){
+    closeModal();
+    if(!warehouseId)return;
+    const item=DB.warehouse().find(row=>row.id===warehouseId);
+    if(!item){toast('Позиция склада не найдена');return;}
+    showWarehouseHistoryForItem(warehouseId);
+}
+
+function showAnalyticsExpensesModal(type='all'){
+    const range=getAnalyticsRange();
+    let expenses=DB.expenses().filter(expense=>isActiveExpense(expense)&&analyticsInRange(expense.date,range));
+    if(type==='stock')expenses=expenses.filter(expense=>expense.source==='warehouse_purchase');
+    if(type==='other')expenses=expenses.filter(expense=>expense.source!=='warehouse_purchase');
+    expenses.sort((a,b)=>(analyticsDateValue(b.date)?.getTime()||0)-(analyticsDateValue(a.date)?.getTime()||0));
+
+    const title=type==='stock'?'Покупки для склада':type==='other'?'Другие расходы':'Все расходы';
+    const total=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    const rows=expenses.map(expense=>{
+        const order=expense.orderId?DB.orders().find(item=>item.id===expense.orderId):null;
+        const warehouse=expense.warehouseId?DB.warehouse().find(item=>item.id===expense.warehouseId):null;
+        const source=expense.source==='warehouse_purchase'?'Закупка склада':(expense.category||'Расход');
+        const actions=[];
+        if(order)actions.push(`<button type="button" class="btn-sm btn-outline" onclick="openAnalyticsExpenseOrder('${order.id}')">${iconSvg('clipboard')} Заявка ${U.formatOrderId(order.id)}</button>`);
+        if(warehouse)actions.push(`<button type="button" class="btn-sm btn-outline" onclick="openAnalyticsExpenseWarehouse('${warehouse.id}')">${iconSvg('warehouse')} Открыть склад</button>`);
+        return `<div class="expense-item" style="align-items:flex-start;flex-wrap:wrap;">
+            <div class="info" style="min-width:0;flex:1;">
+                <div class="desc"><b>${escapeHtml(expense.description||source)}</b></div>
+                <div class="date">${U.dateTime(expense.date)} · ${escapeHtml(source)}</div>
+                ${actions.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;">${actions.join('')}</div>`:''}
+            </div>
+            <span class="amount">−${U.money(expense.amount)}</span>
+        </div>`;
+    }).join('');
+
+    document.getElementById('modal-content').innerHTML=`
+        <h3>${iconSvg('finance')}${title}</h3>
+        <div class="data-warning" style="margin-bottom:10px;"><b>${range.title}: ${U.money(total)}</b><small>${range.dateText} · записей: ${expenses.length}</small></div>
+        <div style="max-height:58vh;overflow:auto;display:grid;gap:7px;">${rows||'<div class="analytics-empty">За выбранный период расходов нет.</div>'}</div>
+        <div class="modal-form-actions" style="margin-top:12px;">
+            <button type="button" onclick="closeModal();switchTab('expenses')">Открыть все расходы</button>
+            <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>
+        </div>`;
+    document.getElementById('modal-overlay').classList.add('active');
+}
+
 function renderStats(period){
     if(period&&['today','week','month','year','all','custom'].includes(period)){analyticsState.period=period;analyticsState.offset=0;}
     const range=getAnalyticsRange(),previousRange=getPreviousAnalyticsRange(range),metrics=analyticsMetrics(range),previous=previousRange?analyticsMetrics(previousRange):null,now=new Date(),allOrders=DB.orders(),active=allOrders.filter(isOpenOrder);
@@ -4394,7 +4448,7 @@ function updateBackupInfo(){
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
-        <div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
+        <div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
         <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
         <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
         <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;
