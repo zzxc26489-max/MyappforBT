@@ -493,6 +493,28 @@
             color: var(--accent);
         }
 
+        .app-info-card {
+            text-align: center;
+            padding: 15px 14px;
+        }
+        .app-info-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .app-info-meta {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            font-size: 11px;
+            color: var(--sub);
+            margin-bottom: 11px;
+        }
+        .app-info-meta b { color: var(--text); }
+        .app-info-card button { margin: 0; }
+
         .warehouse-item-low {
             border-left: 3px solid var(--red) !important;
         }
@@ -1197,6 +1219,15 @@
         </label>
         <div id="backup-info" style="margin-top:6px;font-size:12px;color:var(--sub);"></div>
         <div id="storage-info" style="margin-top:8px;font-size:12px;color:var(--sub);"></div>
+    </div>
+    <div class="card app-info-card">
+        <div class="app-info-title">CRM для ремонта бытовой техники</div>
+        <div class="app-info-meta">
+            <span>Версия: <b>v18.2</b></span>
+            <span>Сборка: <b>23.07.2026</b></span>
+            <span>База данных: <b>v5</b></span>
+        </div>
+        <button type="button" class="btn-outline" onclick="showChangelog()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>История изменений</span></button>
     </div>
     <div class="footer-credit">CRM by <span>Romanychev</span> 😎</div>
 </div>
@@ -3509,12 +3540,22 @@ function applyCustomAnalyticsPeriod(){
     const from=document.getElementById('analytics-date-from')?.value,to=document.getElementById('analytics-date-to')?.value;if(!from||!to){toast('❌ Укажи обе даты',true);return;}if(new Date(from)>new Date(to)){toast('❌ Начало периода позже окончания',true);return;}
     analyticsState.period='custom';analyticsState.offset=0;analyticsState.customFrom=from;analyticsState.customTo=to;renderStats();persistCurrentView('stats',false);
 }
+function analyticsOrderCountsAsRegular(order){
+    // Подтверждённая гарантия — продолжение исходного ремонта, а не новая платная заявка.
+    // Негарантийный случай считается обычным ремонтом после соответствующего результата.
+    return !order?.isWarrantyCase||order.warrantyResult==='non_warranty';
+}
 function analyticsMetrics(range){
-    const allOrders=DB.orders(),created=allOrders.filter(order=>analyticsInRange(order.created,range)),closed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range)),paidClosed=closed.filter(order=>!order.isWarrantyCase||order.warrantyResult==='non_warranty');
+    const allOrders=DB.orders();
+    const allCreated=allOrders.filter(order=>analyticsInRange(order.created,range));
+    const allClosed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range));
+    const created=allCreated.filter(analyticsOrderCountsAsRegular);
+    const closed=allClosed.filter(analyticsOrderCountsAsRegular);
+    const warrantyCases=allClosed.filter(order=>order.isWarrantyCase&&order.warrantyResult!=='non_warranty');
     const expenses=DB.expenses().filter(expense=>isActiveExpense(expense)&&analyticsInRange(expense.date,range));
-    const revenue=paidClosed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=paidClosed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=closed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    const revenue=closed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=closed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
     const stockPurchases=expenses.filter(expense=>expense.source==='warehouse_purchase').reduce((sum,expense)=>sum+(Number(expense.amount)||0),0),nonStockExpenses=allExpenses-stockPurchases;
-    return{created,closed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:paidClosed.length?Math.round(revenue/paidClosed.length):0,warrantyCases:closed.filter(order=>order.isWarrantyCase)};
+    return{created,closed,allCreated,allClosed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0,warrantyCases};
 }
 function analyticsDelta(current,previous,positiveGood=true){
     if(previous===null||previous===undefined)return '<span class="delta">без сравнения</span>';
@@ -3557,7 +3598,7 @@ function renderStats(period){
     const serviceRows=Object.entries(services).sort(([,a],[,b])=>b.revenue-a.revenue).slice(0,8).map(([name,data])=>`<div class="analytics-row"><span><b>${escapeHtml(name)}</b><small>${formatQuantity(data.count)} выполн.</small></span><strong>${U.money(data.revenue)}</strong></div>`).join('');
     const consumedRows=Object.values(consumed).sort((a,b)=>b.amount-a.amount).slice(0,8).map(item=>`<div class="analytics-row"><span><b>${escapeHtml(item.name)}</b><small>Израсходовано ${formatQuantity(item.qty)} ${escapeHtml(item.unit)} · осталось ${formatQuantity(item.remaining)} ${escapeHtml(item.unit)}</small></span><span class="analytics-row-actions"><strong>${U.money(item.amount)}</strong>${item.warehouseId?`<button type="button" class="btn-outline" onclick="showWarehouseHistoryForItem('${item.warehouseId}')">Проверить</button>`:''}</span></div>`).join('');
     document.getElementById('stats-container').innerHTML=`
-        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('diamond')}Главные показатели</h3><small style="color:var(--sub);">по закрытым заявкам</small></div><div class="analytics-kpis">
+        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('diamond')}Главные показатели</h3><small style="color:var(--sub);">по платным закрытым заявкам</small></div><div class="analytics-kpis">
             <div class="analytics-kpi"><small>Закрыто</small><b>${metrics.closed.length}</b>${analyticsDelta(metrics.closed.length,previous?.closed.length)}</div>
             <div class="analytics-kpi"><small>Выручка клиентов</small><b style="color:var(--blue);">${U.money(metrics.revenue)}</b>${analyticsDelta(metrics.revenue,previous?.revenue)}</div>
             <div class="analytics-kpi"><small>Получил чистыми</small><b style="color:var(--green);">${U.money(metrics.earned)}</b>${analyticsDelta(metrics.earned,previous?.earned)}</div>
@@ -3571,7 +3612,8 @@ function renderStats(period){
             <div class="analytics-row"><span><b>Визиты сегодня</b><small>можно открыть фильтр заявок</small></span><strong onclick="analyticsOpenFilter('today')" style="cursor:pointer;">${todayVisits.length}</strong></div>
             <div class="analytics-row"><span><b>Ближайшие 7 дней</b><small>будущие назначенные визиты</small></span><strong>${weekVisits.length}</strong></div>
             <div class="analytics-row"><span><b>Средний срок ремонта</b><small>по закрытым в выбранном периоде</small></span><strong>${analyticsDuration(avgDuration)}</strong></div>
-            <div class="analytics-row"><span><b>Создано заявок</b><small>по дате создания</small></span><strong>${metrics.created.length}</strong></div>
+            <div class="analytics-row"><span><b>Создано платных заявок</b><small>гарантийные обращения сюда не входят</small></span><strong>${metrics.created.length}</strong></div>
+            <div class="analytics-row"><span><b>Гарантийных обращений</b><small>отдельно от новых и повторных клиентов</small></span><strong>${metrics.warrantyCases.length}</strong></div>
         </div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('finance')}Деньги простым языком</h3></div><div class="analytics-list">
             <div class="analytics-row"><span><b>Получил чистыми</b><small>твоя сумма «На руки» по закрытым заявкам</small></span><strong style="color:var(--green);">${U.money(metrics.earned)}</strong></div>
@@ -4341,6 +4383,17 @@ function updateBackupInfo(){
     if(!last){el.className='backup-due';el.innerHTML=`${iconSvg('alert')} Резервная копия ещё не создавалась`;return;}
     const days=Math.floor((Date.now()-new Date(last).getTime())/86400000);
     el.className=days>=7?'backup-due':'backup-ok';el.innerHTML=`${iconSvg('shield')} Последний бэкап: ${U.dateTime(last)}${days>=7?' — пора обновить':''}`;
+}
+
+
+function showChangelog(){
+    document.getElementById('modal-content').innerHTML=`
+        <h3>${iconSvg('list')}История изменений</h3>
+        <div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
+        <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
+        <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
+        <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;
+    document.getElementById('modal-overlay').classList.add('active');
 }
 
 function showRestoreModal(){
