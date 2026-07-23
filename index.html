@@ -1043,6 +1043,7 @@
         <span class="chip active" onclick="filterOrders('all',this)">Все</span>
         <span class="chip" onclick="filterOrders('Закрыта',this)">Закрыты</span>
         <span class="chip" onclick="filterOrders('В работе',this)">В работе</span>
+        <span class="chip" onclick="filterOrders('Гарантия',this)">Гарантия</span>
     </div>
     <div class="stock-filter"><select id="order-visit-filter" onchange="renderOrders()"><option value="all">Все даты визита</option><option value="today">Визиты сегодня</option><option value="upcoming">Ближайшие визиты</option><option value="overdue">Просроченные визиты</option></select></div>
     <div id="orders-container"></div>
@@ -1223,7 +1224,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v18.2</b></span>
+            <span>Версия: <b>v18.3</b></span>
             <span>Сборка: <b>23.07.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -2078,7 +2079,7 @@ function persistCurrentView(tab=currentTab,includeScroll=true){
 }
 function restoreViewFilters(){
     const state=readViewState(),filters=state.filters||{};
-    if(filters.orders?.status&&['all','Закрыта','В работе'].includes(filters.orders.status))orderFilter=filters.orders.status;
+    if(filters.orders?.status&&['all','Закрыта','В работе','Гарантия'].includes(filters.orders.status))orderFilter=filters.orders.status;
     document.querySelectorAll('#page-orders .chip').forEach(chip=>chip.classList.toggle('active',chip.getAttribute('onclick')?.includes(`'${orderFilter}'`)));
     const visit=document.getElementById('order-visit-filter');if(visit&&[...visit.options].some(option=>option.value===filters.orders?.visit))visit.value=filters.orders.visit;
     const warehouse=document.getElementById('warehouse-filter');if(warehouse)warehouse.dataset.restoreValue=filters.warehouse||'all';
@@ -3069,8 +3070,12 @@ function renderOrders(){
             String(o.id||'').includes(search)
         );
     }
-    if(orderFilter!=='all'){
-        orders=orders.filter(o => o.status === orderFilter);
+    if(orderFilter==='Гарантия'){
+        orders=orders.filter(o=>Boolean(o.isWarrantyCase));
+    }else if(orderFilter==='Закрыта'){
+        orders=orders.filter(o=>o.status==='Закрыта'&&!o.isWarrantyCase);
+    }else if(orderFilter==='В работе'){
+        orders=orders.filter(o=>isOpenOrder(o)&&!o.isWarrantyCase);
     }
     const visitFilter=document.getElementById('order-visit-filter')?.value||'all';
     if(visitFilter!=='all')orders=orders.filter(order=>visitMatches(order,visitFilter)).sort((a,b)=>new Date(a.nextVisit)-new Date(b.nextVisit));
@@ -3602,7 +3607,7 @@ function renderStats(period){
             <div class="analytics-kpi"><small>Закрыто</small><b>${metrics.closed.length}</b>${analyticsDelta(metrics.closed.length,previous?.closed.length)}</div>
             <div class="analytics-kpi"><small>Выручка клиентов</small><b style="color:var(--blue);">${U.money(metrics.revenue)}</b>${analyticsDelta(metrics.revenue,previous?.revenue)}</div>
             <div class="analytics-kpi"><small>Получил чистыми</small><b style="color:var(--green);">${U.money(metrics.earned)}</b>${analyticsDelta(metrics.earned,previous?.earned)}</div>
-            <div class="analytics-kpi"><small>Потратил всего</small><b style="color:var(--red);">${U.money(metrics.allExpenses)}</b>${analyticsDelta(metrics.allExpenses,previous?.allExpenses,false)}</div>
+            <div class="analytics-kpi" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('all')" style="cursor:pointer;"><small>Потратил всего · нажми</small><b style="color:var(--red);">${U.money(metrics.allExpenses)}</b>${analyticsDelta(metrics.allExpenses,previous?.allExpenses,false)}</div>
             <div class="analytics-kpi"><small>Осталось денег</small><b style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</b>${analyticsDelta(metrics.cashResult,previous?.cashResult)}</div>
             <div class="analytics-kpi"><small>Средний чек</small><b style="color:var(--yellow);">${U.money(metrics.avgCheck)}</b>${analyticsDelta(metrics.avgCheck,previous?.avgCheck)}</div>
         </div></section>
@@ -3617,14 +3622,14 @@ function renderStats(period){
         </div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('finance')}Деньги простым языком</h3></div><div class="analytics-list">
             <div class="analytics-row"><span><b>Получил чистыми</b><small>твоя сумма «На руки» по закрытым заявкам</small></span><strong style="color:var(--green);">${U.money(metrics.earned)}</strong></div>
-            <div class="analytics-row"><span><b>Купил запчастей и расходников</b><small>оплаченные приходы на склад в выбранном периоде</small></span><strong style="color:var(--red);">−${U.money(metrics.stockPurchases)}</strong></div>
-            <div class="analytics-row"><span><b>Другие расходы</b><small>все расходы периода, кроме закупок склада</small></span><strong style="color:var(--red);">−${U.money(metrics.nonStockExpenses)}</strong></div>
+            <div class="analytics-row" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('stock')" style="cursor:pointer;"><span><b>Купил запчастей и расходников</b><small>нажми, чтобы увидеть покупки и перейти на склад</small></span><strong style="color:var(--red);">−${U.money(metrics.stockPurchases)}</strong></div>
+            <div class="analytics-row" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('other')" style="cursor:pointer;"><span><b>Другие расходы</b><small>нажми, чтобы увидеть подробный список</small></span><strong style="color:var(--red);">−${U.money(metrics.nonStockExpenses)}</strong></div>
             <div class="analytics-row"><span><b>Осталось денег</b><small>получил чистыми минус все реальные расходы периода</small></span><strong style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</strong></div>
         </div><div class="analytics-explain">Израсходованные в ремонте детали второй раз из денег не вычитаются: ты уже оплатил их при закупке. Ниже они показываются отдельно — как расход количества и себестоимости со склада.</div>${analyticsChart(metrics.closed,range)}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('users')}Клиенты</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Новые</small><b>${newClients}</b></div><div class="analytics-kpi"><small>Повторные</small><b>${repeatClients}</b></div><div class="analytics-kpi"><small>Всего клиентов</small><b>${phones.length}</b></div><div class="analytics-kpi"><small>Доля повторных</small><b>${repeatRate}%</b></div></div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('wrench')}По типам техники</h3></div>${techRows?`<div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Техника</th><th>Заявок</th><th>Выручка</th><th>Ср. чек</th><th>Срок</th></tr></thead><tbody>${techRows}</tbody></table></div>`:'<div class="analytics-empty">Нет закрытых заявок для сравнения.</div>'}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('list')}Популярные услуги</h3></div><div class="analytics-list">${serviceRows||'<div class="analytics-empty">Услуги пока не накопились.</div>'}</div></section>
-        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('warehouse')}Запчасти и расходники</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Остаток склада сейчас</small><b>${U.money(Math.round(stockValue))}</b></div><div class="analytics-kpi"><small>Куплено за период</small><b>${U.money(metrics.stockPurchases)}</b></div><div class="analytics-kpi"><small>Израсходовано в ремонтах</small><b>${U.money(consumedCost)}</b></div><div class="analytics-kpi"><small>Заканчивается</small><b>${lowStock.length}</b></div></div><div class="analytics-explain">Стоимость остатка — это примерная себестоимость того, что физически лежит на складе сейчас. В списке ниже видно, сколько каждой позиции ушло за выбранный период и сколько осталось.</div>${ignoredConsumption.length?`<div class="data-warning"><b>Не учтено подозрительных записей: ${ignoredConsumption.length}</b><small>Это удалённые позиции склада или суммы, которые ты сам исключил. Они не влияют на результат.</small><button type="button" class="btn-sm btn-outline" onclick="showExcludedWarehouseMovements()">Проверить записи</button></div>`:''}<div class="analytics-list" style="margin-top:8px;">${consumedRows||'<div class="analytics-empty">Списаний со склада в периоде нет.</div>'}</div></section>`;
+        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('warehouse')}Запчасти и расходники</h3></div><div class="analytics-kpis"><div class="analytics-kpi" role="button" tabindex="0" onclick="switchTab('warehouse')" style="cursor:pointer;"><small>Остаток склада сейчас · открыть</small><b>${U.money(Math.round(stockValue))}</b></div><div class="analytics-kpi" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('stock')" style="cursor:pointer;"><small>Куплено за период · подробнее</small><b>${U.money(metrics.stockPurchases)}</b></div><div class="analytics-kpi" role="button" tabindex="0" onclick="showAnalyticsConsumptionModal()" style="cursor:pointer;"><small>Израсходовано в ремонтах · подробнее</small><b>${U.money(consumedCost)}</b></div><div class="analytics-kpi"><small>Заканчивается</small><b>${lowStock.length}</b></div></div><div class="analytics-explain">Стоимость остатка — это примерная себестоимость того, что физически лежит на складе сейчас. В списке ниже видно, сколько каждой позиции ушло за выбранный период и сколько осталось.</div>${ignoredConsumption.length?`<div class="data-warning"><b>Не учтено подозрительных записей: ${ignoredConsumption.length}</b><small>Это удалённые позиции склада или суммы, которые ты сам исключил. Они не влияют на результат.</small><button type="button" class="btn-sm btn-outline" onclick="showExcludedWarehouseMovements()">Проверить записи</button></div>`:''}<div class="analytics-list" style="margin-top:8px;">${consumedRows||'<div class="analytics-empty">Списаний со склада в периоде нет.</div>'}</div></section>`;
     persistCurrentView('stats',false);
 }
 
@@ -4389,7 +4394,7 @@ function updateBackupInfo(){
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
-        <div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
+        <div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
         <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
         <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
         <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;

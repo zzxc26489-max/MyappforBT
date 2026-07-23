@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crm-romanychev-v18-2';
+const CACHE_NAME = 'crm-romanychev-v18-3';
 const urlsToCache = [
     './index.html',
     './manifest.json',
