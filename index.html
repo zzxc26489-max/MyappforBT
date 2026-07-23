@@ -1025,7 +1025,7 @@
         </div>
         <div class="form-group"><label>Фото</label><input type="file" id="n-photos" accept="image/*" multiple onchange="previewPhotos()"></div>
         <div id="photo-preview" class="photo-gallery"></div>
-        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option></select></div>
+        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option><option value="Отказ">Отказ от ремонта</option></select></div>
         <div class="row date-fields" id="order-date-fields"><div class="form-group"><label>Дата создания</label><input type="date" id="n-created-date"></div><div class="form-group"><label>Дата закрытия</label><input type="date" id="n-completed-date"></div></div>
         <div class="form-group"><label>Следующий визит</label><input type="datetime-local" id="n-next-visit"><div class="field-hint">Необязательно. Поможет не забыть дату и время выезда.</div></div>
         <div id="edit-indicator" style="display:none;background:var(--yellow);color:#000;padding:7px 9px;border-radius:8px;margin-bottom:8px;font-size:12px;"><svg class="ui-icon" style="display:inline-block;width:15px;height:15px;vertical-align:-3px;"><use href="#i-edit"></use></svg> Редактирование заявки</div>
@@ -1065,13 +1065,16 @@
     <div id="shopping-list-container"></div>
 </div>
 
+<!-- Инструмент -->
+<div id="page-tools" class="page"><div class="page-heading subpage-heading"><button class="back-btn" onclick="switchTab('more')"><svg class="ui-icon"><use href="#i-chevron-left"></use></svg></button><div><h1>Инструмент</h1><p>Есть, хочу купить и в планах</p></div></div><div class="card"><div class="form-group"><label>Название</label><input id="tool-name" placeholder="Название инструмента"></div><div class="row"><div class="form-group"><label>Статус</label><select id="tool-status"><option value="owned">Есть</option><option value="wanted">Хочу купить</option><option value="planned">В планах</option><option value="repair">Нужен ремонт</option></select></div><div class="form-group"><label>Цена / бюджет</label><input type="number" id="tool-price" min="0"></div></div><div class="form-group"><label>Комментарий</label><input id="tool-note" placeholder="Модель или заметка"></div><button onclick="addToolItem()">Добавить</button></div><div id="tools-container"></div></div>
+
 <!-- Дополнительные разделы -->
 <div id="page-more" class="page">
     <div class="page-heading"><div><h1>Ещё</h1><p>Финансы, документы, прайс и настройки</p></div></div>
     <div class="more-grid">
         <button class="more-item" onclick="switchTab('expenses')"><span class="more-icon green"><svg class="ui-icon"><use href="#i-finance"></use></svg></span><span><b>Финансы</b><small>Личные расходы вне заявок</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('shopping')"><span class="more-icon yellow"><svg class="ui-icon"><use href="#i-list"></use></svg></span><span><b>Список покупок</b><small>Позиции ниже минимального остатка</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
-        <button class="more-item" onclick="switchTab('clients')"><span class="more-icon blue"><svg class="ui-icon"><use href="#i-users"></use></svg></span><span><b>Клиенты</b><small>История обращений и ремонтов</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
+        <button class="more-item" onclick="switchTab('tools')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-settings"></use></svg></span><span><b>Инструмент</b><small>Есть, хочу купить и в планах</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button><button class="more-item" onclick="switchTab('clients')"><span class="more-icon blue"><svg class="ui-icon"><use href="#i-users"></use></svg></span><span><b>Клиенты</b><small>История обращений и ремонтов</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" onclick="switchTab('price')"><span class="more-icon orange"><svg class="ui-icon"><use href="#i-price"></use></svg></span><span><b>Прайс-лист</b><small>Каталог услуг и свои позиции</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" id="more-act-document" onclick="switchTab('print')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-printer"></use></svg></span><span><b>Акт</b><small>Подготовка и печать документа</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
         <button class="more-item" id="more-receipt-document" onclick="switchTab('receipts')"><span class="more-icon purple"><svg class="ui-icon"><use href="#i-price"></use></svg></span><span><b>Товарник</b><small>Товары из заявки или вручную</small></span><i><svg class="ui-icon"><use href="#i-chevron-right"></use></svg></i></button>
@@ -1224,7 +1227,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v18.3.1</b></span>
+            <span>Версия: <b>v18.4</b></span>
             <span>Сборка: <b>23.07.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -1285,6 +1288,7 @@ const DB = {
     customServices() { return this.get('service_custom'); },
     receipts() { return this.get('receipts'); },
     receiptPrices() { return this.get('receipt_prices'); },
+    tools() { return this.get('tools'); },
     settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true, autoPriceAdjust:true}; },
     saveSettings(s) { this.set('settings', [s]); },
     saveOrders(d) { this.set('orders', d); },
@@ -1295,6 +1299,7 @@ const DB = {
     saveCustomServices(d) { this.set('service_custom', d); },
     saveReceipts(d) { this.set('receipts', d); },
     saveReceiptPrices(d) { this.set('receipt_prices', d); },
+    saveTools(d) { this.set('tools', d); },
     getStorageSize() {
         let total = 0;
         for (let key in localStorage) {
@@ -1329,7 +1334,7 @@ const DeviceBackup = {
     async restoreMissing() {
         try {
             const db = await this.open();
-            for (const key of ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','settings']) {
+            for (const key of ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','tools','settings']) {
                 const raw=localStorage.getItem('repair_' + key);
                 let valid=raw!==null;
                 if(valid){try{JSON.parse(raw);}catch{valid=false;}}
@@ -2057,8 +2062,8 @@ function showUndo(message,action){
 
 // ==================== ТАБЫ И СОСТОЯНИЕ ЭКРАНА ====================
 const VIEW_STATE_KEY='repair_view_state_v1';
-const VALID_TABS=new Set(['new','orders','warehouse','shopping','more','expenses','stats','clients','price','print','receipts','settings']);
-const SCROLL_TABS=new Set(['orders','warehouse','shopping','expenses','stats','clients','price','receipts']);
+const VALID_TABS=new Set(['new','orders','warehouse','shopping','more','expenses','tools','stats','clients','price','print','receipts','settings']);
+const SCROLL_TABS=new Set(['orders','warehouse','shopping','expenses','tools','stats','clients','price','receipts']);
 let currentTab='orders',viewSaveTimer=null;
 function readViewState(){
     try{
@@ -2101,13 +2106,14 @@ function switchTab(tab,options={}) {
     if(!options.initial)persistCurrentView(currentTab,true);
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     page.classList.add('active');currentTab=tab;
-    const secondary=['expenses','clients','price','print','receipts','settings'];
+    const secondary=['expenses','tools','clients','price','print','receipts','settings'];
     const navTab=tab==='new'?'orders':(tab==='shopping'?'warehouse':(secondary.includes(tab)?'more':tab));
     document.querySelectorAll('.nav-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===navTab));
     if(tab==='orders')renderOrders();
     if(tab==='warehouse')renderWarehouse();
     if(tab==='shopping')renderShoppingList();
     if(tab==='expenses')renderExpenses();
+    if(tab==='tools')renderTools();
     if(tab==='stats')renderStats();
     if(tab==='clients')renderClients();
     if(tab==='price')renderPriceList();
@@ -2322,7 +2328,7 @@ function renderMaterialCatalog(){
     const showAll=Boolean(window.materialShowAll);
     const hint=document.getElementById('material-filter-hint');
     if(hint)hint.innerHTML=tech?`Фильтр: <b>${tech}</b> · ${showAll?'показан весь склад':'подходящие позиции и универсальные'}. <button type="button" class="btn-xs btn-outline" style="margin:3px 0 0;" onclick="toggleAllWarehouseMaterials()">${showAll?'Только подходящие':'Показать весь склад'}</button>`:'Выбери тип техники, чтобы скрыть неподходящие позиции. Сейчас показаны все неархивные позиции.';
-    let items=DB.warehouse().filter(item=>!item.archived);
+    let items=DB.warehouse().filter(item=>!item.archived&&item.showInOrders!==false);
     if(!showAll&&tech)items=items.filter(item=>itemCompatibleWithTech(item,tech));
     if(search)items=items.filter(item=>`${item.name||''} ${item.category||''} ${compatibilityLabelList(item.compatibility)} ${inferRefrigerant(item)||''}`.toLowerCase().includes(search));
     items=items.slice().sort((a,b)=>`${a.category||''} ${a.name||''}`.localeCompare(`${b.category||''} ${b.name||''}`,'ru'));
@@ -2481,6 +2487,16 @@ function cancelWarehousePurchaseMovement(id){
     const before=Number(item.quantity)||0,snapshot=cancelWarehousePurchaseRecords(record=>record.id===movement.id||record.movementId===movement.id,'Ошибочный приход отменён');
     item.quantity=roundQuantity(before-qty);recalculateWarehouseAverageCost(item);DB.saveWarehouse(items);renderWarehouseHistory();renderWarehouse();renderExpenses();maybeAutoBackup();
     showUndo('Приход и расход отменены',()=>{restoreWarehousePurchaseRecords(snapshot);const restored=DB.warehouse(),target=restored.find(entry=>entry.id===item.id);if(target){target.quantity=roundQuantity((Number(target.quantity)||0)+qty);recalculateWarehouseAverageCost(target);DB.saveWarehouse(restored);}renderWarehouseHistory();renderWarehouse();renderExpenses();maybeAutoBackup();});
+}
+
+function cancelWarehouseManualMovement(id){
+    const movements=DB.warehouseMovements(),movement=movements.find(entry=>entry.id===id&&entry.type==='manual_out'&&!entry.cancelled);if(!movement)return;
+    const items=DB.warehouse(),item=items.find(entry=>entry.id===movement.warehouseId);if(!item){toast('⚠️ Позиция склада уже отсутствует',true);return;}
+    const qty=Math.abs(Number(movement.qty)||0);if(qty<=0)return;
+    if(!confirm(`Вернуть на склад ${formatQuantity(qty)} ${movement.unit||item.unit||'шт.'} позиции «${item.name}»? Это отменит только ручное списание и не создаст расход.`))return;
+    const before=Number(item.quantity)||0,snapshot=JSON.parse(JSON.stringify(movement));
+    item.quantity=roundQuantity(before+qty);movement.cancelled=true;movement.cancelledAt=U.nowISO();movement.cancelReason='Ручное списание отменено';DB.saveWarehouse(items);DB.saveWarehouseMovements(movements);renderWarehouseHistory();renderWarehouse();if(document.getElementById('page-stats')?.classList.contains('active'))renderStats();maybeAutoBackup();
+    showUndo('Ручное списание отменено',()=>{const restoredItems=DB.warehouse(),target=restoredItems.find(entry=>entry.id===item.id);if(target)target.quantity=roundQuantity(Math.max(0,(Number(target.quantity)||0)-qty));DB.saveWarehouse(restoredItems);const restoredMovements=DB.warehouseMovements(),index=restoredMovements.findIndex(entry=>entry.id===id);if(index>=0)restoredMovements[index]=snapshot;DB.saveWarehouseMovements(restoredMovements);renderWarehouseHistory();renderWarehouse();if(document.getElementById('page-stats')?.classList.contains('active'))renderStats();maybeAutoBackup();});
 }
 
 function repairOrphanWarehouseExpenses(){
@@ -2827,6 +2843,7 @@ function snapshotWarehouseMaterialCosts(materials,previousOrder=null){
     });
 }
 function confirmOrderClosure(order,wasClosed=false){
+    if(order.status==='Отказ')return confirm(`Сохранить отказ от ремонта ${U.formatOrderId(order.id)}?\n\nПолучено: ${U.money(U.finalAmount(order))}\nСумма попадёт в выручку, но не в средний чек.`);
     if(order.status!=='Закрыта'||wasClosed)return true;
     const writeOff=(order.materials||[]).map(normaliseMaterial).filter(material=>material.warehouseId&&material.writeOff&&material.tracking!=='presence'&&(Number(material.qty)||0)>0);
     const materialLines=writeOff.length?writeOff.slice(0,5).map(material=>`• ${material.name}: ${formatQuantity(material.qty)} ${material.unit}`).join('\n'):'• количественных списаний нет';
@@ -2848,7 +2865,7 @@ function saveOrder(){
     const white = parseInt(document.getElementById('n-white').value) || 0;
     const status=document.getElementById('n-status').value;
     const created=U.dateInputToISO(document.getElementById('n-created-date').value,existing?.created||U.nowISO());
-    const completed=status==='Закрыта'?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
+    const completed=['Закрыта','Отказ'].includes(status)?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
 
     if(gray > sum){
         toast('⚠️ Серые расходы не могут превышать сумму заявки!', true);
@@ -2892,12 +2909,13 @@ function saveOrder(){
         photos:tempPhotos.length>0 ? tempPhotos : (existing?.photos||[]),
         created,
         completed,
-        nextVisit:status==='Закрыта'?null:U.dateTimeInputToISO(document.getElementById('n-next-visit').value)
+        nextVisit:['Закрыта','Отказ'].includes(status)?null:U.dateTimeInputToISO(document.getElementById('n-next-visit').value)
     };
-    if(order.status==='Закрыта')order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
+    if(['Закрыта','Отказ'].includes(order.status))order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
     if(!validateOpenOrderReservations(order))return;
     if(!validateMaterialUnits(order.materials))return;
     if(!confirmOrderClosure(order,existing?.status==='Закрыта'))return;
+    if(order.status==='Отказ')order.materials=(order.materials||[]).map(material=>({...normaliseMaterial(material),writeOff:false}));
     if(!syncWarehouseForOrder(existing,order))return;
     let orders=DB.orders();
     if(editingId) orders=orders.map(o=>o.id===editingId ? order : o);
@@ -3182,7 +3200,7 @@ function addWarehouseItem(){
     if(!unitsCompatible(consumeUnit,unit)){toast('❌ Единица списания должна соответствовать единице хранения',true);return;}
     if(quantity<=0&&totalCost>0){toast('❌ Для закупки укажи количество',true);return;}
     localStorage.setItem('repair_last_warehouse_tech',tech);
-    const item={id:U.uid(),name,category:document.getElementById('wh-cat')?.value.trim()||'Без категории',refrigerant:null,compatibility,quantity:roundQuantity(quantity),min:roundQuantity(min),price:0,lastPurchasePrice:0,lastPurchaseAt:null,unit,consumeUnit,tracking:document.getElementById('wh-track')?.value||'exact',archived:false};
+    const item={id:U.uid(),name,category:document.getElementById('wh-cat')?.value.trim()||'Без категории',refrigerant:null,compatibility,quantity:roundQuantity(quantity),min:roundQuantity(min),price:0,lastPurchasePrice:0,lastPurchaseAt:null,unit,consumeUnit,tracking:document.getElementById('wh-track')?.value||'exact',showInOrders:true,archived:false};
     const items=DB.warehouse();
     const duplicate=items.find(entry=>!entry.archived&&(entry.name||'').trim().toLowerCase()===name.toLowerCase()&&(entry.category||'Без категории').toLowerCase()===item.category.toLowerCase());
     if(duplicate&&unitsCompatible(unit,duplicate.unit||'шт.')&&sameCompatibility(duplicate.compatibility,compatibility)&&confirm(`Позиция «${duplicate.name}» уже есть. Добавить этот приход к существующему остатку?`)){
@@ -3195,10 +3213,15 @@ function addWarehouseItem(){
     closeModal();renderWarehouse();maybeAutoBackup();toast('✅ Позиция добавлена');
 }
 
+function latestCancelableWarehousePurchase(item){
+    if(!item)return null;
+    return DB.warehouseMovements().filter(movement=>movement.warehouseId===item.id&&movement.type==='purchase'&&!movement.cancelled).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0))[0]||null;
+}
+
 function showWarehouseActionModal(id,action){
     const item=DB.warehouse().find(entry=>entry.id===id);if(!item||item.archived)return;
-    const units=allowedUnitsForStock(item.unit||'шт.'),title=action==='add'?'Пополнение склада':'Списание со склада',preferred=action==='add'?canonicalUnit(item.unit||'шт.'):defaultMaterialUnit(item);
-    document.getElementById('modal-content').innerHTML=`<h3>${iconSvg(action==='add'?'plus':'minus')}${title}</h3><p class="field-hint" style="margin-bottom:9px;">${item.name}<br>На складе: <b>${formatQuantity(item.quantity)} ${item.unit||'шт.'}</b>${reservedWarehouseQuantity(item.id)>0?` · зарезервировано ${formatQuantity(reservedWarehouseQuantity(item.id))} ${item.unit||'шт.'}`:''}</p><div class="form-group"><label>Количество</label><input type="number" id="wm-qty" min="0.000001" step="0.001" placeholder="0" inputmode="decimal"></div><div class="form-group"><label>Единица</label><select id="wm-unit">${units.map(unit=>`<option value="${unit}" ${canonicalUnit(unit)===canonicalUnit(preferred)?'selected':''}>${unit}</option>`).join('')}</select></div>${action==='add'?`<div class="form-group"><label>Общая сумма покупки</label><input type="number" id="wm-total" min="0" step="0.01" placeholder="0" inputmode="decimal"><div class="field-hint">0 — пополнение без финансового расхода. Если указать сумму, она попадёт в расходы.</div></div>`:''}<div class="form-group"><label>Комментарий</label><input type="text" id="wm-note" placeholder="Причина операции"></div><div class="modal-form-actions"><button type="button" onclick="submitWarehouseAction('${id}','${action}')">Сохранить</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button></div>`;
+    const units=allowedUnitsForStock(item.unit||'шт.'),title=action==='add'?'Пополнение склада':'Списание со склада',preferred=action==='add'?canonicalUnit(item.unit||'шт.'):defaultMaterialUnit(item),lastPurchase=action==='remove'?latestCancelableWarehousePurchase(item):null;
+    document.getElementById('modal-content').innerHTML=`<h3>${iconSvg(action==='add'?'plus':'minus')}${title}</h3><p class="field-hint" style="margin-bottom:9px;">${item.name}<br>На складе: <b>${formatQuantity(item.quantity)} ${item.unit||'шт.'}</b>${reservedWarehouseQuantity(item.id)>0?` · зарезервировано ${formatQuantity(reservedWarehouseQuantity(item.id))} ${item.unit||'шт.'}`:''}</p>${action==='remove'?`<div class="data-warning"><b>Это обычное ручное списание</b><small>Оно уменьшит остаток, но не отменит покупку и не удалит расход из аналитики. Для ошибочного прихода используй кнопку ниже.</small></div>${lastPurchase?`<button type="button" class="btn-outline" onclick="closeModal();cancelWarehousePurchaseMovement('${lastPurchase.id}')" style="margin-bottom:10px;">↩ Отменить последний приход ${formatQuantity(lastPurchase.qty)} ${lastPurchase.unit||item.unit||'шт.'} на ${U.money(lastPurchase.amount||0)}</button>`:''}`:''}<div class="form-group"><label>Количество</label><input type="number" id="wm-qty" min="0.000001" step="0.001" placeholder="0" inputmode="decimal"></div><div class="form-group"><label>Единица</label><select id="wm-unit">${units.map(unit=>`<option value="${unit}" ${canonicalUnit(unit)===canonicalUnit(preferred)?'selected':''}>${unit}</option>`).join('')}</select></div>${action==='add'?`<div class="form-group"><label>Общая сумма покупки</label><input type="number" id="wm-total" min="0" step="0.01" placeholder="0" inputmode="decimal"><div class="field-hint">0 — пополнение без финансового расхода. Если указать сумму, она попадёт в расходы.</div></div>`:''}<div class="form-group"><label>Комментарий</label><input type="text" id="wm-note" placeholder="Причина операции"></div><div class="modal-form-actions"><button type="button" onclick="submitWarehouseAction('${id}','${action}')">${action==='add'?'Добавить приход':'Списать со склада'}</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button></div>`;
     document.getElementById('modal-overlay').classList.add('active');
     document.getElementById('wm-qty')?.focus();
 }
@@ -3236,7 +3259,7 @@ function editWarehouseItem(id){
             <div class="form-group"><label>Минимальный остаток</label><input type="number" id="whe-min" value="${Number(item.min)||0}" step="0.001"></div>
             <div class="form-group"><label>Списывать по умолчанию</label><select id="whe-consume-unit">${unitSelectOptions(consumeUnit,units)}</select></div>
             <div class="form-group wide"><label>Текущая себестоимость за ${item.unit||'шт.'}</label><input type="number" id="whe-price" min="0" step="0.000001" value="${Number(item.price)||0}"><div class="field-hint">Изменение применяется только к будущим списаниям. Старые расходы, закупки и закрытые заявки не пересчитываются.</div></div>
-            <div class="form-group wide"><label>Учёт расхода</label><select id="whe-track"><option value="exact" ${item.tracking==='exact'?'selected':''}>Точный</option><option value="approx" ${item.tracking==='approx'?'selected':''}>Примерный</option><option value="presence" ${item.tracking==='presence'?'selected':''}>Только наличие</option></select></div>
+            <div class="form-group wide"><label>Учёт расхода</label><select id="whe-track"><option value="exact" ${item.tracking==='exact'?'selected':''}>Точный</option><option value="approx" ${item.tracking==='approx'?'selected':''}>Примерный</option><option value="presence" ${item.tracking==='presence'?'selected':''}>Только наличие</option></select></div><div class="form-group wide"><label class="compat-option"><input type="checkbox" id="whe-show-orders" ${item.showInOrders!==false?'checked':''}> Показывать при заполнении заявки</label><div class="field-hint">Отключи для масла вакууматора, MAP-газ и других общих покупок.</div></div>
         </div>
         <div class="modal-form-actions"><button type="button" onclick="saveWarehouseItemEdit('${id}')">Сохранить</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button></div>`;
     setCompatibilityValues(item.compatibility,'whe');
@@ -3248,7 +3271,7 @@ function saveWarehouseItemEdit(id){
     const consumeUnit=canonicalUnit(document.getElementById('whe-consume-unit')?.value||item.unit),price=Number(document.getElementById('whe-price')?.value);
     if(!unitsCompatible(consumeUnit,item.unit||'шт.')){toast('❌ Единица списания не соответствует единице хранения',true);return;}
     if(!Number.isFinite(price)||price<0){toast('❌ Себестоимость не может быть отрицательной',true);return;}
-    item.name=name;item.category=document.getElementById('whe-cat').value.trim()||'Без категории';item.compatibility=selectedCompatibilityValues('whe');item.min=roundQuantity(Math.max(0,parseFloat(document.getElementById('whe-min').value)||0));item.consumeUnit=consumeUnit;item.price=Math.round(price*1000000)/1000000;item.tracking=document.getElementById('whe-track').value;
+    item.name=name;item.category=document.getElementById('whe-cat').value.trim()||'Без категории';item.compatibility=selectedCompatibilityValues('whe');item.min=roundQuantity(Math.max(0,parseFloat(document.getElementById('whe-min').value)||0));item.consumeUnit=consumeUnit;item.price=Math.round(price*1000000)/1000000;item.tracking=document.getElementById('whe-track').value;item.showInOrders=document.getElementById('whe-show-orders')?.checked!==false;
     DB.saveWarehouse(items);closeModal();renderWarehouse();maybeAutoBackup();toast('✅ Позиция настроена');
 }
 
@@ -3406,9 +3429,16 @@ function renderWarehouseHistory(){
         const converted=movement.inputQty!==null&&movement.inputQty!==undefined&&movement.inputUnit&&canonicalUnit(movement.inputUnit)!==canonicalUnit(movement.unit);
         const qtyText=converted?`${sign}${formatWarehouseQty(movement.inputQty)} ${movement.inputUnit} → ${formatWarehouseQty(movement.qty)} ${movement.unit||'шт.'}`:`${sign}${formatWarehouseQty(movement.qty)} ${movement.unit||'шт.'}`;
         const analyticsCost=movement.type==='order_out'?warehouseMovementAnalyticsCost(movement):Number(movement.amount)||0;
-        return `<div class="movement-row ${isAnalyticsIgnored?'movement-excluded':''}"><span class="movement-icon ${kind}">${iconSvg(isCancelled?'minus':isIn?'plus':isReturn?'refresh':'minus')}</span><div class="movement-copy"><b>${movement.name||'Позиция'}</b><small>${isCancelled?'Приход отменён':movementTypeLabel(movement.type)} · ${U.dateTime(movement.date)}${movement.note?' · '+movement.note:''}${movement.cancelReason?' · '+movement.cancelReason:''}${isAnalyticsIgnored?' · не учитывается в аналитике':analyticsCost?` · себестоимость ${U.money(analyticsCost)}`:''}${movement.type==='purchase'&&movement.unitPrice?` · ${U.money(movement.unitPrice)}/${movement.unit||'шт.'}`:''}</small>${movement.type==='purchase'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="cancelWarehousePurchaseMovement('${movement.id}')" style="margin-top:5px;">Отменить приход</button>`:''}${movement.type==='order_out'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="showWarehouseMovementCostModal('${movement.id}')" style="margin-top:5px;">${movement.analyticsExcluded?'Вернуть / исправить':'Исправить сумму'}</button>`:''}</div><span class="movement-qty ${kind}">${qtyText}</span></div>`;
+        return `<div class="movement-row ${isAnalyticsIgnored?'movement-excluded':''}"><span class="movement-icon ${kind}">${iconSvg(isCancelled?'minus':isIn?'plus':isReturn?'refresh':'minus')}</span><div class="movement-copy"><b>${movement.name||'Позиция'}</b><small>${isCancelled?'Приход отменён':movementTypeLabel(movement.type)} · ${U.dateTime(movement.date)}${movement.note?' · '+movement.note:''}${movement.cancelReason?' · '+movement.cancelReason:''}${isAnalyticsIgnored?' · не учитывается в аналитике':analyticsCost?` · себестоимость ${U.money(analyticsCost)}`:''}${movement.type==='purchase'&&movement.unitPrice?` · ${U.money(movement.unitPrice)}/${movement.unit||'шт.'}`:''}</small>${movement.type==='purchase'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="cancelWarehousePurchaseMovement('${movement.id}')" style="margin-top:5px;">Отменить приход и расход</button>`:''}${movement.type==='manual_out'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="cancelWarehouseManualMovement('${movement.id}')" style="margin-top:5px;">Вернуть на склад</button>`:''}${movement.type==='order_out'&&!isCancelled?`<button class="btn-xs btn-outline" type="button" onclick="showWarehouseMovementCostModal('${movement.id}')" style="margin-top:5px;">${movement.analyticsExcluded?'Вернуть / исправить':'Исправить сумму'}</button>`:''}</div><span class="movement-qty ${kind}">${qtyText}</span></div>`;
     }).join('')}</section>`).join('');
 }
+
+// ==================== ИНСТРУМЕНТ ====================
+const TOOL_STATUS_LABELS={owned:'Есть',wanted:'Хочу купить',planned:'В планах',repair:'Нужен ремонт'};
+function addToolItem(){const name=document.getElementById('tool-name')?.value.trim();if(!name){toast('❌ Укажи название',true);return;}const tools=DB.tools();tools.unshift({id:U.uid(),name,status:document.getElementById('tool-status')?.value||'owned',price:Math.max(0,Number(document.getElementById('tool-price')?.value)||0),note:document.getElementById('tool-note')?.value.trim()||'',created:U.nowISO()});DB.saveTools(tools);['tool-name','tool-price','tool-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});renderTools();maybeAutoBackup();}
+function deleteToolItem(id){if(!confirm('Удалить инструмент?'))return;DB.saveTools(DB.tools().filter(item=>item.id!==id));renderTools();maybeAutoBackup();}
+function cycleToolStatus(id){const seq=['owned','wanted','planned','repair'],tools=DB.tools(),item=tools.find(x=>x.id===id);if(!item)return;item.status=seq[(seq.indexOf(item.status)+1)%seq.length];DB.saveTools(tools);renderTools();maybeAutoBackup();}
+function renderTools(){const c=document.getElementById('tools-container');if(!c)return;const items=DB.tools();c.innerHTML=items.length?items.map(item=>`<div class="card"><div class="expense-card-header"><div><b>${escapeHtml(item.name)}</b><div class="field-hint">${TOOL_STATUS_LABELS[item.status]||item.status}${item.price?` · ${U.money(item.price)}`:''}${item.note?` · ${escapeHtml(item.note)}`:''}</div></div><button class="delete-icon-btn" onclick="deleteToolItem('${item.id}')">${iconSvg('delete')}</button></div><button class="btn-xs btn-outline" onclick="cycleToolStatus('${item.id}')">Сменить статус</button></div>`).join(''):'<div class="empty-state">Инструменты пока не добавлены</div>';}
 
 // ==================== РАСХОДЫ ====================
 function addExpense(){
@@ -3427,22 +3457,14 @@ function addExpense(){
 
 function deleteExpense(id){
     const expenses=DB.expenses(),index=expenses.findIndex(e=>e.id===id);if(index<0)return;const removed=expenses[index];
+    if(removed.orderId){toast('ℹ️ Расход, связанный с заявкой, исправляется через заявку.',true);return;}
     if(removed.source==='warehouse_purchase'&&!removed.cancelled){
-        const itemExists=DB.warehouse().some(item=>item.id===removed.warehouseId);
-        if(itemExists){toast('⚠️ Этот расход связан с приходом на склад. Исправляй приход через склад, чтобы остаток и финансы не разошлись.',true);return;}
-        if(!confirm('Позиция уже удалена со склада. Отменить и этот связанный расход?'))return;
-        const movementId=removed.movementId;
-        const cancelled=cancelWarehousePurchaseRecords(record=>record.id===removed.id||(movementId&& (record.id===movementId||record.movementId===movementId)),'Расход отменён из раздела финансов');
-        renderExpenses();maybeAutoBackup();
-        showUndo('Складской расход отменён',()=>{restoreWarehousePurchaseRecords(cancelled);renderExpenses();maybeAutoBackup();});
-        return;
+        document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('delete')}Исправить старый расход</h3><div class="data-warning"><b>${escapeHtml(removed.description||'Закупка склада')}</b><small>${U.money(removed.amount)}</small></div><button type="button" onclick="excludeExpenseFromAccounting('${removed.id}')">Удалить только из финансов</button><div class="field-hint" style="margin:5px 0 10px;">Остаток и история склада сохранятся.</div><button type="button" class="btn-red" onclick="closeModal();deleteExpenseAndCancelPurchase('${removed.id}')">Отменить приход и расход полностью</button><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button>`;document.getElementById('modal-overlay').classList.add('active');return;
     }
-    if(!confirm('Удалить этот расход?')) return;
-    expenses.splice(index,1);DB.saveExpenses(expenses);
-    renderExpenses();
-    maybeAutoBackup();
-    showUndo('Расход удалён',()=>{const restored=DB.expenses();restored.splice(Math.min(index,restored.length),0,removed);DB.saveExpenses(restored);renderExpenses();maybeAutoBackup();});
+    if(!confirm('Удалить этот расход?'))return;expenses.splice(index,1);DB.saveExpenses(expenses);renderExpenses();renderStats();maybeAutoBackup();
 }
+function excludeExpenseFromAccounting(id){const expenses=DB.expenses(),expense=expenses.find(e=>e.id===id);if(!expense)return;expense.cancelled=true;expense.cancelReason='Удалено из финансов вручную';expense.cancelledAt=U.nowISO();DB.saveExpenses(expenses);const movements=DB.warehouseMovements(),movement=movements.find(m=>m.id===expense.movementId);if(movement){movement.analyticsExcluded=true;movement.analyticsExcludeReason='Удалено из финансов вручную';DB.saveWarehouseMovements(movements);}closeModal();renderExpenses();renderWarehouseHistory();renderStats();maybeAutoBackup();toast('✅ Расход удалён из финансов');}
+function deleteExpenseAndCancelPurchase(id){const removed=DB.expenses().find(e=>e.id===id);if(!removed)return;cancelWarehousePurchaseRecords(expense=>expense.id===removed.id,'Приход и расход отменены вручную');renderExpenses();renderWarehouseHistory();renderWarehouse();renderStats();maybeAutoBackup();}
 
 let expenseCollapsed=new Set(JSON.parse(localStorage.getItem('repair_expense_collapsed')||'[]'));
 
@@ -3554,13 +3576,14 @@ function analyticsMetrics(range){
     const allOrders=DB.orders();
     const allCreated=allOrders.filter(order=>analyticsInRange(order.created,range));
     const allClosed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range));
+    const refused=allOrders.filter(order=>order.status==='Отказ'&&analyticsOrderCountsAsRegular(order)&&analyticsInRange(order.completed||order.created,range));
     const created=allCreated.filter(analyticsOrderCountsAsRegular);
     const closed=allClosed.filter(analyticsOrderCountsAsRegular);
     const warrantyCases=allClosed.filter(order=>order.isWarrantyCase&&order.warrantyResult!=='non_warranty');
     const expenses=DB.expenses().filter(expense=>isActiveExpense(expense)&&analyticsInRange(expense.date,range));
-    const revenue=closed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=closed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    const revenue=[...closed,...refused].reduce((sum,order)=>sum+U.finalAmount(order),0),earned=[...closed,...refused].reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
     const stockPurchases=expenses.filter(expense=>expense.source==='warehouse_purchase').reduce((sum,expense)=>sum+(Number(expense.amount)||0),0),nonStockExpenses=allExpenses-stockPurchases;
-    return{created,closed,allCreated,allClosed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0,warrantyCases};
+    return{created,closed,refused,allCreated,allClosed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0,warrantyCases};
 }
 function analyticsDelta(current,previous,positiveGood=true){
     if(previous===null||previous===undefined)return '<span class="delta">без сравнения</span>';
@@ -4395,7 +4418,7 @@ function toggleTheme(){
 }
 
 function downloadBackup(label='backup'){
-    const data={version:18,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    const data={version:18,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),tools:DB.tools(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
     const payload=JSON.stringify(data,null,2);
     const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
     let started=false;
@@ -4448,7 +4471,7 @@ function updateBackupInfo(){
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
-        <div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
+        <div class="data-warning"><b>v18.4</b><small>Добавлены очистка старых складских расходов, скрытие общих позиций из заявки, вкладка «Инструмент» и статус «Отказ от ремонта» без влияния на средний чек.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
         <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
         <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
         <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;
@@ -4473,7 +4496,7 @@ function restoreFromFile(){
             const restoredWarehouse=data.warehouse||[];
             DB.saveOrders(data.orders||[]);DB.saveWarehouse(restoredWarehouse);
             DB.saveWarehouseMovements(Array.isArray(data.warehouse_movements)?data.warehouse_movements:createOpeningWarehouseMovements(restoredWarehouse));
-            DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.saveReceipts(Array.isArray(data.receipts)?data.receipts:[]);DB.saveReceiptPrices(Array.isArray(data.receipt_prices)?data.receipt_prices:[]);DB.set('draft',data.draft||[]);
+            DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.saveReceipts(Array.isArray(data.receipts)?data.receipts:[]);DB.saveReceiptPrices(Array.isArray(data.receipt_prices)?data.receipt_prices:[]);DB.saveTools(Array.isArray(data.tools)?data.tools:[]);DB.set('draft',data.draft||[]);
             if(data.settings)DB.saveSettings(data.settings);
             closeModal();toast('✅ Восстановлено!');location.reload();
         }catch{toast('❌ Ошибка файла!');}
@@ -4489,7 +4512,7 @@ document.getElementById('warehouse-history-overlay').addEventListener('click',fu
 
 function migrateStoredData(){
     // Старые версии выдавали складу и расходам номера заявок, из-за чего ID могли повторяться.
-    for(const type of ['warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices']){
+    for(const type of ['warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','tools']){
         const items=DB.get(type);const seen=new Set();let changed=false;
         items.forEach(item=>{if(!item.id||seen.has(item.id)){item.id=U.uid();changed=true;}seen.add(item.id);});
         if(changed)DB.set(type,items);
@@ -4515,6 +4538,7 @@ function migrateStoredData(){
     });
     const warehouse=DB.warehouse();let warehouseChanged=false;
     warehouse.forEach(item=>{
+        if(item.showInOrders===undefined){item.showInOrders=true;warehouseChanged=true;}
         if(!item.unit){item.unit='шт.';warehouseChanged=true;}else if(item.unit!==canonicalUnit(item.unit)){item.unit=canonicalUnit(item.unit);warehouseChanged=true;}
         const consumeUnit=canonicalUnit(item.consumeUnit||defaultConsumeUnitForStorage(item.unit));
         if(item.consumeUnit!==consumeUnit||!unitsCompatible(consumeUnit,item.unit)){item.consumeUnit=unitsCompatible(consumeUnit,item.unit)?consumeUnit:defaultConsumeUnitForStorage(item.unit);warehouseChanged=true;}
