@@ -1,4 +1,4 @@
-const CACHE_NAME='crm-bt-v19-2';
+const CACHE_NAME='crm-bt-v19-3-1';
 const ASSETS=['./','./index.html'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)));

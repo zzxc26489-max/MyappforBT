@@ -1045,7 +1045,7 @@
         </div>
         <div class="form-group"><label>Фото</label><input type="file" id="n-photos" accept="image/*" multiple onchange="previewPhotos()"></div>
         <div id="photo-preview" class="photo-gallery"></div>
-        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option></select></div>
+        <div class="form-group"><label>Статус</label><select id="n-status" onchange="updateOrderDateFields()"><option value="В работе" selected>В работе</option><option value="Закрыта">Закрыта</option><option value="Отказ">Отказ от ремонта</option></select></div>
         <div class="row date-fields" id="order-date-fields"><div class="form-group"><label>Дата создания</label><input type="date" id="n-created-date"></div><div class="form-group"><label>Дата закрытия</label><input type="date" id="n-completed-date"></div></div>
         <div class="form-group"><label>Следующий визит</label><input type="datetime-local" id="n-next-visit"><div class="field-hint">Необязательно. Поможет не забыть дату и время выезда.</div></div>
         <div id="edit-indicator" style="display:none;background:var(--yellow);color:#000;padding:7px 9px;border-radius:8px;margin-bottom:8px;font-size:12px;"><svg class="ui-icon" style="display:inline-block;width:15px;height:15px;vertical-align:-3px;"><use href="#i-edit"></use></svg> Редактирование заявки</div>
@@ -1063,6 +1063,7 @@
         <span class="chip active" onclick="filterOrders('all',this)">Все</span>
         <span class="chip" onclick="filterOrders('Закрыта',this)">Закрыты</span>
         <span class="chip" onclick="filterOrders('В работе',this)">В работе</span>
+        <span class="chip" onclick="filterOrders('Отказ',this)">Отказы</span>
         <span class="chip" onclick="filterOrders('Гарантия',this)">Гарантия</span>
     </div>
     <div class="stock-filter"><select id="order-visit-filter" onchange="renderOrders()"><option value="all">Все даты визита</option><option value="today">Визиты сегодня</option><option value="upcoming">Ближайшие визиты</option><option value="overdue">Просроченные визиты</option></select></div>
@@ -1255,7 +1256,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v19.2</b></span>
+            <span>Версия: <b>v19.3.1</b></span>
             <span>Сборка: <b>24.07.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -2034,7 +2035,7 @@ const U = {
         // Серый расход — сумма, которую вычитают из заявки до деления с конторой.
         // Если он не заполнен, считаем заявленный расход равным фактическому.
         const declared=gray>0?gray:actual;
-        const margin=Math.max(0,declared-actual);
+        const margin=declared-actual;
         const base=Math.max(0,this.finalAmount(o)-declared);
         return {materials,gray,white,actual,declared,margin,base};
     },
@@ -2045,7 +2046,7 @@ const U = {
         return d;
     },
     profit(o) {
-        if (o.status !== 'Закрыта') return null;
+        if (!['Закрыта','Отказ'].includes(o.status)) return null;
         if(o.isWarrantyCase&&o.warrantyResult!=='non_warranty')return 0;
         const e=this.expenseModel(o);
         return Math.max(0,Math.round(e.base*this.masterPercent(o)/100+e.margin));
@@ -2126,7 +2127,7 @@ function persistCurrentView(tab=currentTab,includeScroll=true){
 }
 function restoreViewFilters(){
     const state=readViewState(),filters=state.filters||{};
-    if(filters.orders?.status&&['all','Закрыта','В работе','Гарантия'].includes(filters.orders.status))orderFilter=filters.orders.status;
+    if(filters.orders?.status&&['all','Закрыта','В работе','Отказ','Гарантия'].includes(filters.orders.status))orderFilter=filters.orders.status;
     document.querySelectorAll('#page-orders .chip').forEach(chip=>chip.classList.toggle('active',chip.getAttribute('onclick')?.includes(`'${orderFilter}'`)));
     const visit=document.getElementById('order-visit-filter');if(visit&&[...visit.options].some(option=>option.value===filters.orders?.visit))visit.value=filters.orders.visit;
     const warehouse=document.getElementById('warehouse-filter');if(warehouse)warehouse.dataset.restoreValue=filters.warehouse||'all';
@@ -2767,11 +2768,11 @@ function updateOrderDateFields(){
     if(!row||!created||!completed)return;
     row.classList.add('show');
     if(!created.value)created.value=U.toDateInput();
-    const closed=status==='Закрыта';
-    completed.disabled=!closed;
-    if(closed&&!completed.value)completed.value=U.toDateInput();
-    if(!closed)completed.value='';
-    if(nextVisit){nextVisit.disabled=closed;if(closed)nextVisit.value='';}
+    const finished=['Закрыта','Отказ'].includes(status);
+    completed.disabled=!finished;
+    if(finished&&!completed.value)completed.value=U.toDateInput();
+    if(!finished)completed.value='';
+    if(nextVisit){nextVisit.disabled=finished;if(finished)nextVisit.value='';}
     syncWarrantyPanel();
 }
 
@@ -2879,18 +2880,43 @@ function snapshotWarehouseMaterialCosts(materials,previousOrder=null){
         const material=normaliseMaterial(raw);if(!material.warehouseId)return material;
         const stock=DB.warehouse().find(item=>item.id===material.warehouseId);
         const previous=previousMaterials.find(item=>item.id===material.id||item.warehouseId===material.warehouseId&&item.name===material.name);
-        const unchangedClosed=previousOrder?.status==='Закрыта'&&previous&&String(previous.qty)===String(material.qty)&&canonicalUnit(previous.unit)===canonicalUnit(material.unit)&&previous.writeOff===material.writeOff;
+        const unchangedClosed=['Закрыта','Отказ'].includes(previousOrder?.status)&&previous&&String(previous.qty)===String(material.qty)&&canonicalUnit(previous.unit)===canonicalUnit(material.unit)&&previous.writeOff===material.writeOff;
         material.unitCost=unchangedClosed?Number(previous.unitCost)||0:Number(stock?.price)||Number(material.unitCost)||0;
         return material;
     });
 }
 function confirmOrderClosure(order,wasClosed=false){
-    if(order.status!=='Закрыта'||wasClosed)return true;
-    const writeOff=(order.materials||[]).map(normaliseMaterial).filter(material=>material.warehouseId&&material.writeOff&&material.tracking!=='presence'&&(Number(material.qty)||0)>0);
-    const materialLines=writeOff.length?writeOff.slice(0,5).map(material=>`• ${material.name}: ${formatQuantity(material.qty)} ${material.unit}`).join('\n'):'• количественных списаний нет';
-    const extra=writeOff.length>5?`\n• ещё ${writeOff.length-5} поз.`:'';
-    const e=U.expenseModel(order),percent=U.masterPercent(order),take=U.profit({...order,status:'Закрыта'});
-    return confirm(`Закрыть ${U.formatOrderId(order.id)}?\n\nСумма клиента: ${U.money(U.finalAmount(order))}\nЗаявленный расход до деления: −${U.money(e.declared)}\nОстаток для деления: ${U.money(e.base)}\nТвой процент: ${percent}% = ${U.money(Math.round(e.base*percent/100))}\nРазница серый − белый: +${U.money(e.margin)}\nНа руки: ${U.money(take)}\n\nФактический расход: ${U.money(e.actual)}${e.white<=0&&e.materials>0?' (взят из материалов)':''}\n\nБудет списано со склада:\n${materialLines}${extra}`);
+    if(!['Закрыта','Отказ'].includes(order.status)||wasClosed)return true;
+    const e=U.expenseModel(order),percent=U.masterPercent(order),take=U.profit(order);
+    if(order.status==='Отказ'){
+        return confirm(`Сохранить отказ от ремонта ${U.formatOrderId(order.id)}?
+
+Получено от клиента: ${U.money(U.finalAmount(order))}
+Заявленный расход до деления: −${U.money(e.declared)}
+Остаток для деления: ${U.money(e.base)}
+Твой процент: ${percent}% = ${U.money(Math.round(e.base*percent/100))}
+Разница серый − белый: +${U.money(e.margin)}
+На руки: ${U.money(take)}
+
+Отказ попадёт в доход и выручку, но не попадёт в средний чек по технике.
+Материалы со склада при отказе автоматически не списываются.`);
+    }
+    const writeOffs=(order.materials||[]).map(normaliseMaterial).filter(m=>m.warehouseId&&m.writeOff&&m.tracking!=='presence');
+    const materialLines=writeOffs.length?writeOffs.map(m=>`• ${m.name}: ${m.qty||0} ${m.unit}`).join('\n'):'нет';
+    const extra=(order.materials||[]).some(m=>m.warehouseId&&m.writeOff&&m.tracking==='presence')?'\nПозиции «только наличие» останутся на складе.':'';
+    return confirm(`Закрыть ${U.formatOrderId(order.id)}?
+
+Сумма клиента: ${U.money(U.finalAmount(order))}
+Заявленный расход до деления: −${U.money(e.declared)}
+Остаток для деления: ${U.money(e.base)}
+Твой процент: ${percent}% = ${U.money(Math.round(e.base*percent/100))}
+Разница серый − белый: +${U.money(e.margin)}
+На руки: ${U.money(take)}
+
+Фактический расход: ${U.money(e.actual)}${e.white<=0&&e.materials>0?' (взят из материалов)':''}
+
+Будет списано со склада:
+${materialLines}${extra}`);
 }
 
 function saveOrder(){
@@ -2907,14 +2933,10 @@ function saveOrder(){
     const white = parseInt(document.getElementById('n-white').value) || 0;
     const status=document.getElementById('n-status').value;
     const created=U.dateInputToISO(document.getElementById('n-created-date').value,existing?.created||U.nowISO());
-    const completed=status==='Закрыта'?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
+    const completed=['Закрыта','Отказ'].includes(status)?U.dateInputToISO(document.getElementById('n-completed-date').value,existing?.completed||created):null;
 
     if(gray > sum){
         toast('⚠️ Серые расходы не могут превышать сумму заявки!', true);
-        return;
-    }
-    if(white > sum){
-        toast('⚠️ Белые расходы не могут превышать сумму заявки!', true);
         return;
     }
     if(completed&&new Date(completed)<new Date(created)){
@@ -2951,12 +2973,12 @@ function saveOrder(){
         photos:tempPhotos.length>0 ? tempPhotos : (existing?.photos||[]),
         created,
         completed,
-        nextVisit:status==='Закрыта'?null:U.dateTimeInputToISO(document.getElementById('n-next-visit').value)
+        nextVisit:['Закрыта','Отказ'].includes(status)?null:U.dateTimeInputToISO(document.getElementById('n-next-visit').value)
     };
-    if(order.status==='Закрыта')order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
+    if(['Закрыта','Отказ'].includes(order.status))order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
     if(!validateOpenOrderReservations(order))return;
     if(!validateMaterialUnits(order.materials))return;
-    if(!confirmOrderClosure(order,existing?.status==='Закрыта'))return;
+    if(!confirmOrderClosure(order,existing?.status===order.status&&['Закрыта','Отказ'].includes(order.status)))return;
     if(!syncWarehouseForOrder(existing,order))return;
     let orders=DB.orders();
     if(editingId) orders=orders.map(o=>o.id===editingId ? order : o);
@@ -3133,6 +3155,8 @@ function renderOrders(){
         orders=orders.filter(o=>Boolean(o.isWarrantyCase));
     }else if(orderFilter==='Закрыта'){
         orders=orders.filter(o=>o.status==='Закрыта'&&!o.isWarrantyCase);
+    }else if(orderFilter==='Отказ'){
+        orders=orders.filter(o=>o.status==='Отказ'&&!o.isWarrantyCase);
     }else if(orderFilter==='В работе'){
         orders=orders.filter(o=>isOpenOrder(o)&&!o.isWarrantyCase);
     }
@@ -3142,6 +3166,7 @@ function renderOrders(){
     if(!orders.length){container.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div>Нет заявок</div>';return;}
     container.innerHTML=orders.map(o=>{
         const inWork=o.status==='В работе'||o.status==='СД';
+        const refused=o.status==='Отказ';
         const profit=U.profit(o),warranty=U.guaranteeUntil(o),materialsCost=U.materialCost(o);
         return `<article class="order-card ${inWork?'order-active':'order-closed'}">
             <div class="order-top">
@@ -3160,7 +3185,7 @@ function renderOrders(){
             </div>
             <div class="order-details">
                 <span role="button" tabindex="0" onclick="callPhone('${o.phone}')" style="cursor:pointer;">${iconSvg('phone')} ${o.phone}</span>${o.address?`<span class="address-link" onclick="openMap('${o.address.replace(/'/g,"\\'")}')">${iconSvg('map')} ${o.address}</span>`:''}
-                <span>${iconSvg('shield')} ${o.isWarrantyCase?'Гарантийное обращение':`${o.guarantee||0} мес.${warranty?` · до ${U.date(warranty)}`:''}`}${o.warrantyResult?` · ${warrantyResultLabel(o.warrantyResult)}`:''}</span>
+                <span>${iconSvg('shield')} ${refused?'Отказ от ремонта · гарантия не начисляется':o.isWarrantyCase?'Гарантийное обращение':`${o.guarantee||0} мес.${warranty?` · до ${U.date(warranty)}`:''}`}${o.warrantyResult?` · ${warrantyResultLabel(o.warrantyResult)}`:''}</span>
                 ${(o.materials||[]).length?`<span>${iconSvg('warehouse')} ${(o.materials||[]).length} поз. материалов${materialsCost?` · ${U.money(materialsCost)}`:''}</span>`:''}
                 ${o.nextVisit&&inWork?`<span style="color:${new Date(o.nextVisit)<new Date()?'var(--red)':'var(--blue)'};">${iconSvg('calendar')} Следующий визит: ${U.dateTime(o.nextVisit)}</span>`:''}
             </div>
@@ -3618,14 +3643,19 @@ function analyticsMetrics(range){
     const allOrders=DB.orders();
     const allCreated=allOrders.filter(order=>analyticsInRange(order.created,range));
     const allClosed=allOrders.filter(order=>order.status==='Закрыта'&&analyticsInRange(order.completed||order.created,range));
+    const allRefused=allOrders.filter(order=>order.status==='Отказ'&&analyticsInRange(order.completed||order.created,range));
     const created=allCreated.filter(analyticsOrderCountsAsRegular);
     const closed=allClosed.filter(analyticsOrderCountsAsRegular);
+    const refused=allRefused.filter(analyticsOrderCountsAsRegular);
+    const paid=[...closed,...refused];
     const warrantyCases=allClosed.filter(order=>order.isWarrantyCase&&order.warrantyResult!=='non_warranty');
     const expenses=DB.expenses().filter(expense=>isActiveExpense(expense)&&analyticsInRange(expense.date,range));
-    const revenue=closed.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=closed.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
+    const revenue=paid.reduce((sum,order)=>sum+U.finalAmount(order),0),earned=paid.reduce((sum,order)=>sum+(U.profit(order)||0),0),materials=allClosed.reduce((sum,order)=>sum+U.materialCost(order),0),allExpenses=expenses.reduce((sum,expense)=>sum+(Number(expense.amount)||0),0);
     const stockPurchases=expenses.filter(expense=>expense.source==='warehouse_purchase').reduce((sum,expense)=>sum+(Number(expense.amount)||0),0),nonStockExpenses=allExpenses-stockPurchases;
-    return{created,closed,allCreated,allClosed,expenses,revenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(revenue/closed.length):0,warrantyCases};
+    const repairRevenue=closed.reduce((sum,order)=>sum+U.finalAmount(order),0);
+    return{created,closed,refused,paid,allCreated,allClosed,allRefused,expenses,revenue,repairRevenue,earned,materials,allExpenses,stockPurchases,nonStockExpenses,cashResult:earned-allExpenses,workResult:earned-materials-nonStockExpenses,avgCheck:closed.length?Math.round(repairRevenue/closed.length):0,warrantyCases};
 }
+
 function analyticsDelta(current,previous,positiveGood=true){
     if(previous===null||previous===undefined)return '<span class="delta">без сравнения</span>';
     if(previous===0)return `<span class="delta ${current===0?'':positiveGood?'up':'down'}">${current===0?'без изменений':'новое значение'}</span>`;
@@ -3722,12 +3752,12 @@ function renderStats(period){
     const consumedRows=Object.values(consumed).sort((a,b)=>b.amount-a.amount).slice(0,8).map(item=>`<div class="analytics-row"><span><b>${escapeHtml(item.name)}</b><small>Израсходовано ${formatQuantity(item.qty)} ${escapeHtml(item.unit)} · осталось ${formatQuantity(item.remaining)} ${escapeHtml(item.unit)}</small></span><span class="analytics-row-actions"><strong>${U.money(item.amount)}</strong>${item.warehouseId?`<button type="button" class="btn-outline" onclick="showWarehouseHistoryForItem('${item.warehouseId}')">Проверить</button>`:''}</span></div>`).join('');
     document.getElementById('stats-container').innerHTML=`
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('diamond')}Главные показатели</h3><small style="color:var(--sub);">по платным закрытым заявкам</small></div><div class="analytics-kpis">
-            <div class="analytics-kpi"><small>Закрыто</small><b>${metrics.closed.length}</b>${analyticsDelta(metrics.closed.length,previous?.closed.length)}</div>
+            <div class="analytics-kpi"><small>Закрыто ремонтов</small><b>${metrics.closed.length}</b>${analyticsDelta(metrics.closed.length,previous?.closed.length)}</div><div class="analytics-kpi"><small>Отказов</small><b>${metrics.refused.length}</b>${analyticsDelta(metrics.refused.length,previous?.refused.length)}</div>
             <div class="analytics-kpi"><small>Выручка клиентов</small><b style="color:var(--blue);">${U.money(metrics.revenue)}</b>${analyticsDelta(metrics.revenue,previous?.revenue)}</div>
             <div class="analytics-kpi"><small>Получил чистыми</small><b style="color:var(--green);">${U.money(metrics.earned)}</b>${analyticsDelta(metrics.earned,previous?.earned)}</div>
             <div class="analytics-kpi" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('all')" style="cursor:pointer;"><small>Потратил всего · нажми</small><b style="color:var(--red);">${U.money(metrics.allExpenses)}</b>${analyticsDelta(metrics.allExpenses,previous?.allExpenses,false)}</div>
             <div class="analytics-kpi"><small>Осталось денег</small><b style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</b>${analyticsDelta(metrics.cashResult,previous?.cashResult)}</div>
-            <div class="analytics-kpi"><small>Средний чек</small><b style="color:var(--yellow);">${U.money(metrics.avgCheck)}</b>${analyticsDelta(metrics.avgCheck,previous?.avgCheck)}</div>
+            <div class="analytics-kpi"><small>Средний чек ремонтов</small><b style="color:var(--yellow);">${U.money(metrics.avgCheck)}</b>${analyticsDelta(metrics.avgCheck,previous?.avgCheck)}</div>
         </div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('alert')}Фокус внимания</h3></div><div class="attention-grid"><div class="attention-item" onclick="analyticsOpenFilter('overdue')"><b>${overdue.length}</b><small>просроченных визитов</small></div><div class="attention-item" onclick="analyticsOpenFilter('low')"><b>${lowStock.length}</b><small>позиций заканчивается</small></div><div class="attention-item" ${oldest?`onclick="editOrder('${oldest.id}')"`:''}><b>${oldestDays}</b><small>дней самой старой заявке</small></div></div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('wrench')}Работа сейчас</h3></div><div class="analytics-list">
@@ -3739,11 +3769,11 @@ function renderStats(period){
             <div class="analytics-row"><span><b>Гарантийных обращений</b><small>отдельно от новых и повторных клиентов</small></span><strong>${metrics.warrantyCases.length}</strong></div>
         </div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('finance')}Деньги простым языком</h3></div><div class="analytics-list">
-            <div class="analytics-row"><span><b>Получил чистыми</b><small>твоя сумма «На руки» по закрытым заявкам</small></span><strong style="color:var(--green);">${U.money(metrics.earned)}</strong></div>
+            <div class="analytics-row"><span><b>Получил чистыми</b><small>«На руки» по закрытым ремонтам и платным отказам</small></span><strong style="color:var(--green);">${U.money(metrics.earned)}</strong></div>
             <div class="analytics-row" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('stock')" style="cursor:pointer;"><span><b>Купил запчастей и расходников</b><small>нажми, чтобы увидеть покупки и перейти на склад</small></span><strong style="color:var(--red);">−${U.money(metrics.stockPurchases)}</strong></div>
             <div class="analytics-row" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('other')" style="cursor:pointer;"><span><b>Другие расходы</b><small>нажми, чтобы увидеть подробный список</small></span><strong style="color:var(--red);">−${U.money(metrics.nonStockExpenses)}</strong></div>
             <div class="analytics-row"><span><b>Осталось денег</b><small>получил чистыми минус все реальные расходы периода</small></span><strong style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</strong></div>
-        </div><div class="analytics-explain">Израсходованные в ремонте детали второй раз из денег не вычитаются: ты уже оплатил их при закупке. Ниже они показываются отдельно — как расход количества и себестоимости со склада.</div>${analyticsChart(metrics.closed,range)}</section>
+        </div><div class="analytics-explain">Израсходованные в ремонте детали второй раз из денег не вычитаются: ты уже оплатил их при закупке. Ниже они показываются отдельно — как расход количества и себестоимости со склада.</div>${analyticsChart(metrics.paid,range)}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('users')}Клиенты</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Новые</small><b>${newClients}</b></div><div class="analytics-kpi"><small>Повторные</small><b>${repeatClients}</b></div><div class="analytics-kpi"><small>Всего клиентов</small><b>${phones.length}</b></div><div class="analytics-kpi"><small>Доля повторных</small><b>${repeatRate}%</b></div></div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('wrench')}По типам техники</h3></div>${techRows?`<div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Техника</th><th>Заявок</th><th>Выручка</th><th>Ср. чек</th><th>Срок</th></tr></thead><tbody>${techRows}</tbody></table></div>`:'<div class="analytics-empty">Нет закрытых заявок для сравнения.</div>'}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('list')}Популярные услуги</h3></div><div class="analytics-list">${serviceRows||'<div class="analytics-empty">Услуги пока не накопились.</div>'}</div></section>
@@ -3767,10 +3797,8 @@ function renderClients(){
             };
         }
         clients[o.phone].orders.push(o);
-        if(o.status==='Закрыта') {
-            clients[o.phone].total += U.finalAmount(o);
-            clients[o.phone].count++;
-        }
+        if(['Закрыта','Отказ'].includes(o.status)) clients[o.phone].total += U.finalAmount(o);
+        if(o.status==='Закрыта') clients[o.phone].count++;
     });
 
     const search=(document.getElementById('search-clients')?.value||'').toLowerCase();
@@ -3809,8 +3837,10 @@ function openClientCard(phone){
     };
 
     const closed = orders.filter(o => o.status === 'Закрыта');
-    const totalSum = closed.reduce((s,o) => s + U.finalAmount(o), 0);
-    const avgCheck = closed.length > 0 ? Math.round(totalSum / closed.length) : 0;
+    const paid = orders.filter(o => ['Закрыта','Отказ'].includes(o.status));
+    const totalSum = paid.reduce((s,o) => s + U.finalAmount(o), 0);
+    const repairSum = closed.reduce((s,o) => s + U.finalAmount(o), 0);
+    const avgCheck = closed.length > 0 ? Math.round(repairSum / closed.length) : 0;
 
     let ordersHtml = '';
     if(orders.length) {
@@ -4568,7 +4598,7 @@ async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
-        <div class="data-warning"><b>v19.2</b><small>Восстановлена правильная логика «На руки»: из суммы сначала вычитается серый расход, остаток делится по проценту, а разница между серым и белым расходом полностью прибавляется мастеру. Если расходы не заполнены, используется себестоимость добавленных материалов. Убрано двойное вычитание расходов.</small></div><div class="data-warning"><b>v18.5.4</b><small>Исправлена критическая ошибка U.escape is not a function при открытии формы инструмента. Все вызовы заменены на штатную функцию безопасного вывода escapeHtml; повторно проверены добавление, редактирование, удаление и карточки инструмента.</small></div><div class="data-warning"><b>v18.5.3</b><small>Проведена повторная проверка кода арсенала. Убрано двойное открытие формы, исправлено закрытие модального окна после добавления и редактирования, обновлена версия и кэш.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлена кнопка «+» в арсенале: добавлен прямой обработчик, принудительное открытие формы поверх интерфейса и сообщение об ошибке вместо молчаливого сбоя.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлено открытие окна добавления и редактирования инструмента. Добавлена совместимость со старыми статусами инструментов.</small></div><div class="data-warning"><b>v18.5</b><small>Полностью переработан раздел «Арсенал мастера»: категории, фотографии, статусы, карточки, поиск, витрина, редактирование и удаление. Инструменты включены в резервную копию.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций: приход теперь отменяется отдельно вместе с расходом, а ручное списание можно вернуть без создания заявки и без повторного расхода.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
+        <div class="data-warning"><b>v19.3.1</b><small>Повторная проверка логики отказов и расходов: исправлено обновление кэша, сохранён выбор списания материалов при переходе отказа обратно в ремонт, белый расход выше серого теперь уменьшает сумму «На руки», а материалы отказов не попадают в статистику расхода деталей по выполненным ремонтам.</small></div><div class="data-warning"><b>v19.3</b><small>Добавлен статус «Отказ от ремонта». Платный отказ учитывается в выручке и сумме «На руки» по той же логике серых и белых расходов, но полностью исключён из среднего чека по технике и статистики завершённых ремонтов.</small></div><div class="data-warning"><b>v19.2</b><small>Восстановлена правильная логика «На руки»: из суммы сначала вычитается серый расход, остаток делится по проценту, а разница между серым и белым расходом полностью прибавляется мастеру. Если расходы не заполнены, используется себестоимость добавленных материалов. Убрано двойное вычитание расходов.</small></div><div class="data-warning"><b>v18.5.4</b><small>Исправлена критическая ошибка U.escape is not a function при открытии формы инструмента. Все вызовы заменены на штатную функцию безопасного вывода escapeHtml; повторно проверены добавление, редактирование, удаление и карточки инструмента.</small></div><div class="data-warning"><b>v18.5.3</b><small>Проведена повторная проверка кода арсенала. Убрано двойное открытие формы, исправлено закрытие модального окна после добавления и редактирования, обновлена версия и кэш.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлена кнопка «+» в арсенале: добавлен прямой обработчик, принудительное открытие формы поверх интерфейса и сообщение об ошибке вместо молчаливого сбоя.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлено открытие окна добавления и редактирования инструмента. Добавлена совместимость со старыми статусами инструментов.</small></div><div class="data-warning"><b>v18.5</b><small>Полностью переработан раздел «Арсенал мастера»: категории, фотографии, статусы, карточки, поиск, витрина, редактирование и удаление. Инструменты включены в резервную копию.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций: приход теперь отменяется отдельно вместе с расходом, а ручное списание можно вернуть без создания заявки и без повторного расхода.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
         <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
         <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
         <button type="button" class="btn-outline" onclick="closeModal()">Закрыть</button>`;
@@ -4617,7 +4647,7 @@ function migrateStoredData(){
     const orders=DB.orders();let changed=false;
     orders.forEach(o=>{
         if(o.status==='СД'){o.status='В работе';changed=true;}
-        if(o.status==='Закрыта'&&!o.completed){o.completed=o.created;changed=true;}
+        if(['Закрыта','Отказ'].includes(o.status)&&!o.completed){o.completed=o.created;changed=true;}
         if(!Array.isArray(o.materials)&&o.materials!==undefined){o.materials=[];changed=true;}
         if(Array.isArray(o.materials)){
             const normalised=o.materials.map(normaliseMaterial);
