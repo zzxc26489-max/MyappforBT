@@ -1001,7 +1001,7 @@
     <div id="draft-banner" class="card draft-banner" style="display:none;"></div>
     <div class="card">
         <div class="form-group"><label>Имя клиента *</label><input type="text" id="n-name" placeholder="Иван Иванов"></div>
-        <div class="row"><div class="form-group"><label>Телефон *</label><input type="tel" id="n-phone" placeholder="+7 900 123-45-67" inputmode="numeric"></div><div class="form-group"><label>Адрес</label><input type="text" id="n-address" placeholder="ул. Примерная, д. 1"></div></div>
+        <div class="row"><div class="form-group"><label>Телефон (необязательно)</label><input type="tel" id="n-phone" placeholder="Необязательно, например +7 900 123-45-67" inputmode="numeric"></div><div class="form-group"><label>Адрес</label><input type="text" id="n-address" placeholder="ул. Примерная, д. 1"></div></div>
         <div class="row"><div class="form-group"><label>Тип техники</label><select id="n-tech" onchange="onOrderTechChange()"><option value="">— Выберите —</option><option>Холодильник</option><option>Стиральная машина</option><option>Посудомоечная машина</option><option>Морозильная камера</option><option>Духовой шкаф</option><option>Варочная панель</option><option>Кондиционер</option><option>Водонагреватель</option><option>Холодильная витрина</option><option>Морозильный ларь</option><option>Холодильный стол</option><option>Коммерческий холодильник</option><option>Другое коммерческое оборудование</option><option>Другое</option></select></div><div class="form-group"><label>Бренд / Модель</label><input type="text" id="n-brand" placeholder="Samsung, LG..."></div></div>
         <div class="form-group"><label>Неисправность со слов клиента</label><textarea id="n-issue" placeholder="Описание неисправности..."></textarea></div>
         <div class="form-group"><label>Результат диагностики</label><textarea id="n-diagnosis" placeholder="Фактическая причина поломки..."></textarea></div>
@@ -1256,7 +1256,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v19.3.1</b></span>
+            <span>Версия: <b>v19.3.2</b></span>
             <span>Сборка: <b>24.07.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -2924,7 +2924,7 @@ function saveOrder(){
     const name=document.getElementById('n-name').value.trim();
     const phone=document.getElementById('n-phone').value.trim().replace(/[^0-9+]/g, '');
     if(!name){alert('❌ Имя обязательно!');return;}
-    if(!phone || phone.length < 10){alert('❌ Введите корректный номер телефона!');return;}
+    if(phone && phone.length < 10){alert('❌ Если указываешь телефон, введи полный номер или оставь поле пустым.');return;}
 
     const existing=editingId?DB.orders().find(order=>order.id===editingId):null;
     const id = editingId || U.orderId();
@@ -3184,7 +3184,7 @@ function renderOrders(){
                     :`<div class="money-box profit pending"><small>${iconSvg('diamond')} На руки</small><b>После закрытия</b></div>`}
             </div>
             <div class="order-details">
-                <span role="button" tabindex="0" onclick="callPhone('${o.phone}')" style="cursor:pointer;">${iconSvg('phone')} ${o.phone}</span>${o.address?`<span class="address-link" onclick="openMap('${o.address.replace(/'/g,"\\'")}')">${iconSvg('map')} ${o.address}</span>`:''}
+                ${o.phone?`<span role="button" tabindex="0" onclick="callPhone('${o.phone}')" style="cursor:pointer;">${iconSvg('phone')} ${escapeHtml(o.phone)}</span>`:`<span class="muted-detail">${iconSvg('phone')} Телефон не указан</span>`}${o.address?`<span class="address-link" onclick="openMap('${o.address.replace(/'/g,"\\'")}')">${iconSvg('map')} ${o.address}</span>`:''}
                 <span>${iconSvg('shield')} ${refused?'Отказ от ремонта · гарантия не начисляется':o.isWarrantyCase?'Гарантийное обращение':`${o.guarantee||0} мес.${warranty?` · до ${U.date(warranty)}`:''}`}${o.warrantyResult?` · ${warrantyResultLabel(o.warrantyResult)}`:''}</span>
                 ${(o.materials||[]).length?`<span>${iconSvg('warehouse')} ${(o.materials||[]).length} поз. материалов${materialsCost?` · ${U.money(materialsCost)}`:''}</span>`:''}
                 ${o.nextVisit&&inWork?`<span style="color:${new Date(o.nextVisit)<new Date()?'var(--red)':'var(--blue)'};">${iconSvg('calendar')} Следующий визит: ${U.dateTime(o.nextVisit)}</span>`:''}
@@ -3193,7 +3193,7 @@ function renderOrders(){
             ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map((p,i)=>`<img src="${p}" class="photo-thumb" onclick="showOrderPhoto('${o.id}',${i})">`).join('')}</div>`:''}
             <div class="order-actions">
                 <button class="order-action edit" onclick="editOrder('${o.id}')"><span>${iconSvg('edit')}</span><small>Изменить</small></button>
-                ${inWork?`<button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg('check')}</span><small>Закрыть</small></button><button class="order-action call" onclick="callPhone('${o.phone}')"><span>${iconSvg('phone')}</span><small>Позвонить</small></button>`:`<button class="order-action act" onclick="openActForOrder('${o.id}')"><span>${iconSvg('printer')}</span><small>Акт</small></button><button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg('reopen')}</span><small>В работу</small></button>`}
+                ${inWork?`<button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg('check')}</span><small>Закрыть</small></button>${o.phone?`<button class="order-action call" onclick="callPhone('${o.phone}')"><span>${iconSvg('phone')}</span><small>Позвонить</small></button>`:''}`:`<button class="order-action act" onclick="openActForOrder('${o.id}')"><span>${iconSvg('printer')}</span><small>Акт</small></button><button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg('reopen')}</span><small>В работу</small></button>`}
                 <button class="order-action more" onclick="showOrderActions('${o.id}')"><span>${iconSvg('dots')}</span><small>Действия</small></button>
             </div>
         </article>`;
@@ -3213,7 +3213,7 @@ function showOrderActions(id){
         ${closed?`<button type="button" onclick="createReceiptForOrder('${order.id}')">${iconSvg('price')}Создать товарник</button><button type="button" onclick="closeModal();createWarrantyCase('${order.id}')">${iconSvg('shield')}Гарантийный случай</button>`:''}
         <button type="button" onclick="openActForOrder('${order.id}')">${iconSvg('printer')}Открыть акт</button>
         <button type="button" onclick="closeModal();duplicateOrder('${order.id}')">${iconSvg('copy')}Создать копию заявки</button>
-        <button type="button" onclick="closeModal();messageTelegram('${order.phone||''}')">${iconSvg('telegram')}Открыть Telegram</button>
+        ${order.phone?`<button type="button" onclick="closeModal();messageTelegram('${order.phone}')">${iconSvg('telegram')}Открыть Telegram</button>`:''}
         <button type="button" class="danger" onclick="closeModal();deleteOrder('${order.id}')">${iconSvg('delete')}Удалить заявку</button>
     </div><button type="button" class="btn-outline" onclick="closeModal()">Отмена</button>`;
     document.getElementById('modal-overlay').classList.add('active');
@@ -3737,7 +3737,7 @@ function renderStats(period){
     const range=getAnalyticsRange(),previousRange=getPreviousAnalyticsRange(range),metrics=analyticsMetrics(range),previous=previousRange?analyticsMetrics(previousRange):null,now=new Date(),allOrders=DB.orders(),active=allOrders.filter(isOpenOrder);
     const visits=active.filter(order=>analyticsDateValue(order.nextVisit)),todayFrom=analyticsStartOfDay(now),todayTo=analyticsEndOfDay(now),nextSeven=new Date(now.getTime()+7*86400000),overdue=visits.filter(order=>new Date(order.nextVisit)<now),todayVisits=visits.filter(order=>new Date(order.nextVisit)>=todayFrom&&new Date(order.nextVisit)<=todayTo),weekVisits=visits.filter(order=>new Date(order.nextVisit)>=now&&new Date(order.nextVisit)<=nextSeven);
     const oldest=active.slice().sort((a,b)=>new Date(a.created)-new Date(b.created))[0],oldestDays=oldest?Math.max(0,Math.floor((now-new Date(oldest.created))/86400000)):0,avgDuration=metrics.closed.length?metrics.closed.reduce((sum,order)=>sum+analyticsOrderDuration(order),0)/metrics.closed.length:0;
-    const phones=[...new Set(metrics.created.map(order=>String(order.phone||'').replace(/\D/g,'')).filter(Boolean))],repeatClients=phones.filter(phone=>allOrders.some(order=>{const created=analyticsDateValue(order.created);return String(order.phone||'').replace(/\D/g,'')===phone&&created&&created<range.from;})).length,newClients=phones.length-repeatClients,repeatRate=phones.length?Math.round(repeatClients/phones.length*100):0;
+    const clientKeys=[...new Set(metrics.created.map(clientIdentityKey))].filter(Boolean),repeatClients=clientKeys.filter(key=>allOrders.some(order=>{const created=analyticsDateValue(order.created);return clientIdentityKey(order)===key&&created&&created<range.from;})).length,newClients=clientKeys.length-repeatClients,repeatRate=clientKeys.length?Math.round(repeatClients/clientKeys.length*100):0;
     const techStats={};metrics.closed.forEach(order=>{const key=order.tech||'Другое',entry=techStats[key]||={count:0,revenue:0,duration:0};entry.count++;entry.revenue+=U.finalAmount(order);entry.duration+=analyticsOrderDuration(order);});
     const services={};metrics.closed.forEach(order=>(order.services||[]).forEach(service=>{const name=service.name||'Услуга',qty=Math.max(1,Number(service.qty)||1),entry=services[name]||={count:0,revenue:0};entry.count+=qty;entry.revenue+=(Number(service.price)||0)*qty;}));
     const lowStock=DB.warehouse().filter(item=>!item.archived&&(item.tracking||'exact')!=='presence'&&availableWarehouseQuantity(item)<=Number(item.min||0)),stockValue=DB.warehouse().filter(item=>!item.archived).reduce((sum,item)=>sum+(Number(item.quantity)||0)*(Number(item.price)||0),0);
@@ -3774,7 +3774,7 @@ function renderStats(period){
             <div class="analytics-row" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('other')" style="cursor:pointer;"><span><b>Другие расходы</b><small>нажми, чтобы увидеть подробный список</small></span><strong style="color:var(--red);">−${U.money(metrics.nonStockExpenses)}</strong></div>
             <div class="analytics-row"><span><b>Осталось денег</b><small>получил чистыми минус все реальные расходы периода</small></span><strong style="color:${metrics.cashResult>=0?'var(--green)':'var(--red)'};">${U.money(metrics.cashResult)}</strong></div>
         </div><div class="analytics-explain">Израсходованные в ремонте детали второй раз из денег не вычитаются: ты уже оплатил их при закупке. Ниже они показываются отдельно — как расход количества и себестоимости со склада.</div>${analyticsChart(metrics.paid,range)}</section>
-        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('users')}Клиенты</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Новые</small><b>${newClients}</b></div><div class="analytics-kpi"><small>Повторные</small><b>${repeatClients}</b></div><div class="analytics-kpi"><small>Всего клиентов</small><b>${phones.length}</b></div><div class="analytics-kpi"><small>Доля повторных</small><b>${repeatRate}%</b></div></div></section>
+        <section class="card"><div class="analytics-card-title"><h3>${iconSvg('users')}Клиенты</h3></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Новые</small><b>${newClients}</b></div><div class="analytics-kpi"><small>Повторные</small><b>${repeatClients}</b></div><div class="analytics-kpi"><small>Всего клиентов</small><b>${clientKeys.length}</b></div><div class="analytics-kpi"><small>Доля повторных</small><b>${repeatRate}%</b></div></div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('wrench')}По типам техники</h3></div>${techRows?`<div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Техника</th><th>Заявок</th><th>Выручка</th><th>Ср. чек</th><th>Срок</th></tr></thead><tbody>${techRows}</tbody></table></div>`:'<div class="analytics-empty">Нет закрытых заявок для сравнения.</div>'}</section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('list')}Популярные услуги</h3></div><div class="analytics-list">${serviceRows||'<div class="analytics-empty">Услуги пока не накопились.</div>'}</div></section>
         <section class="card"><div class="analytics-card-title"><h3>${iconSvg('warehouse')}Запчасти и расходники</h3></div><div class="analytics-kpis"><div class="analytics-kpi" role="button" tabindex="0" onclick="switchTab('warehouse')" style="cursor:pointer;"><small>Остаток склада сейчас · открыть</small><b>${U.money(Math.round(stockValue))}</b></div><div class="analytics-kpi" role="button" tabindex="0" onclick="showAnalyticsExpensesModal('stock')" style="cursor:pointer;"><small>Куплено за период · подробнее</small><b>${U.money(metrics.stockPurchases)}</b></div><div class="analytics-kpi" role="button" tabindex="0" onclick="showAnalyticsConsumptionModal()" style="cursor:pointer;"><small>Израсходовано в ремонтах · подробнее</small><b>${U.money(consumedCost)}</b></div><div class="analytics-kpi"><small>Заканчивается</small><b>${lowStock.length}</b></div></div><div class="analytics-explain">Стоимость остатка — это примерная себестоимость того, что физически лежит на складе сейчас. В списке ниже видно, сколько каждой позиции ушло за выбранный период и сколько осталось.</div>${ignoredConsumption.length?`<div class="data-warning"><b>Не учтено подозрительных записей: ${ignoredConsumption.length}</b><small>Это удалённые позиции склада или суммы, которые ты сам исключил. Они не влияют на результат.</small><button type="button" class="btn-sm btn-outline" onclick="showExcludedWarehouseMovements()">Проверить записи</button></div>`:''}<div class="analytics-list" style="margin-top:8px;">${consumedRows||'<div class="analytics-empty">Списаний со склада в периоде нет.</div>'}</div></section>`;
@@ -3782,28 +3782,40 @@ function renderStats(period){
 }
 
 // ==================== КЛИЕНТЫ ====================
+function normaliseClientText(value){return String(value||'').trim().toLowerCase().replace(/\s+/g,' ');}
+function clientIdentityKey(order){
+    const digits=String(order?.phone||'').replace(/\D/g,'');
+    if(digits)return `phone:${digits}`;
+    return `anon:${normaliseClientText(order?.name)}|${normaliseClientText(order?.address)}`;
+}
+function clientKeyToken(key){return encodeURIComponent(String(key||'')).replace(/'/g,'%27');}
+function decodeClientKeyToken(token){try{return decodeURIComponent(String(token||''));}catch{return String(token||'');}}
+function ordersForClientIdentity(key){return DB.orders().filter(order=>clientIdentityKey(order)===key);}
+
 function renderClients(){
     const orders=DB.orders();
     const clients={};
     orders.forEach(o=>{
-        if(!clients[o.phone]) {
-            clients[o.phone] = {
+        const key=clientIdentityKey(o);
+        if(!clients[key]) {
+            clients[key] = {
+                key,
                 name: o.name,
-                phone: o.phone,
+                phone: String(o.phone||'').trim(),
                 address: o.address || '—',
                 orders: [],
                 total: 0,
                 count: 0
             };
         }
-        clients[o.phone].orders.push(o);
-        if(['Закрыта','Отказ'].includes(o.status)) clients[o.phone].total += U.finalAmount(o);
-        if(o.status==='Закрыта') clients[o.phone].count++;
+        clients[key].orders.push(o);
+        if(['Закрыта','Отказ'].includes(o.status)) clients[key].total += U.finalAmount(o);
+        if(o.status==='Закрыта') clients[key].count++;
     });
 
     const search=(document.getElementById('search-clients')?.value||'').toLowerCase();
     let list=Object.values(clients);
-    if(search) list=list.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
+    if(search) list=list.filter(c => `${c.name||''} ${c.phone||''} ${c.address||''}`.toLowerCase().includes(search));
     list.sort((a,b) => b.total - a.total);
 
     const container=document.getElementById('clients-container');
@@ -3813,9 +3825,9 @@ function renderClients(){
     }
 
     container.innerHTML=list.map(c => `
-        <div class="card client-card" onclick="openClientCard('${c.phone}')">
+        <div class="card client-card" onclick="openClientCard('${clientKeyToken(c.key)}')">
             <span class="client-avatar">${iconSvg('user')}</span>
-            <div class="client-card-main"><b>${c.name}</b><span>${iconSvg('phone')}${c.phone}</span><span>${iconSvg('wrench')}${c.orders.length} заявок · ${c.count} закрыто</span></div>
+            <div class="client-card-main"><b>${escapeHtml(c.name||'Без имени')}</b><span>${iconSvg('phone')}${c.phone?escapeHtml(c.phone):'Телефон не указан'}</span><span>${iconSvg('wrench')}${c.orders.length} заявок · ${c.count} закрыто</span></div>
             <div class="client-card-total"><b>${U.money(c.total)}</b><small>оплачено</small></div>
         </div>
     `).join('');
@@ -3826,15 +3838,18 @@ function openOrderFromClient(event,id){
     if(confirm('Открыть заявку для изменения?')){closeModal();editOrder(id);}
 }
 
-function openClientCard(phone){
-    const orders = DB.orders().filter(o => o.phone === phone);
+function openClientCard(encodedKey){
+    const key=decodeClientKeyToken(encodedKey);
+    const orders = ordersForClientIdentity(key);
     if(!orders.length) return;
 
     const client = {
+        key,
         name: orders[0].name,
-        phone: phone,
+        phone: String(orders[0].phone||'').trim(),
         address: orders[0].address || '—'
     };
+    const token=clientKeyToken(key);
 
     const closed = orders.filter(o => o.status === 'Закрыта');
     const paid = orders.filter(o => ['Закрыта','Отказ'].includes(o.status));
@@ -3861,16 +3876,15 @@ function openClientCard(phone){
     }
 
     const modalHtml = `
-        <div class="client-modal-head">
+            <div class="client-modal-head">
             <div class="client-modal-title"><span class="client-avatar">${iconSvg('user')}</span><h3>${client.name}</h3></div>
             <div class="client-actions">
-                <button class="edit" onclick="editClient('${client.phone}')" aria-label="Изменить">${iconSvg('edit')}</button>
-                <button class="call" onclick="callPhone('${client.phone}')" aria-label="Позвонить">${iconSvg('phone')}</button>
-                <button class="telegram" onclick="messageTelegram('${client.phone}')" aria-label="Telegram">${iconSvg('telegram')}</button>
+                <button class="edit" onclick="editClient('${token}')" aria-label="Изменить">${iconSvg('edit')}</button>
+                ${client.phone?`<button class="call" onclick="callPhone('${client.phone}')" aria-label="Позвонить">${iconSvg('phone')}</button><button class="telegram" onclick="messageTelegram('${client.phone}')" aria-label="Telegram">${iconSvg('telegram')}</button>`:''}
                 ${client.address!=='—'?`<button class="map" onclick="openMap('${client.address.replace(/'/g,"\\'")}')" aria-label="Открыть адрес">${iconSvg('map')}</button>`:'<button class="map" disabled aria-label="Адрес не указан">'+iconSvg('map')+'</button>'}
             </div>
         </div>
-        <div class="contact-line"><span>${iconSvg('phone')}${client.phone}</span>${client.address !== '—' ? `<span>${iconSvg('map')}${client.address}</span>` : ''}</div>
+        <div class="contact-line"><span>${iconSvg('phone')}${client.phone?escapeHtml(client.phone):'Телефон не указан'}</span>${client.address !== '—' ? `<span>${iconSvg('map')}${client.address}</span>` : ''}</div>
 
         <div class="client-stat-grid">
             <div class="client-stat-item">
@@ -3891,7 +3905,7 @@ function openClientCard(phone){
         ${ordersHtml}
 
         <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="btn-sm btn-yellow" onclick="createOrderForClient('${client.phone}','${client.name}')" style="flex:1;"><span class="button-label">${iconSvg('plus')}Новая заявка</span></button>
+            <button class="btn-sm btn-yellow" onclick="createOrderForClient('${token}')" style="flex:1;"><span class="button-label">${iconSvg('plus')}Новая заявка</span></button>
             <button class="btn-sm btn-outline" onclick="closeModal()" style="flex:1;">Закрыть</button>
         </div>
     `;
@@ -3900,19 +3914,21 @@ function openClientCard(phone){
     document.getElementById('modal-overlay').classList.add('active');
 }
 
-function editClient(phone){
+function editClient(encodedKey){
     closeModal();
-    const orders = DB.orders().filter(o => o.phone === phone);
+    const orders = ordersForClientIdentity(decodeClientKeyToken(encodedKey));
     if(!orders.length) return;
     editOrder(orders[0].id);
     toast('✏️ Редактируйте данные клиента в заявке');
 }
 
-function createOrderForClient(phone, name){
+function createOrderForClient(encodedKey){
     closeModal();
+    const orders=ordersForClientIdentity(decodeClientKeyToken(encodedKey)),source=orders[0];
+    if(!source)return;
     clearForm();
-    document.getElementById('n-name').value = name;
-    document.getElementById('n-phone').value = phone;
+    document.getElementById('n-name').value = source.name||'';
+    document.getElementById('n-phone').value = source.phone||'';
     switchTab('new');
     toast('📝 Создайте новую заявку для клиента');
 }
@@ -4598,6 +4614,7 @@ async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
+        <div class="data-warning"><b>v19.3.2</b><small>Телефон клиента теперь необязателен. Заявки без номера не сливаются в одного клиента, а кнопки звонка и Telegram скрываются.</small></div>
         <div class="data-warning"><b>v19.3.1</b><small>Повторная проверка логики отказов и расходов: исправлено обновление кэша, сохранён выбор списания материалов при переходе отказа обратно в ремонт, белый расход выше серого теперь уменьшает сумму «На руки», а материалы отказов не попадают в статистику расхода деталей по выполненным ремонтам.</small></div><div class="data-warning"><b>v19.3</b><small>Добавлен статус «Отказ от ремонта». Платный отказ учитывается в выручке и сумме «На руки» по той же логике серых и белых расходов, но полностью исключён из среднего чека по технике и статистики завершённых ремонтов.</small></div><div class="data-warning"><b>v19.2</b><small>Восстановлена правильная логика «На руки»: из суммы сначала вычитается серый расход, остаток делится по проценту, а разница между серым и белым расходом полностью прибавляется мастеру. Если расходы не заполнены, используется себестоимость добавленных материалов. Убрано двойное вычитание расходов.</small></div><div class="data-warning"><b>v18.5.4</b><small>Исправлена критическая ошибка U.escape is not a function при открытии формы инструмента. Все вызовы заменены на штатную функцию безопасного вывода escapeHtml; повторно проверены добавление, редактирование, удаление и карточки инструмента.</small></div><div class="data-warning"><b>v18.5.3</b><small>Проведена повторная проверка кода арсенала. Убрано двойное открытие формы, исправлено закрытие модального окна после добавления и редактирования, обновлена версия и кэш.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлена кнопка «+» в арсенале: добавлен прямой обработчик, принудительное открытие формы поверх интерфейса и сообщение об ошибке вместо молчаливого сбоя.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлено открытие окна добавления и редактирования инструмента. Добавлена совместимость со старыми статусами инструментов.</small></div><div class="data-warning"><b>v18.5</b><small>Полностью переработан раздел «Арсенал мастера»: категории, фотографии, статусы, карточки, поиск, витрина, редактирование и удаление. Инструменты включены в резервную копию.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций: приход теперь отменяется отдельно вместе с расходом, а ручное списание можно вернуть без создания заявки и без повторного расхода.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
         <div class="data-warning"><b>v18.1</b><small>Гарантийные обращения исключены из новых и повторных заявок, среднего чека, выручки и статистики платных ремонтов.</small></div>
         <div class="data-warning"><b>v18.0</b><small>Добавлен модуль гарантии, связанные гарантийные обращения и отдельная гарантийная аналитика.</small></div>
@@ -4759,7 +4776,7 @@ if ('serviceWorker' in navigator) {
             window.location.reload();
         }
     });
-    navigator.serviceWorker.register('./sw.js?v=18',{updateViaCache:'none'})
+    navigator.serviceWorker.register('./sw.js?v=19.3.2',{updateViaCache:'none'})
         .then(registration=>{
             console.log('✅ Service Worker зарегистрирован');
             if(registration.waiting)registration.waiting.postMessage({type:'SKIP_WAITING'});
