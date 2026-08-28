@@ -2024,9 +2024,19 @@ const U = {
     finalAmount(o) { return Math.max(0, (o.sum||0) - (o.discount||0)); },
     balance(o) { return Math.max(0, this.finalAmount(o) - (o.prepay||0)); },
     materialCost(o) { return (o.materials||[]).reduce((sum,m)=>{const stock=m.warehouseId?DB.warehouse().find(item=>item.id===m.warehouseId):null;const converted=convertQuantityBetweenUnits(m.qty,m.unit,stock?.unit||m.unit);return sum+(converted===null?(Number(m.qty)||0):converted)*(Number(m.unitCost)||0);},0); },
+    // Себестоимость только тех материалов, чья стоимость ещё нигде не учтена как расход.
+    // Материалы, которые физически списываются с уже оплаченного склада (warehouseId+writeOff,
+    // кроме учёта «только наличие»), уже вычтены из денег один раз при закупке (расход
+    // «Закупка склада»). Поэтому при закрытии заявки их себестоимость сюда не включается —
+    // иначе один и тот же расход вычитался бы из денег дважды: при покупке и при закрытии заявки.
+    materialCostForExpense(o) { return (o.materials||[]).reduce((sum,m)=>{
+        if(m.warehouseId&&m.writeOff&&m.tracking!=='presence')return sum;
+        const stock=m.warehouseId?DB.warehouse().find(item=>item.id===m.warehouseId):null;const converted=convertQuantityBetweenUnits(m.qty,m.unit,stock?.unit||m.unit);
+        return sum+(converted===null?(Number(m.qty)||0):converted)*(Number(m.unitCost)||0);
+    },0); },
     masterPercent(o) { const value=Number(o?.percent);return Number.isFinite(value)?Math.min(100,Math.max(0,value)):50; },
     expenseModel(o) {
-        const materials=Math.max(0,this.materialCost(o));
+        const materials=Math.max(0,this.materialCostForExpense(o));
         const gray=Math.max(0,Number(o?.expense_gray)||0);
         const white=Math.max(0,Number(o?.expense_white)||0);
         // Белый расход — фактическая себестоимость. Если он не заполнен,
