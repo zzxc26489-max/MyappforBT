@@ -1242,10 +1242,24 @@
             <button class="btn-yellow" onclick="compactPhotos()"><span class="button-label"><svg class="ui-icon"><use href="#i-compress"></use></svg>Сжать фото</span></button>
             <button class="btn-red" onclick="clearPhotos()"><span class="button-label"><svg class="ui-icon"><use href="#i-trash"></use></svg>Очистить фото</span></button>
         </div>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;text-transform:none;letter-spacing:0;font-size:12px;">
-            <input type="checkbox" id="set-auto-backup" style="width:auto;" checked onchange="saveAutoBackupSetting()">
-            Еженедельный бэкап в загрузки телефона
-        </label>
+        <div class="settings-actions" style="margin-top:7px;">
+            <button class="btn-outline" onclick="chooseBackupFolder()"><span class="button-label"><svg class="ui-icon"><use href="#i-folder"></use></svg>Папка для бэкапов</span></button>
+            <button class="btn-outline" onclick="resetBackupFolder()"><span class="button-label"><svg class="ui-icon"><use href="#i-refresh"></use></svg>Сбросить папку</span></button>
+        </div>
+        <div id="backup-folder-info" style="margin-top:6px;font-size:12px;color:var(--sub);"></div>
+        <div class="form-group" style="margin-top:10px;">
+            <label>Автоматический бэкап</label>
+            <select id="set-auto-backup-days" onchange="saveAutoBackupSetting()">
+                <option value="0">Выключен</option>
+                <option value="1">Каждый день</option>
+                <option value="2">Раз в 2 дня</option>
+                <option value="3">Раз в 3 дня</option>
+                <option value="5">Раз в 5 дней</option>
+                <option value="7">Раз в неделю</option>
+                <option value="14">Раз в 2 недели</option>
+            </select>
+            <div class="field-hint">Копия сохраняется сама, когда с прошлого бэкапа прошло столько дней.</div>
+        </div>
         <label style="display:flex;align-items:center;gap:8px;margin-top:10px;text-transform:none;letter-spacing:0;font-size:12px;">
             <input type="checkbox" id="set-auto-price" style="width:auto;" checked onchange="saveAutoPriceSetting()">
             Автоматически подгонять цены услуг под сумму заявки
@@ -1256,8 +1270,8 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v19.3.3</b></span>
-            <span>Сборка: <b>24.07.2026</b></span>
+            <span>Версия: <b>v19.4</b></span>
+            <span>Сборка: <b>30.08.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
         <button type="button" class="btn-outline" onclick="showChangelog()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>История изменений</span></button>
@@ -1318,7 +1332,7 @@ const DB = {
     receipts() { return this.get('receipts'); },
     receiptPrices() { return this.get('receipt_prices'); },
     tools() { const d=this.get('tools'); return Array.isArray(d)?d:[]; },
-    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true, autoPriceAdjust:true}; },
+    settings() { const d = this.get('settings'); return d.length ? d[0] : {name:'Романычев Д.В.', inn:'', phone:'', autoBackup:true, autoBackupDays:7, autoPriceAdjust:true}; },
     saveSettings(s) { this.set('settings', [s]); },
     saveOrders(d) { this.set('orders', d); },
     saveWarehouse(d) { this.set('warehouse', d); },
@@ -4480,7 +4494,7 @@ function loadSettings(){
     put('set-name',s.name||'Романычев Д.В.');
     put('set-inn',s.inn||'');
     put('set-phone',s.phone||'');
-    const backup=document.getElementById('set-auto-backup');if(backup)backup.checked=s.autoBackup!==false;
+    const backupDays=document.getElementById('set-auto-backup-days');if(backupDays)backupDays.value=String(autoBackupIntervalDays(s));
     const autoPrice=document.getElementById('set-auto-price');if(autoPrice)autoPrice.checked=s.autoPriceAdjust!==false;
     updateBackupInfo();
 }
@@ -4492,7 +4506,8 @@ function saveSettings(){
         name:document.getElementById('set-name').value.trim(),
         inn:document.getElementById('set-inn').value.trim(),
         phone:document.getElementById('set-phone').value.trim(),
-        autoBackup:document.getElementById('set-auto-backup').checked,
+        autoBackupDays:Math.max(0,Number(document.getElementById('set-auto-backup-days')?.value)||0),
+        autoBackup:Math.max(0,Number(document.getElementById('set-auto-backup-days')?.value)||0)>0,
         autoPriceAdjust:document.getElementById('set-auto-price').checked
     });
     toast('✅ Настройки сохранены');
@@ -4516,10 +4531,78 @@ function toggleTheme(){
     toast(!isLight?'☀️ Светлая тема':'🌙 Тёмная тема');
 }
 
-function downloadBackup(label='backup'){
+// Папка для бэкапов. Если браузер поддерживает File System Access API,
+// пользователь один раз выбирает папку, и все копии (в том числе
+// автоматические) пишутся прямо туда, а не в «Загрузки».
+// Сам объект папки (FileSystemDirectoryHandle) переживает перезапуск
+// браузера только через IndexedDB — в localStorage его положить нельзя.
+const BackupFolder = {
+    db:null,
+    supported(){return typeof window!=='undefined'&&typeof window.showDirectoryPicker==='function';},
+    async open(){
+        if(this.db)return this.db;
+        this.db=await new Promise((resolve,reject)=>{
+            const req=indexedDB.open('crm-bt-backup-folder',1);
+            req.onupgradeneeded=()=>req.result.createObjectStore('handles');
+            req.onsuccess=()=>resolve(req.result);
+            req.onerror=()=>reject(req.error);
+        });
+        return this.db;
+    },
+    async getHandle(){
+        try{
+            const db=await this.open();
+            return await new Promise((resolve,reject)=>{
+                const req=db.transaction('handles','readonly').objectStore('handles').get('backupDir');
+                req.onsuccess=()=>resolve(req.result||null);
+                req.onerror=()=>reject(req.error);
+            });
+        }catch(e){console.warn('Папка бэкапов недоступна',e);return null;}
+    },
+    async setHandle(handle){
+        try{
+            const db=await this.open();
+            await new Promise((resolve,reject)=>{
+                const req=db.transaction('handles','readwrite').objectStore('handles').put(handle,'backupDir');
+                req.onsuccess=()=>resolve();
+                req.onerror=()=>reject(req.error);
+            });
+            return true;
+        }catch(e){console.warn('Не удалось запомнить папку бэкапов',e);return false;}
+    },
+    async clear(){
+        try{
+            const db=await this.open();
+            await new Promise((resolve,reject)=>{
+                const req=db.transaction('handles','readwrite').objectStore('handles').delete('backupDir');
+                req.onsuccess=()=>resolve();
+                req.onerror=()=>reject(req.error);
+            });
+        }catch(e){console.warn('Не удалось сбросить папку бэкапов',e);}
+    },
+    // Разрешение на запись выдаётся заново после перезапуска браузера.
+    // Запросить его можно только в ответ на действие пользователя, поэтому
+    // для автобэкапа спрашиваем «по-тихому» и молча откатываемся к загрузке.
+    async ensurePermission(handle,interactive){
+        if(!handle?.queryPermission)return true;
+        try{
+            if(await handle.queryPermission({mode:'readwrite'})==='granted')return true;
+            if(!interactive)return false;
+            return await handle.requestPermission({mode:'readwrite'})==='granted';
+        }catch(e){console.warn('Нет доступа к папке бэкапов',e);return false;}
+    }
+};
+
+function buildBackupPayload(){
     const data={version:18,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),tools:DB.tools(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
-    const payload=JSON.stringify(data,null,2);
-    const filename=`CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;
+    return JSON.stringify(data,null,2);
+}
+
+function backupFileName(label){return `CRM_BT_${label}_${new Date().toISOString().split('T')[0]}.json`;}
+
+// Классическая загрузка файла — используется, когда папка не выбрана
+// или браузер не умеет File System Access API (Android, Safari, Firefox).
+function downloadBackupToDownloads(filename,payload){
     let started=false;
     try{
         const blob=new Blob([payload],{type:'application/json;charset=utf-8'});
@@ -4543,27 +4626,140 @@ function downloadBackup(label='backup'){
             started=true;
         }catch(error){console.warn('Резервное скачивание недоступно',error);}
     }
-    if(started){localStorage.setItem('repair_last_backup',U.nowISO());updateBackupInfo();}
-    else toast('⚠️ Браузер не начал загрузку. Открой приложение в Chrome и повтори.',true);
     return started;
 }
 
-function quickBackup(){
-    if(downloadBackup('backup'))toast('💾 Бэкап сохранён');
+async function writeBackupToFolder(filename,payload,interactive){
+    const handle=await BackupFolder.getHandle();
+    if(!handle)return false;
+    if(!await BackupFolder.ensurePermission(handle,interactive))return false;
+    try{
+        const file=await handle.getFileHandle(filename,{create:true});
+        const writable=await file.createWritable();
+        await writable.write(payload);
+        await writable.close();
+        return true;
+    }catch(error){console.warn('Не удалось записать бэкап в папку',error);return false;}
 }
 
+// interactive=true разрешает спрашивать пользователя (запрос доступа к папке
+// или диалог «Сохранить как»). Для автобэкапа он выключен, чтобы копия
+// сохранялась молча и не мешала работе.
+async function downloadBackup(label='backup',options={}){
+    const interactive=options.interactive===true;
+    // Данные читаются сразу, до любых await: бэкап должен отражать состояние
+    // на момент вызова, даже если запись файла произойдёт чуть позже.
+    const payload=buildBackupPayload();
+    const filename=backupFileName(label);
+    let target='';
+
+    if(await writeBackupToFolder(filename,payload,interactive))target='folder';
+
+    if(!target&&interactive&&!BackupFolder.supported()&&typeof window.showSaveFilePicker==='function'){
+        try{
+            const file=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Бэкап CRM',accept:{'application/json':['.json']}}]});
+            const writable=await file.createWritable();
+            await writable.write(payload);
+            await writable.close();
+            target='picked';
+        }catch(error){if(error?.name==='AbortError')return false;console.warn('Диалог сохранения недоступен',error);}
+    }
+
+    if(!target&&downloadBackupToDownloads(filename,payload))target='downloads';
+
+    if(target){localStorage.setItem('repair_last_backup',U.nowISO());localStorage.setItem('repair_last_backup_target',target);updateBackupInfo();return true;}
+    toast('⚠️ Браузер не начал загрузку. Открой приложение в Chrome и повтори.',true);
+    return false;
+}
+
+async function quickBackup(){
+    if(await downloadBackup('backup',{interactive:true}))toast(localStorage.getItem('repair_last_backup_target')==='downloads'?'💾 Бэкап сохранён в загрузки':'💾 Бэкап сохранён');
+}
+
+async function chooseBackupFolder(){
+    if(!BackupFolder.supported()){
+        toast('⚠️ Этот браузер не умеет выбирать папку. Бэкап сохранится в «Загрузки».',true);
+        return;
+    }
+    try{
+        // Если папка уже выбрана и браузер лишь просит подтвердить доступ,
+        // не гоняем пользователя заново по дереву папок.
+        const saved=await BackupFolder.getHandle();
+        if(saved&&await BackupFolder.ensurePermission(saved,true)){
+            updateBackupInfo();
+            toast(`📁 Доступ подтверждён: «${saved.name}»`);
+            return;
+        }
+        const handle=await window.showDirectoryPicker({id:'crm-bt-backup',mode:'readwrite',startIn:'documents'});
+        if(!await BackupFolder.ensurePermission(handle,true)){toast('❌ Нет доступа к этой папке',true);return;}
+        await BackupFolder.setHandle(handle);
+        updateBackupInfo();
+        toast(`📁 Бэкапы будут сохраняться в «${handle.name}»`);
+    }catch(error){
+        if(error?.name==='AbortError')return;
+        console.warn('Не удалось выбрать папку',error);
+        toast('❌ Не удалось выбрать папку',true);
+    }
+}
+
+async function resetBackupFolder(){
+    await BackupFolder.clear();
+    updateBackupInfo();
+    toast('↩️ Бэкапы снова пойдут в «Загрузки»');
+}
+
+// 0 — автобэкап выключен. Старые бэкапы хранят только флаг autoBackup,
+// поэтому он остаётся запасным источником настройки.
+function autoBackupIntervalDays(settings){
+    const s=settings||DB.settings();
+    const value=Number(s.autoBackupDays);
+    if(Number.isFinite(value)&&value>=0)return Math.min(365,Math.round(value));
+    return s.autoBackup===false?0:7;
+}
+
+function autoBackupIntervalLabel(days){
+    if(days<=0)return 'Автобэкап выключен';
+    if(days===1)return 'Автобэкап каждый день';
+    if(days===7)return 'Автобэкап раз в неделю';
+    if(days===14)return 'Автобэкап раз в 2 недели';
+    return `Автобэкап раз в ${days} дн.`;
+}
+
+let autoBackupRunning=false;
 function maybeAutoBackup(){
-    const s=DB.settings();if(s.autoBackup===false)return;
+    const days=autoBackupIntervalDays();
+    if(days<=0||autoBackupRunning)return;
     const last=localStorage.getItem('repair_last_backup');
-    if(!last||Date.now()-new Date(last).getTime()>=7*86400000){if(downloadBackup('auto'))toast('🛡️ Еженедельный бэкап сохранён на телефон');}
+    if(last&&Date.now()-new Date(last).getTime()<days*86400000)return;
+    autoBackupRunning=true;
+    downloadBackup('auto').then(saved=>{if(saved)toast('🛡️ Бэкап сохранён автоматически');}).catch(error=>console.warn('Автобэкап не удался',error)).finally(()=>{autoBackupRunning=false;});
 }
 
 function updateBackupInfo(){
+    const folderInfo=document.getElementById('backup-folder-info');
+    if(folderInfo){
+        if(!BackupFolder.supported()){
+            folderInfo.innerHTML=`${iconSvg('folder')} Этот браузер сохраняет бэкап только в «Загрузки». Выбор папки работает в Chrome на компьютере.`;
+        }else{
+            BackupFolder.getHandle().then(async handle=>{
+                if(!handle){folderInfo.innerHTML=`${iconSvg('folder')} Папка не выбрана — бэкап уходит в «Загрузки»`;return;}
+                // Браузер может забыть разрешение после перезапуска: пока доступ
+                // не подтверждён заново, копии продолжат падать в «Загрузки».
+                let granted=true;
+                try{granted=!handle.queryPermission||await handle.queryPermission({mode:'readwrite'})==='granted';}catch{granted=false;}
+                folderInfo.innerHTML=granted
+                    ?`${iconSvg('folder')} Папка бэкапов: <b>${escapeHtml(handle.name)}</b>`
+                    :`${iconSvg('alert')} Папка «${escapeHtml(handle.name)}» выбрана, но браузер просит подтвердить доступ — нажми «Папка для бэкапов»`;
+            });
+        }
+    }
     const el=document.getElementById('backup-info');if(!el)return;
+    const days=autoBackupIntervalDays(),intervalText=autoBackupIntervalLabel(days);
     const last=localStorage.getItem('repair_last_backup');
-    if(!last){el.className='backup-due';el.innerHTML=`${iconSvg('alert')} Резервная копия ещё не создавалась`;return;}
-    const days=Math.floor((Date.now()-new Date(last).getTime())/86400000);
-    el.className=days>=7?'backup-due':'backup-ok';el.innerHTML=`${iconSvg('shield')} Последний бэкап: ${U.dateTime(last)}${days>=7?' — пора обновить':''}`;
+    if(!last){el.className='backup-due';el.innerHTML=`${iconSvg('alert')} Резервная копия ещё не создавалась · ${intervalText}`;return;}
+    const passed=Math.floor((Date.now()-new Date(last).getTime())/86400000),overdue=days>0&&passed>=days;
+    el.className=overdue?'backup-due':'backup-ok';
+    el.innerHTML=`${iconSvg('shield')} Последний бэкап: ${U.dateTime(last)}${overdue?' — пора обновить':''} · ${intervalText}`;
 }
 
 
@@ -4626,6 +4822,7 @@ async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
+        <div class="data-warning"><b>v19.4</b><small>Бэкап можно сохранять в выбранную папку, а не только в «Загрузки» (Chrome на компьютере), и настраивать периодичность автобэкапа: каждый день, раз в 2, 3, 5, 7 или 14 дней. Если доступа к папке нет, копия по-прежнему уходит в «Загрузки», чтобы данные не потерялись. Также исправлено двойное списание денег: материал, взятый с уже оплаченного склада, больше не уменьшает сумму «На руки» второй раз — расход по нему учтён при закупке.</small></div>
         <div class="data-warning"><b>v19.3.3</b><small>Добавлена настройка «Скрыть при выборе материалов в заявке» для складских позиций. Подходит для MAPP-газа, масла и других служебных запасов.</small></div>
         <div class="data-warning"><b>v19.3.2</b><small>Телефон клиента теперь необязателен. Заявки без номера не сливаются в одного клиента, а кнопки звонка и Telegram скрываются.</small></div>
         <div class="data-warning"><b>v19.3.1</b><small>Повторная проверка логики отказов и расходов: исправлено обновление кэша, сохранён выбор списания материалов при переходе отказа обратно в ремонт, белый расход выше серого теперь уменьшает сумму «На руки», а материалы отказов не попадают в статистику расхода деталей по выполненным ремонтам.</small></div><div class="data-warning"><b>v19.3</b><small>Добавлен статус «Отказ от ремонта». Платный отказ учитывается в выручке и сумме «На руки» по той же логике серых и белых расходов, но полностью исключён из среднего чека по технике и статистики завершённых ремонтов.</small></div><div class="data-warning"><b>v19.2</b><small>Восстановлена правильная логика «На руки»: из суммы сначала вычитается серый расход, остаток делится по проценту, а разница между серым и белым расходом полностью прибавляется мастеру. Если расходы не заполнены, используется себестоимость добавленных материалов. Убрано двойное вычитание расходов.</small></div><div class="data-warning"><b>v18.5.4</b><small>Исправлена критическая ошибка U.escape is not a function при открытии формы инструмента. Все вызовы заменены на штатную функцию безопасного вывода escapeHtml; повторно проверены добавление, редактирование, удаление и карточки инструмента.</small></div><div class="data-warning"><b>v18.5.3</b><small>Проведена повторная проверка кода арсенала. Убрано двойное открытие формы, исправлено закрытие модального окна после добавления и редактирования, обновлена версия и кэш.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлена кнопка «+» в арсенале: добавлен прямой обработчик, принудительное открытие формы поверх интерфейса и сообщение об ошибке вместо молчаливого сбоя.</small></div><div class="data-warning"><b>v18.5.2</b><small>Исправлено открытие окна добавления и редактирования инструмента. Добавлена совместимость со старыми статусами инструментов.</small></div><div class="data-warning"><b>v18.5</b><small>Полностью переработан раздел «Арсенал мастера»: категории, фотографии, статусы, карточки, поиск, витрина, редактирование и удаление. Инструменты включены в резервную копию.</small></div><div class="data-warning"><b>v18.3.2</b><small>Исправлена отмена ошибочных складских операций: приход теперь отменяется отдельно вместе с расходом, а ручное списание можно вернуть без создания заявки и без повторного расхода.</small></div><div class="data-warning"><b>v18.3.1</b><small>Исправлено открытие расшифровки по нажатию на «Потратил всего» и другие карточки расходов.</small></div><div class="data-warning"><b>v18.3</b><small>Добавлен фильтр «Гарантия» в заявках и подробная расшифровка расходов в аналитике с переходами к заявкам и складу.</small></div><div class="data-warning"><b>v18.2</b><small>Добавлено отображение версии CRM, даты сборки, версии базы данных и истории изменений в настройках.</small></div>
@@ -4644,12 +4841,12 @@ function restoreFromFile(){
     const file=document.getElementById('restore-file').files[0];
     if(!file){toast('❌ Выберите файл!');return;}
     const reader=new FileReader();
-    reader.onload=(e)=>{
+    reader.onload=async(e)=>{
         try{
             const data=JSON.parse(e.target.result);
             if(!data.orders)throw new Error();
             if(!confirm(`Восстановить данные от ${U.dateTime(data.date)}?`))return;
-            downloadBackup('before_restore');
+            await downloadBackup('before_restore');
             const restoredWarehouse=data.warehouse||[];
             DB.saveOrders(data.orders||[]);DB.saveWarehouse(restoredWarehouse);
             DB.saveWarehouseMovements(Array.isArray(data.warehouse_movements)?data.warehouse_movements:createOpeningWarehouseMovements(restoredWarehouse));
