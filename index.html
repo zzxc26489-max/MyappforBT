@@ -1270,7 +1270,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v19.4.1</b></span>
+            <span>Версия: <b>v19.5</b></span>
             <span>Сборка: <b>07.09.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -1366,6 +1366,153 @@ const DB = {
         return total;
     }
 };
+
+// ==================== ХРАНИЛИЩЕ ФОТО ====================
+// Фото занимают около 3/4 всех данных, а localStorage вмещает всего ~10 МБ —
+// из-за этого заявки переставали сохраняться. Поэтому сами картинки лежат в
+// IndexedDB (там лимит — доля свободного места устройства, обычно сотни
+// мегабайт и больше), а в заявке хранится только короткая ссылка вида
+// "idb:xxxx". Старые заявки, где картинка лежит прямо внутри (data:URL),
+// продолжают открываться как раньше — см. isPhotoRef().
+const PHOTO_REF_PREFIX='idb:';
+function isPhotoRef(value){return typeof value==='string'&&value.startsWith(PHOTO_REF_PREFIX);}
+
+const PhotoStore={
+    db:null,
+    cache:new Map(),
+    async open(){
+        if(this.db)return this.db;
+        this.db=await new Promise((resolve,reject)=>{
+            const req=indexedDB.open('crm-bt-photos',1);
+            req.onupgradeneeded=()=>req.result.createObjectStore('photos');
+            req.onsuccess=()=>resolve(req.result);
+            req.onerror=()=>reject(req.error);
+        });
+        return this.db;
+    },
+    remember(ref,dataUrl){
+        // Кэш держит только просмотренные фото. Когда их набирается много,
+        // сбрасываем целиком — они подгрузятся заново по требованию.
+        if(this.cache.size>120)this.cache.clear();
+        this.cache.set(ref,dataUrl);
+    },
+    async put(dataUrl,ref){
+        const key=ref||`${PHOTO_REF_PREFIX}${U.uid()}`;
+        const db=await this.open();
+        await new Promise((resolve,reject)=>{
+            const tx=db.transaction('photos','readwrite');
+            tx.objectStore('photos').put(dataUrl,key);
+            tx.oncomplete=()=>resolve();
+            tx.onerror=()=>reject(tx.error);
+            tx.onabort=()=>reject(tx.error||new Error('Запись фото прервана'));
+        });
+        this.remember(key,dataUrl);
+        return key;
+    },
+    async get(photo){
+        if(!isPhotoRef(photo))return photo||'';
+        if(this.cache.has(photo))return this.cache.get(photo);
+        try{
+            const db=await this.open();
+            const value=await new Promise((resolve,reject)=>{
+                const req=db.transaction('photos','readonly').objectStore('photos').get(photo);
+                req.onsuccess=()=>resolve(req.result||'');
+                req.onerror=()=>reject(req.error);
+            });
+            if(value)this.remember(photo,value);
+            return value;
+        }catch(error){console.warn('Фото не удалось загрузить',error);return '';}
+    },
+    async getMany(photos){
+        const result=[];
+        for(const photo of photos||[])result.push(await this.get(photo));
+        return result;
+    },
+    async keys(){
+        try{
+            const db=await this.open();
+            return await new Promise((resolve,reject)=>{
+                const req=db.transaction('photos','readonly').objectStore('photos').getAllKeys();
+                req.onsuccess=()=>resolve(req.result||[]);
+                req.onerror=()=>reject(req.error);
+            });
+        }catch(error){console.warn('Список фото недоступен',error);return [];}
+    },
+    async remove(refs){
+        const list=(refs||[]).filter(isPhotoRef);
+        if(!list.length)return;
+        try{
+            const db=await this.open();
+            await new Promise((resolve,reject)=>{
+                const tx=db.transaction('photos','readwrite');
+                const store=tx.objectStore('photos');
+                list.forEach(ref=>store.delete(ref));
+                tx.oncomplete=()=>resolve();
+                tx.onerror=()=>reject(tx.error);
+            });
+            list.forEach(ref=>this.cache.delete(ref));
+        }catch(error){console.warn('Не удалось удалить фото',error);}
+    }
+};
+
+// Картинка по ссылке не может быть отрисована сразу: сначала её надо достать
+// из IndexedDB. Поэтому в разметку идёт заготовка, а src проставляет
+// hydratePhotos() после загрузки.
+function photoImgTag(photo,{className='photo-thumb',onclick=''}={}){
+    const attrs=`class="${className}"${onclick?` onclick="${onclick}"`:''}`;
+    return isPhotoRef(photo)
+        ?`<img data-photo="${escapeHtml(photo)}" ${attrs}>`
+        :`<img src="${photo}" ${attrs}>`;
+}
+async function hydratePhotos(root){
+    const scope=root||document;
+    for(const node of [...scope.querySelectorAll('img[data-photo]')]){
+        const ref=node.getAttribute('data-photo');
+        node.removeAttribute('data-photo');
+        const src=await PhotoStore.get(ref);
+        if(src)node.src=src;else node.remove();
+    }
+}
+
+// Перенос старых фото из заявки в IndexedDB. Запускается один раз при
+// открытии обновлённой версии и после восстановления из бэкапа.
+// Порядок важен: сначала успешная запись в IndexedDB, только потом
+// сокращённые заявки уходят в localStorage — иначе можно остаться без фото.
+async function migratePhotosToStore(){
+    let movedOrders=0,movedTools=0;
+    const orders=DB.orders();
+    for(const order of orders){
+        const photos=order.photos||[];
+        for(let i=0;i<photos.length;i++){
+            if(isPhotoRef(photos[i])||!photos[i])continue;
+            photos[i]=await PhotoStore.put(photos[i]);
+            movedOrders++;
+        }
+    }
+    const tools=DB.tools();
+    for(const tool of tools){
+        if(!tool.photo||isPhotoRef(tool.photo))continue;
+        tool.photo=await PhotoStore.put(tool.photo);
+        movedTools++;
+    }
+    if(movedOrders)DB.saveOrders(orders);
+    if(movedTools)DB.saveTools(tools);
+    return movedOrders+movedTools;
+}
+
+// Фото остаётся в IndexedDB, даже если заявку удалили или снимок убрали из
+// неё — так работает отмена удаления. Мусор подчищаем при старте, когда
+// никакая форма ещё не заполняется.
+async function cleanupOrphanPhotos(){
+    const used=new Set();
+    DB.orders().forEach(order=>(order.photos||[]).forEach(photo=>{if(isPhotoRef(photo))used.add(photo);}));
+    DB.tools().forEach(tool=>{if(isPhotoRef(tool.photo))used.add(tool.photo);});
+    (DB.get('draft')?.photos||[]).forEach(photo=>{if(isPhotoRef(photo))used.add(photo);});
+    tempPhotos.forEach(photo=>{if(isPhotoRef(photo))used.add(photo);});
+    const orphans=(await PhotoStore.keys()).filter(key=>!used.has(key));
+    if(orphans.length)await PhotoStore.remove(orphans);
+    return orphans.length;
+}
 
 function isStorageQuotaError(error){
     if(!error)return false;
@@ -2246,13 +2393,16 @@ function previewPhotos(){
     for(let i=0;i<Math.min(files.length,5);i++){
         const reader=new FileReader();
         reader.onload=(e)=>{
-            compressImage(e.target.result, 800, 0.7, (compressed) => {
-                tempPhotos.push(compressed);
+            compressImage(e.target.result, 800, 0.7, async (compressed) => {
+                let stored=compressed;
+                try{stored=await PhotoStore.put(compressed);}
+                catch(error){console.warn('Фото не удалось положить в хранилище',error);}
+                tempPhotos.push(stored);
                 pendingPhotoJobs--;
                 const img=document.createElement('img');
                 img.src=compressed;
                 img.className='photo-thumb';
-                img.onclick=()=>showFullPhoto(compressed);
+                img.onclick=()=>showFullPhoto(stored);
                 document.getElementById('photo-preview').appendChild(img);
                 updatePhotoProcessingState();
                 scheduleDraftSave();
@@ -2260,6 +2410,18 @@ function previewPhotos(){
         };
         reader.readAsDataURL(files[i]);
     }
+}
+
+function showTempPhoto(index){
+    if(editingId)return showOrderPhoto(editingId,index);
+    return showFullPhoto(tempPhotos[index]);
+}
+
+function renderPhotoPreview(){
+    const container=document.getElementById('photo-preview');
+    if(!container)return;
+    container.innerHTML=tempPhotos.map((photo,index)=>photoImgTag(photo,{onclick:`showTempPhoto(${index})`})).join('');
+    hydratePhotos(container);
 }
 
 function updatePhotoProcessingState(){
@@ -2291,15 +2453,19 @@ function compressImage(dataUrl, maxWidth, quality, callback) {
     img.src = dataUrl;
 }
 
-function showFullPhoto(src){
-    document.getElementById('modal-content').innerHTML=`<img src="${src}" class="photo-full" onclick="closeModal()"><button onclick="closeModal()">Закрыть</button>`;
+async function showFullPhoto(src){
+    const resolved=await PhotoStore.get(src);
+    if(!resolved){toast('❌ Фото не найдено',true);return;}
+    document.getElementById('modal-content').innerHTML=`<img src="${resolved}" class="photo-full" onclick="closeModal()"><button onclick="closeModal()">Закрыть</button>`;
     document.getElementById('modal-overlay').classList.add('active');
 }
 
-function showOrderPhoto(orderId,index){
+async function showOrderPhoto(orderId,index){
     const order=DB.orders().find(o=>o.id===orderId), photo=order?.photos?.[index];
     if(!photo)return;
-    document.getElementById('modal-content').innerHTML=`<img src="${photo}" class="photo-full"><div style="display:flex;gap:6px;"><button class="btn-red" onclick="deleteOrderPhoto('${orderId}',${index})"><span class="button-label">${iconSvg('delete')}Удалить фото</span></button><button class="btn-outline" onclick="closeModal()">Закрыть</button></div>`;
+    const resolved=await PhotoStore.get(photo);
+    if(!resolved){toast('❌ Фото не найдено',true);return;}
+    document.getElementById('modal-content').innerHTML=`<img src="${resolved}" class="photo-full"><div style="display:flex;gap:6px;"><button class="btn-red" onclick="deleteOrderPhoto('${orderId}',${index})"><span class="button-label">${iconSvg('delete')}Удалить фото</span></button><button class="btn-outline" onclick="closeModal()">Закрыть</button></div>`;
     document.getElementById('modal-overlay').classList.add('active');
 }
 
@@ -2316,19 +2482,27 @@ async function compactPhotos() {
     if (!confirm('Сжать все фото? Это займёт время и уменьшит размер данных.')) return;
     let orders = DB.orders();
     const jobs=[];
-    orders.forEach(o => (o.photos||[]).forEach((photo,idx) => jobs.push(new Promise(resolve => {
-        compressImage(photo,600,0.6,compressed=>{o.photos[idx]=compressed;resolve();});
-    }))));
+    orders.forEach(o => (o.photos||[]).forEach((photo,idx) => jobs.push((async () => {
+        const source=await PhotoStore.get(photo);
+        if(!source)return;
+        const compressed=await new Promise(resolve=>compressImage(source,600,0.6,resolve));
+        // Ссылку сохраняем прежнюю: заявку менять не нужно, меняется содержимое.
+        if(isPhotoRef(photo))await PhotoStore.put(compressed,photo);
+        else o.photos[idx]=await PhotoStore.put(compressed);
+    })())));
     await Promise.all(jobs);
+    PhotoStore.cache.clear();
     DB.saveOrders(orders);
     toast(`✅ Сжато ${jobs.length} фото`);
     updateStorageInfo();maybeAutoBackup();
 }
 
-function clearPhotos() {
+async function clearPhotos() {
     if (!confirm('Удалить ВСЕ фото из ВСЕХ заявок? Это необратимо!')) return;
     let orders = DB.orders();
-    orders.forEach(o => { o.photos = []; });
+    const removed=[];
+    orders.forEach(o => { (o.photos||[]).forEach(photo=>{if(isPhotoRef(photo))removed.push(photo);}); o.photos = []; });
+    await PhotoStore.remove(removed);
     DB.saveOrders(orders);
     toast('🗑️ Все фото удалены');
     updateStorageInfo();maybeAutoBackup();
@@ -2344,18 +2518,33 @@ function updateStorageInfo() {
     const mb = (size / (1024 * 1024)).toFixed(2);
     const percent = Math.min(100, Math.round(size / STORAGE_LIMIT_BYTES * 100));
     const el = document.getElementById('storage-info');
-    if (el) {
-        el.style.color = 'var(--sub)';
-        el.innerHTML = `Основное хранилище: ${mb} МБ из ~10 МБ (${percent}%)`;
-        if (size > 5 * 1024 * 1024) {
-            el.style.color = 'var(--yellow)';
-            el.innerHTML += ' — больше половины, в основном это фото заявок. Стоит сжать фото.';
-        }
-        if (size > 7.5 * 1024 * 1024) {
-            el.style.color = 'var(--red)';
-            el.innerHTML = `Основное хранилище: ${mb} МБ из ~10 МБ (${percent}%) — ❌ место почти кончилось. Скоро заявки перестанут сохраняться: сделай бэкап и нажми «Сжать фото».`;
-        }
+    if (!el) return;
+    el.style.color = 'var(--sub)';
+    el.innerHTML = `Записи (заявки, склад, финансы): ${mb} МБ из ~10 МБ (${percent}%)`;
+    if (size > 5 * 1024 * 1024) {
+        el.style.color = 'var(--yellow)';
+        el.innerHTML += ' — больше половины. Нажми «Сжать фото».';
     }
+    if (size > 7.5 * 1024 * 1024) {
+        el.style.color = 'var(--red)';
+        el.innerHTML += ' ❌ Место почти кончилось: сделай бэкап и нажми «Сжать фото».';
+    }
+    // Фото лежат отдельно и в этот лимит не входят: у их хранилища место
+    // измеряется свободным местом устройства, а не десятью мегабайтами.
+    updatePhotoStorageInfo(el);
+}
+
+async function updatePhotoStorageInfo(el){
+    try{
+        const count=(await PhotoStore.keys()).length;
+        if(!count)return;
+        let quotaText='';
+        if(navigator.storage?.estimate){
+            const estimate=await navigator.storage.estimate();
+            if(estimate?.quota)quotaText=` Браузер выделил под них до ${(estimate.quota/1073741824).toFixed(1)} ГБ.`;
+        }
+        el.innerHTML+=`<br>Фото: ${count} шт. в отдельном большом хранилище — в лимит выше не входят.${quotaText}`;
+    }catch(error){console.warn('Не удалось оценить хранилище фото',error);}
 }
 
 // ==================== УСЛУГИ ====================
@@ -2931,7 +3120,7 @@ function restoreDraft(){
     selectedServices=JSON.parse(JSON.stringify(d.services||[])).map(service=>normaliseSelectedService(service,document.getElementById('n-tech')?.value||''));selectedMaterials=(d.materials||[]).map(normaliseMaterial);tempPhotos=d.photos||[];
     document.getElementById('selected-services').innerHTML=selectedServices.map(s=>`<div class="table-row"><span>✓ ${s.name}</span><span>${U.money(s.price)}</span></div>`).join('');
     const total=selectedServices.reduce((s,ss)=>s+ss.price,0);document.getElementById('services-total-display').innerHTML=selectedServices.length?`Итого услуг: <b>${U.money(total)}</b>`:'';
-    const container=document.getElementById('photo-preview');container.innerHTML='';tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>showFullPhoto(p);container.appendChild(img);});
+    renderPhotoPreview();
     updateOrderDateFields();renderWarrantyScope(d['warrantyScope']||[]);syncWarrantyPanel();renderSelectedMaterials();
     renderDraftBanner();toast('📝 Черновик восстановлен');
 }
@@ -3116,8 +3305,7 @@ function editOrder(id){
     document.getElementById('services-total-display').innerHTML=`Итого услуг: <b>${U.money(total)}</b>`;
     selectedMaterials=(order.materials||[]).map(normaliseMaterial);renderSelectedMaterials();updateOrderDateFields();
     tempPhotos=order.photos||[];
-    const container=document.getElementById('photo-preview');container.innerHTML='';
-    tempPhotos.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='photo-thumb';img.onclick=()=>editingId?showOrderPhoto(editingId,i):showFullPhoto(p);container.appendChild(img);});
+    renderPhotoPreview();
     switchTab('new');window.scrollTo(0,0);
 }
 
@@ -3298,7 +3486,7 @@ function renderOrders(){
                 ${o.nextVisit&&inWork?`<span style="color:${new Date(o.nextVisit)<new Date()?'var(--red)':'var(--blue)'};">${iconSvg('calendar')} Следующий визит: ${U.dateTime(o.nextVisit)}</span>`:''}
             </div>
             ${o.comment?`<div class="card-body" style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);"><b style="color:var(--text);font-size:11px;">Комментарий мастера:</b> ${o.comment}</div>`:''}
-            ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map((p,i)=>`<img src="${p}" class="photo-thumb" onclick="showOrderPhoto('${o.id}',${i})">`).join('')}</div>`:''}
+            ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map((p,i)=>photoImgTag(p,{onclick:`showOrderPhoto('${o.id}',${i})`})).join('')}</div>`:''}
             <div class="order-actions">
                 <button class="order-action edit" onclick="editOrder('${o.id}')"><span>${iconSvg('edit')}</span><small>Изменить</small></button>
                 ${inWork?`<button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg('check')}</span><small>Закрыть</small></button>${o.phone?`<button class="order-action call" onclick="callPhone('${o.phone}')"><span>${iconSvg('phone')}</span><small>Позвонить</small></button>`:''}`:`<button class="order-action act" onclick="openActForOrder('${o.id}')"><span>${iconSvg('printer')}</span><small>Акт</small></button><button class="order-action status" onclick="toggleStatus('${o.id}')"><span>${iconSvg('reopen')}</span><small>В работу</small></button>`}
@@ -3306,6 +3494,7 @@ function renderOrders(){
             </div>
         </article>`;
     }).join('');
+    hydratePhotos(container);
 }
 
 function openActForOrder(id){
@@ -4677,8 +4866,16 @@ const BackupFolder = {
     }
 };
 
-function buildBackupPayload(){
+// Фото лежат в IndexedDB, но в файл бэкапа они возвращаются внутрь заявок:
+// формат файла не меняется, старые и новые бэкапы взаимозаменяемы.
+async function buildBackupPayload(){
     const data={version:18,orders:DB.orders(),warehouse:DB.warehouse(),warehouse_movements:DB.warehouseMovements(),expenses:DB.expenses(),incomes:DB.incomes(),service_custom:DB.customServices(),receipts:DB.receipts(),receipt_prices:DB.receiptPrices(),tools:DB.tools(),draft:DB.get('draft'),settings:DB.settings(),date:U.nowISO()};
+    for(const order of data.orders){
+        if(!(order.photos||[]).length)continue;
+        order.photos=(await PhotoStore.getMany(order.photos)).filter(Boolean);
+    }
+    for(const tool of data.tools)if(isPhotoRef(tool.photo))tool.photo=await PhotoStore.get(tool.photo);
+    if(data.draft?.photos?.length)data.draft.photos=(await PhotoStore.getMany(data.draft.photos)).filter(Boolean);
     return JSON.stringify(data,null,2);
 }
 
@@ -4731,9 +4928,9 @@ async function writeBackupToFolder(filename,payload,interactive){
 // сохранялась молча и не мешала работе.
 async function downloadBackup(label='backup',options={}){
     const interactive=options.interactive===true;
-    // Данные читаются сразу, до любых await: бэкап должен отражать состояние
-    // на момент вызова, даже если запись файла произойдёт чуть позже.
-    const payload=buildBackupPayload();
+    // Данные читаются в начале: бэкап отражает состояние на момент вызова,
+    // даже если запись файла произойдёт чуть позже.
+    const payload=await buildBackupPayload();
     const filename=backupFileName(label);
     let target='';
 
@@ -4856,7 +5053,7 @@ const TOOL_CATEGORIES={
 const TOOL_STATUS={have:'Есть в наличии',want:'Хочу купить',plan:'Планирую',repair:'Нужен ремонт',none:'Нет'};
 function toolMoney(v){return U.money(Math.round(Number(v)||0));}
 function setToolFilter(value,button){toolFilter=value;document.querySelectorAll('#tool-status-chips .chip').forEach(x=>x.classList.toggle('active',x===button));renderTools();}
-function toolImage(item){return item.photo?`<img src="${item.photo}" alt="">`:(TOOL_CATEGORIES[item.category]||'🔧');}
+function toolImage(item){return item.photo?photoImgTag(item.photo,{className:''}):(TOOL_CATEGORIES[item.category]||'🔧');}
 function renderTools(){
  const all=DB.tools().map(x=>({...x,status:({owned:'have',wanted:'want',planned:'plan'}[x.status]||x.status||'have'),name:x.name||x.title||'Без названия'}));const q=(document.getElementById('tool-search')?.value||'').trim().toLowerCase();
  const filtered=all.filter(x=>(toolFilter==='all'||x.status===toolFilter)&&(!q||`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q)));
@@ -4866,12 +5063,13 @@ function renderTools(){
  const root=document.getElementById('tool-content');if(!root)return;
  if(!all.length){root.innerHTML=`<div class="empty-state"><svg class="ui-icon"><use href="#i-box"></use></svg><b>Арсенал пока пуст</b><p>Добавь первый инструмент и фотографию. Всё сохранится в твоём бэкапе.</p><button type="button" onclick="openToolEditorSafe(event)">Добавить инструмент</button></div>`;return;}
  if(toolFilter==='all'&&!q){
-   const cats=Object.keys(TOOL_CATEGORIES).map(cat=>{const items=all.filter(x=>x.category===cat);if(!items.length)return'';const first=items.find(x=>x.photo)||items[0];return `<div class="tool-category-card" onclick="openToolCategory('${cat.replace(/'/g,"\\'")}')"><h3>${cat}</h3><small>${items.length} ${items.length===1?'инструмент':'инструментов'}</small>${first.photo?`<img class="tool-mini-photo" src="${first.photo}">`:`<div class="tool-category-visual">${TOOL_CATEGORIES[cat]}</div>`}</div>`}).join('');
-   root.innerHTML=`<div class="tool-category-grid">${cats}</div>`;return;
+   const cats=Object.keys(TOOL_CATEGORIES).map(cat=>{const items=all.filter(x=>x.category===cat);if(!items.length)return'';const first=items.find(x=>x.photo)||items[0];return `<div class="tool-category-card" onclick="openToolCategory('${cat.replace(/'/g,"\\'")}')"><h3>${cat}</h3><small>${items.length} ${items.length===1?'инструмент':'инструментов'}</small>${first.photo?photoImgTag(first.photo,{className:'tool-mini-photo'}):`<div class="tool-category-visual">${TOOL_CATEGORIES[cat]}</div>`}</div>`}).join('');
+   root.innerHTML=`<div class="tool-category-grid">${cats}</div>`;hydratePhotos(root);return;
  }
  root.innerHTML=filtered.length?`<div class="tool-list">${filtered.map(toolCard).join('')}</div>`:`<div class="analytics-empty">Ничего не найдено.</div>`;
+ hydratePhotos(root);
 }
-function openToolCategory(category){toolFilter='all';document.querySelectorAll('#tool-status-chips .chip').forEach((x,i)=>x.classList.toggle('active',i===0));const all=DB.tools().filter(x=>x.category===category);document.getElementById('tool-content').innerHTML=`<div class="card-title" style="margin:12px 0 4px"><span>${TOOL_CATEGORIES[category]||'🔧'}</span>${category}<small style="margin-left:auto;color:var(--sub)">${all.length}</small></div><div class="tool-list">${all.map(toolCard).join('')}</div>`;}
+function openToolCategory(category){toolFilter='all';document.querySelectorAll('#tool-status-chips .chip').forEach((x,i)=>x.classList.toggle('active',i===0));const all=DB.tools().filter(x=>x.category===category);const toolRoot=document.getElementById('tool-content');toolRoot.innerHTML=`<div class="card-title" style="margin:12px 0 4px"><span>${TOOL_CATEGORIES[category]||'🔧'}</span>${category}<small style="margin-left:auto;color:var(--sub)">${all.length}</small></div><div class="tool-list">${all.map(toolCard).join('')}</div>`;hydratePhotos(toolRoot);}
 function toolCard(item){return `<div class="tool-item-card" onclick="showToolDetail('${item.id}')"><div class="tool-thumb">${toolImage(item)}</div><div><h3>${escapeHtml(item.name)}</h3><div class="tool-status ${item.status}">${TOOL_STATUS[item.status]||'Есть'}</div><p>${escapeHtml(item.category||'Другое')}</p></div><div><div class="tool-price">${Number(item.price)?toolMoney(item.price):''}</div><div class="tool-actions"><button class="btn-outline" onclick="event.stopPropagation();showToolEditor('${item.id}')">✎</button><button class="btn-red" onclick="event.stopPropagation();deleteTool('${item.id}')">🗑</button></div></div></div>`;}
 function readToolPhoto(input,done){const file=input.files?.[0];if(!file){done('');return;}const r=new FileReader();r.onload=e=>compressImage(e.target.result,900,.72,done);r.readAsDataURL(file);}
 function openToolEditorSafe(e,id=''){
@@ -4894,10 +5092,16 @@ function showToolEditor(id=''){
 function saveTool(id=''){
  const name=document.getElementById('tool-name').value.trim();if(!name){toast('Укажи название');return;}
  const tools=DB.tools(),old=tools.find(x=>x.id===id);const finish=photo=>{const item={id:id||U.uid(),name,category:document.getElementById('tool-category').value,status:document.getElementById('tool-status').value,price:Number(document.getElementById('tool-price').value)||0,bought:document.getElementById('tool-bought').value,description:document.getElementById('tool-description').value.trim(),photo:photo||old?.photo||'',created:old?.created||U.nowISO()};const idx=tools.findIndex(x=>x.id===id);if(idx>=0)tools[idx]=item;else tools.unshift(item);DB.saveTools(tools);closeModal();renderTools();toast('🧰 Инструмент сохранён');};
- const input=document.getElementById('tool-photo');if(input.files?.length)readToolPhoto(input,finish);else finish('');
+ const input=document.getElementById('tool-photo');
+ if(input.files?.length)readToolPhoto(input,async dataUrl=>{
+   let stored=dataUrl;
+   try{if(dataUrl)stored=await PhotoStore.put(dataUrl);}catch(error){console.warn('Фото инструмента не сохранилось в хранилище',error);}
+   finish(stored);
+ });
+ else finish('');
 }
 function deleteTool(id){const item=DB.tools().find(x=>x.id===id);if(!item)return;if(!confirm(`Удалить «${item.name}»? Это удалит карточку и фото из арсенала.`))return;DB.saveTools(DB.tools().filter(x=>x.id!==id));renderTools();toast('Инструмент удалён');}
-function showToolDetail(id){const item=DB.tools().find(x=>x.id===id);if(!item)return;document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('box')}${escapeHtml(item.name)}</h3><div class="tool-detail-photo" style="display:flex;align-items:center;justify-content:center;font-size:110px">${toolImage(item)}</div><div class="tool-detail-grid"><div class="tool-detail-cell"><small>Категория</small><b>${escapeHtml(item.category)}</b></div><div class="tool-detail-cell"><small>Статус</small><b class="tool-status ${item.status}">${TOOL_STATUS[item.status]}</b></div><div class="tool-detail-cell"><small>Дата покупки</small><b>${item.bought?U.date(item.bought):'—'}</b></div><div class="tool-detail-cell"><small>Стоимость</small><b>${Number(item.price)?toolMoney(item.price):'—'}</b></div></div>${item.description?`<p>${escapeHtml(item.description)}</p>`:''}<div class="row"><button onclick="closeModal();showToolEditor('${id}')">Редактировать</button><button class="btn-red" onclick="closeModal();deleteTool('${id}')">Удалить</button></div><button class="btn-outline" onclick="closeModal()">Закрыть</button>`;document.getElementById('modal-overlay').classList.add('active');}
+function showToolDetail(id){const item=DB.tools().find(x=>x.id===id);if(!item)return;document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('box')}${escapeHtml(item.name)}</h3><div class="tool-detail-photo" style="display:flex;align-items:center;justify-content:center;font-size:110px">${toolImage(item)}</div><div class="tool-detail-grid"><div class="tool-detail-cell"><small>Категория</small><b>${escapeHtml(item.category)}</b></div><div class="tool-detail-cell"><small>Статус</small><b class="tool-status ${item.status}">${TOOL_STATUS[item.status]}</b></div><div class="tool-detail-cell"><small>Дата покупки</small><b>${item.bought?U.date(item.bought):'—'}</b></div><div class="tool-detail-cell"><small>Стоимость</small><b>${Number(item.price)?toolMoney(item.price):'—'}</b></div></div>${item.description?`<p>${escapeHtml(item.description)}</p>`:''}<div class="row"><button onclick="closeModal();showToolEditor('${id}')">Редактировать</button><button class="btn-red" onclick="closeModal();deleteTool('${id}')">Удалить</button></div><button class="btn-outline" onclick="closeModal()">Закрыть</button>`;document.getElementById('modal-overlay').classList.add('active');hydratePhotos(document.getElementById('modal-content'));}
 function showToolShare(){const tools=DB.tools().filter(x=>x.status==='have');const value=tools.reduce((a,x)=>a+(Number(x.price)||0),0);const top=tools.slice(0,9);document.getElementById('modal-content').innerHTML=`<h3>${iconSvg('telegram')}Поделиться арсеналом</h3><div class="tool-share-card" id="tool-share-card"><h2>🛠️ Оснащение мастера</h2><p>Профессиональный инструмент для качественного ремонта</p><div class="tool-share-list">${top.map(x=>`<div>${escapeHtml(x.name)}</div>`).join('')}${tools.length>top.length?`<div>И ещё ${tools.length-top.length} позиций</div>`:''}</div><div class="tool-share-footer"><div><b>${tools.length}</b><small>ИНСТРУМЕНТОВ</small></div><div><b>${Object.keys(groupByToolCategory(tools)).length}</b><small>КАТЕГОРИЙ</small></div><div><b>${toolMoney(value)}</b><small>СТОИМОСТЬ</small></div></div><p style="text-align:center;margin:16px 0 0">CRM by <b style="color:#ff643f">Romanychev 😎</b></p></div><button onclick="shareToolText()">Отправить список</button><button class="btn-outline" onclick="closeModal()">Закрыть</button>`;document.getElementById('modal-overlay').classList.add('active');}
 function groupByToolCategory(items){return items.reduce((a,x)=>((a[x.category]=a[x.category]||[]).push(x),a),{});}
 async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have');const text=`Оснащение мастера\n\n${tools.map(x=>'✓ '+x.name).join('\n')}\n\nВсего: ${tools.length} инструментов\nCRM by Romanychev 😎`;try{if(navigator.share)await navigator.share({title:'Оснащение мастера',text});else{await navigator.clipboard.writeText(text);toast('Список скопирован');}}catch(e){} }
@@ -4906,6 +5110,7 @@ async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
+        <div class="data-warning"><b>v19.5</b><small>Фото заявок и инструмента переехали в отдельное большое хранилище браузера (IndexedDB) — там лимит не ~10 МБ, а сотни МБ и больше. В заявках теперь хранится только ссылка на фото, а не сама картинка. Перенос старых фото происходит один раз автоматически при первом открытии. Формат бэкапа не изменился — фото по-прежнему сохраняются и восстанавливаются внутри файла.</small></div>
         <div class="data-warning"><b>v19.4.1</b><small>Исправлено «заявка не закрывается». Раньше при переполненной памяти браузера заявка молча не сохранялась — теперь появляется понятное окно с инструкцией, введённые данные остаются в форме, а уже списанный склад возвращается назад, чтобы остаток не разъехался с заявками. Нехватку остатка на складе теперь показывает до вопроса «Закрыть заявку?», а не после него. Индикатор хранилища показывает процент заполнения и предупреждает заранее.</small></div>
         <div class="data-warning"><b>v19.4</b><small>Бэкап можно сохранять в выбранную папку, а не только в «Загрузки» (Chrome на компьютере), и настраивать периодичность автобэкапа: каждый день, раз в 2, 3, 5, 7 или 14 дней. Если доступа к папке нет, копия по-прежнему уходит в «Загрузки», чтобы данные не потерялись. Также исправлено двойное списание денег: материал, взятый с уже оплаченного склада, больше не уменьшает сумму «На руки» второй раз — расход по нему учтён при закупке.</small></div>
         <div class="data-warning"><b>v19.3.3</b><small>Добавлена настройка «Скрыть при выборе материалов в заявке» для складских позиций. Подходит для MAPP-газа, масла и других служебных запасов.</small></div>
@@ -4932,10 +5137,18 @@ function restoreFromFile(){
             if(!data.orders)throw new Error();
             if(!confirm(`Восстановить данные от ${U.dateTime(data.date)}?`))return;
             await downloadBackup('before_restore');
+            // Фото из файла кладём в IndexedDB и оставляем в заявках ссылки —
+            // иначе восстановление большого бэкапа само упрётся в лимит.
+            const restoredOrders=data.orders||[],restoredTools=Array.isArray(data.tools)?data.tools:[];
+            for(const order of restoredOrders){
+                const photos=order.photos||[];
+                for(let i=0;i<photos.length;i++)if(photos[i]&&!isPhotoRef(photos[i]))photos[i]=await PhotoStore.put(photos[i]);
+            }
+            for(const tool of restoredTools)if(tool.photo&&!isPhotoRef(tool.photo))tool.photo=await PhotoStore.put(tool.photo);
             const restoredWarehouse=data.warehouse||[];
-            DB.saveOrders(data.orders||[]);DB.saveWarehouse(restoredWarehouse);
+            DB.saveOrders(restoredOrders);DB.saveWarehouse(restoredWarehouse);
             DB.saveWarehouseMovements(Array.isArray(data.warehouse_movements)?data.warehouse_movements:createOpeningWarehouseMovements(restoredWarehouse));
-            DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.saveReceipts(Array.isArray(data.receipts)?data.receipts:[]);DB.saveReceiptPrices(Array.isArray(data.receipt_prices)?data.receipt_prices:[]);DB.saveTools(Array.isArray(data.tools)?data.tools:[]);DB.set('draft',data.draft||[]);
+            DB.saveExpenses(data.expenses||[]);DB.saveIncomes(data.incomes||[]);DB.saveCustomServices(data.service_custom||[]);DB.saveReceipts(Array.isArray(data.receipts)?data.receipts:[]);DB.saveReceiptPrices(Array.isArray(data.receipt_prices)?data.receipt_prices:[]);DB.saveTools(restoredTools);DB.set('draft',data.draft||[]);
             if(data.settings)DB.saveSettings(data.settings);
             closeModal();toast('✅ Восстановлено!');location.reload();
         }catch{toast('❌ Ошибка файла!');}
@@ -5101,6 +5314,11 @@ async function initializeApp(){
     }else document.documentElement.style.colorScheme='dark';
     migrateStoredData();
     seedReceiptPriceCatalog();
+    try{
+        const moved=await migratePhotosToStore();
+        if(moved)toast(`📷 Фото перенесены в большое хранилище: ${moved} шт.`);
+        await cleanupOrphanPhotos();
+    }catch(error){console.warn('Перенос фото не выполнен',error);}
     if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
     setupDraftAutosave();renderWarrantyScope();syncWarrantyPanel();
     ['orders','warehouse','warehouse_movements','expenses','incomes','service_custom','receipts','receipt_prices','settings','draft'].forEach(k=>DeviceBackup.mirror(k,DB.get(k)));
