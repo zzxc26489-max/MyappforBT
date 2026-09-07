@@ -97,6 +97,9 @@
         .badge-sd { background: var(--accent); color: #000; }
         .badge-closed { background: var(--green); color: #000; }
         .card-body { font-size: 13px; color: var(--sub); line-height: 1.6; }
+        .master-comment .comment-text { white-space: pre-wrap; word-break: break-word; }
+        .master-comment .comment-text.comment-collapsed { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .master-comment .comment-toggle { display: inline-block; margin-top: 4px; padding: 0; background: none; border: none; box-shadow: none; width: auto; min-height: 0; color: var(--accent); font-size: 11px; font-weight: 600; text-decoration: underline; cursor: pointer; }
         .card-footer { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
         .card-footer button { flex: 0 1 auto; min-width: 70px; }
         .highlight { color: var(--accent); font-weight: bold; }
@@ -136,6 +139,13 @@
         .modal-overlay.active { display: flex; }
         .modal { background: var(--card); border-radius: 16px; padding: 16px; width: 100%; max-width: 750px; max-height: calc(100vh - 20px); overflow-y: auto; }
         .modal h3 { margin-bottom: 10px; color: var(--accent); font-size: 17px; }
+        /* Прилипающая шапка модалки: заголовок и крестик закрытия остаются
+           видны при любой прокрутке длинного списка (услуги, склад, история) —
+           не нужно долистывать до конца, чтобы найти кнопку закрытия. */
+        .modal-header-row { position: sticky; top: -16px; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -16px -16px 10px; padding: 16px 16px 10px; background: var(--card); }
+        .modal-header-row h3 { margin-bottom: 0; }
+        .modal-close-x { width: 34px; min-width: 34px; height: 34px; min-height: 34px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--input); color: var(--sub); border-radius: 10px; box-shadow: none; flex-shrink: 0; }
+        .modal-close-x .ui-icon { width: 16px; height: 16px; }
         .search-box { margin-bottom: 8px; }
         .filter-chips { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
         .chip { padding: 5px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; font-size: 11px; cursor: pointer; color: var(--sub); }
@@ -975,6 +985,7 @@
     <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4a1 1 0 0 1 1 1v11H3V8a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="4"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5M12 17h.01"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
 </svg>
 
 <div class="install-banner" id="install-banner">
@@ -1270,7 +1281,7 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v19.5</b></span>
+            <span>Версия: <b>v19.6</b></span>
             <span>Сборка: <b>07.09.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
@@ -1282,7 +1293,7 @@
 <!-- Модальное окно услуг -->
 <div class="modal-overlay" id="service-modal-overlay">
     <div class="modal" id="service-modal">
-        <h3><svg class="ui-icon"><use href="#i-list"></use></svg>Каталог услуг</h3>
+        <div class="modal-header-row"><h3><svg class="ui-icon"><use href="#i-list"></use></svg>Каталог услуг</h3><button type="button" class="modal-close-x" onclick="closeServiceModal()" aria-label="Закрыть"><svg class="ui-icon"><use href="#i-close"></use></svg></button></div>
         <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="service-search" placeholder="Найти услугу" oninput="renderServiceCatalog()"></div>
         <div id="service-catalog" class="service-catalog"></div>
         <div class="sum-display" id="service-sum-display"></div>
@@ -1294,7 +1305,7 @@
 <!-- Модальное окно материалов -->
 <div class="modal-overlay" id="material-modal-overlay">
     <div class="modal" id="material-modal">
-        <h3><svg class="ui-icon"><use href="#i-warehouse"></use></svg>Склад в заявку</h3>
+        <div class="modal-header-row"><h3><svg class="ui-icon"><use href="#i-warehouse"></use></svg>Склад в заявку</h3><button type="button" class="modal-close-x" onclick="closeMaterialModal()" aria-label="Закрыть"><svg class="ui-icon"><use href="#i-close"></use></svg></button></div>
         <div class="search-box"><span class="search-icon"><svg class="ui-icon"><use href="#i-search"></use></svg></span><input type="text" id="material-search" placeholder="Найти запчасть или расходник" oninput="renderMaterialCatalog()"></div>
         <div id="material-filter-hint" class="field-hint" style="margin:0 0 7px;"></div>
         <div id="material-catalog" class="service-catalog"></div>
@@ -1305,7 +1316,7 @@
 <!-- История движения склада -->
 <div class="modal-overlay" id="warehouse-history-overlay">
     <div class="modal" id="warehouse-history-modal">
-        <h3><svg class="ui-icon"><use href="#i-calendar"></use></svg>История движения склада</h3>
+        <div class="modal-header-row"><h3><svg class="ui-icon"><use href="#i-calendar"></use></svg>История движения склада</h3><button type="button" class="modal-close-x" onclick="closeWarehouseHistory()" aria-label="Закрыть"><svg class="ui-icon"><use href="#i-close"></use></svg></button></div>
         <div class="history-toolbar"><input type="search" id="history-search" placeholder="Найти позицию или заявку" oninput="renderWarehouseHistory()"><select id="history-filter" onchange="renderWarehouseHistory()"><option value="all">Все движения</option><option value="purchase">Покупки и приходы</option><option value="order_out">Списания по заявкам</option><option value="order_return">Возвраты в склад</option><option value="manual">Ручные корректировки</option><option value="opening">Начальные остатки</option><option value="excluded">Исключённые из аналитики</option><option value="cancelled">Отменённые приходы</option></select></div>
         <div id="warehouse-history-list" class="service-catalog"></div>
         <button class="btn-outline" type="button" onclick="closeWarehouseHistory()">Закрыть</button>
@@ -2432,6 +2443,21 @@ function updatePhotoProcessingState(){
     else btn.innerHTML=`<span class="button-label">${iconSvg('save')}${editingId?'Сохранить изменения':'Сохранить заявку'}</span>`;
 }
 
+// Фото хранятся только для внутренних нужд (доказать состояние техники при
+// споре с клиентом) — не для пересылки и не для печати, поэтому спокойно
+// сжимаем в WebP: при том же визуальном качестве он весит на 25-35% меньше
+// JPEG. Поддержка проверяется один раз через сам canvas.toDataURL, а не по
+// имени браузера — так будет работать и там, где WebP появится позже.
+let __photoFormatSupport = null;
+function photoOutputFormat() {
+    if (__photoFormatSupport) return __photoFormatSupport;
+    try {
+        const probe = document.createElement('canvas');
+        probe.width = probe.height = 1;
+        __photoFormatSupport = probe.toDataURL('image/webp', 0.8).startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
+    } catch { __photoFormatSupport = 'image/jpeg'; }
+    return __photoFormatSupport;
+}
 function compressImage(dataUrl, maxWidth, quality, callback) {
     const img = new Image();
     img.onload = function() {
@@ -2448,7 +2474,7 @@ function compressImage(dataUrl, maxWidth, quality, callback) {
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
-        callback(canvas.toDataURL('image/jpeg', quality));
+        callback(canvas.toDataURL(photoOutputFormat(), quality));
     };
     img.src = dataUrl;
 }
@@ -3388,7 +3414,7 @@ let orderFilter='all';
 
 function iconSvg(name){
     const aliases={delete:'trash'};
-    const allowed=new Set(['edit','check','reopen','copy','phone','telegram','trash','map','box','warehouse','plus','minus','user','users','folder','diamond','shield','calendar','lock','price','printer','eye','file','finance','chart','clipboard','list','save','refresh','download','upload','compress','wrench','search','alert','dots']);
+    const allowed=new Set(['edit','check','reopen','copy','phone','telegram','trash','map','box','warehouse','plus','minus','user','users','folder','diamond','shield','calendar','lock','price','printer','eye','file','finance','chart','clipboard','list','save','refresh','download','upload','compress','wrench','search','alert','dots','close']);
     const icon=aliases[name]||name;
     return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${allowed.has(icon)?icon:'wrench'}"></use></svg>`;
 }
@@ -3432,6 +3458,28 @@ function renderUpcomingVisits(){
     const visits=DB.orders().filter(order=>isOpenOrder(order)&&order.nextVisit&&!Number.isNaN(new Date(order.nextVisit).getTime())).sort((a,b)=>new Date(a.nextVisit)-new Date(b.nextVisit)).slice(0,3);
     if(!visits.length){container.style.display='none';container.innerHTML='';return;}
     const now=Date.now();container.style.display='block';container.innerHTML=`<div class="visit-banner-title">${iconSvg('calendar')} Ближайшие визиты</div><div class="visit-banner-list">${visits.map(order=>{const overdue=new Date(order.nextVisit).getTime()<now;return `<div class="visit-line" role="button" tabindex="0" onclick="editOrder('${order.id}')"><span><b>${U.dateTime(order.nextVisit)}</b> · ${order.name}${order.address?`<small> · ${order.address}</small>`:''}</span><small style="color:${overdue?'var(--red)':'var(--sub)'};">${overdue?'просрочен':U.formatOrderId(order.id)}</small></div>`;}).join('')}</div>`;
+}
+
+// Комментарий мастера — мини-отчёт для себя (диагностика, шаги ремонта,
+// заметки по ИИ-подсказкам): по умолчанию свёрнут в пару строк, чтобы не
+// раздувать карточку заявки, полный текст — по клику.
+const COMMENT_COLLAPSE_THRESHOLD = 90;
+function masterCommentBlock(order){
+    const raw = order.comment || '';
+    const text = escapeHtml(raw).replace(/\n/g, '<br>');
+    const isLong = raw.length > COMMENT_COLLAPSE_THRESHOLD || raw.includes('\n');
+    const id = `comment-${order.id}`;
+    return `<div class="card-body master-comment" style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);">
+        <b style="color:var(--text);font-size:11px;">Комментарий мастера:</b>
+        <div class="comment-text${isLong ? ' comment-collapsed' : ''}" id="${id}">${text}</div>
+        ${isLong ? `<button type="button" class="comment-toggle" onclick="toggleMasterComment('${id}',this)">Показать полностью</button>` : ''}
+    </div>`;
+}
+function toggleMasterComment(id, btn){
+    const el = document.getElementById(id);
+    if (!el) return;
+    const collapsed = el.classList.toggle('comment-collapsed');
+    btn.textContent = collapsed ? 'Показать полностью' : 'Свернуть';
 }
 
 function renderOrders(){
@@ -3485,7 +3533,7 @@ function renderOrders(){
                 ${(o.materials||[]).length?`<span>${iconSvg('warehouse')} ${(o.materials||[]).length} поз. материалов${materialsCost?` · ${U.money(materialsCost)}`:''}</span>`:''}
                 ${o.nextVisit&&inWork?`<span style="color:${new Date(o.nextVisit)<new Date()?'var(--red)':'var(--blue)'};">${iconSvg('calendar')} Следующий визит: ${U.dateTime(o.nextVisit)}</span>`:''}
             </div>
-            ${o.comment?`<div class="card-body" style="margin-top:7px;padding-top:7px;border-top:1px solid var(--border);"><b style="color:var(--text);font-size:11px;">Комментарий мастера:</b> ${o.comment}</div>`:''}
+            ${o.comment?masterCommentBlock(o):''}
             ${o.photos&&o.photos.length?`<div class="photo-gallery">${o.photos.slice(0,3).map((p,i)=>photoImgTag(p,{onclick:`showOrderPhoto('${o.id}',${i})`})).join('')}</div>`:''}
             <div class="order-actions">
                 <button class="order-action edit" onclick="editOrder('${o.id}')"><span>${iconSvg('edit')}</span><small>Изменить</small></button>
@@ -5110,6 +5158,7 @@ async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
+        <div class="data-warning"><b>v19.6</b><small>Новые фото автоматически сжимаются в WebP (при поддержке браузера) — при том же качестве весят на четверть-треть меньше JPEG. Комментарий мастера в карточке заявки по умолчанию свёрнут в пару строк с кнопкой «Показать полностью» — удобно вести короткие рабочие заметки по диагностике и ремонту, не раздувая список заявок. В каталогах услуг, склада и истории склада шапка модального окна теперь прилипает к верху при прокрутке — крестик закрытия всегда под рукой, не нужно долистывать длинный список до кнопки «Готово».</small></div>
         <div class="data-warning"><b>v19.5</b><small>Фото заявок и инструмента переехали в отдельное большое хранилище браузера (IndexedDB) — там лимит не ~10 МБ, а сотни МБ и больше. В заявках теперь хранится только ссылка на фото, а не сама картинка. Перенос старых фото происходит один раз автоматически при первом открытии. Формат бэкапа не изменился — фото по-прежнему сохраняются и восстанавливаются внутри файла.</small></div>
         <div class="data-warning"><b>v19.4.1</b><small>Исправлено «заявка не закрывается». Раньше при переполненной памяти браузера заявка молча не сохранялась — теперь появляется понятное окно с инструкцией, введённые данные остаются в форме, а уже списанный склад возвращается назад, чтобы остаток не разъехался с заявками. Нехватку остатка на складе теперь показывает до вопроса «Закрыть заявку?», а не после него. Индикатор хранилища показывает процент заполнения и предупреждает заранее.</small></div>
         <div class="data-warning"><b>v19.4</b><small>Бэкап можно сохранять в выбранную папку, а не только в «Загрузки» (Chrome на компьютере), и настраивать периодичность автобэкапа: каждый день, раз в 2, 3, 5, 7 или 14 дней. Если доступа к папке нет, копия по-прежнему уходит в «Загрузки», чтобы данные не потерялись. Также исправлено двойное списание денег: материал, взятый с уже оплаченного склада, больше не уменьшает сумму «На руки» второй раз — расход по нему учтён при закупке.</small></div>
