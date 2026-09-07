@@ -1270,8 +1270,8 @@
     <div class="card app-info-card">
         <div class="app-info-title">CRM для ремонта бытовой техники</div>
         <div class="app-info-meta">
-            <span>Версия: <b>v19.4</b></span>
-            <span>Сборка: <b>30.08.2026</b></span>
+            <span>Версия: <b>v19.4.1</b></span>
+            <span>Сборка: <b>07.09.2026</b></span>
             <span>База данных: <b>v5</b></span>
         </div>
         <button type="button" class="btn-outline" onclick="showChangelog()"><span class="button-label"><svg class="ui-icon"><use href="#i-list"></use></svg>История изменений</span></button>
@@ -1320,7 +1320,20 @@
 const DB = {
     get(k) { try { return JSON.parse(localStorage.getItem('repair_' + k) || '[]'); } catch { return []; } },
     set(k, v) {
-        localStorage.setItem('repair_' + k, JSON.stringify(v));
+        try{
+            localStorage.setItem('repair_' + k, JSON.stringify(v));
+        }catch(error){
+            if(!isStorageQuotaError(error))throw error;
+            // Память браузера кончилась: запись не прошла. Молчать нельзя —
+            // иначе мастер уверен, что заявка сохранена, а её нет.
+            // В IndexedDB место обычно ещё есть, поэтому копию туда кладём:
+            // из неё данные можно поднять, даже если localStorage не принял.
+            DeviceBackup.mirror(k, v);
+            reportStorageFull();
+            const failure=new Error('Хранилище браузера переполнено');
+            failure.name='StorageFullError';
+            throw failure;
+        }
         DeviceBackup.mirror(k, v);
     },
     orders() { return this.get('orders'); },
@@ -1353,6 +1366,34 @@ const DB = {
         return total;
     }
 };
+
+function isStorageQuotaError(error){
+    if(!error)return false;
+    return error.name==='QuotaExceededError'||error.name==='NS_ERROR_DOM_QUOTA_REACHED'||error.code===22||error.code===1014;
+}
+
+let storageFullNoticeShown=false;
+function reportStorageFull(){
+    if(storageFullNoticeShown)return;
+    storageFullNoticeShown=true;
+    try{updateStorageInfo();}catch{}
+    // Показываем после выхода из текущей операции, чтобы модальное окно не
+    // вставало посреди недоделанной записи.
+    setTimeout(()=>{
+        storageFullNoticeShown=false;
+        alert('❌ Память браузера переполнена — данные НЕ сохранены.\n\nБольше всего места занимают фото заявок.\n\nЧто сделать прямо сейчас:\n1. Настройки → «Скачать бэкап CRM BT» — сначала сохрани копию.\n2. Настройки → «Сжать фото».\n3. Если не помогло — «Очистить фото».\n\nПосле этого повтори сохранение — введённые данные никуда не делись.');
+    },0);
+}
+
+// Слепок склада, чтобы откатить списание, если заявку сохранить не удалось.
+function snapshotWarehouseState(){
+    return {warehouse:JSON.parse(JSON.stringify(DB.warehouse())),movements:JSON.parse(JSON.stringify(DB.warehouseMovements()))};
+}
+function restoreWarehouseState(state){
+    if(!state)return;
+    try{DB.saveWarehouse(state.warehouse);DB.saveWarehouseMovements(state.movements);}
+    catch(error){console.warn('Не удалось вернуть склад в исходное состояние',error);}
+}
 
 // Вторая локальная копия данных на устройстве. Помогает восстановиться,
 // если localStorage оказался пустым, но данные сайта ещё не были полностью удалены.
@@ -2293,19 +2334,26 @@ function clearPhotos() {
     updateStorageInfo();maybeAutoBackup();
 }
 
+// Практический потолок localStorage: около 10 МБ в Chrome, около 5 МБ в
+// Safari. Считаем от 10 МБ, но предупреждаем заранее — на iPhone место
+// кончится раньше. Когда потолок достигнут, браузер перестаёт принимать
+// записи, и заявка просто не сохраняется.
+const STORAGE_LIMIT_BYTES = 10 * 1024 * 1024;
 function updateStorageInfo() {
     const size = DB.getStorageSize();
     const mb = (size / (1024 * 1024)).toFixed(2);
+    const percent = Math.min(100, Math.round(size / STORAGE_LIMIT_BYTES * 100));
     const el = document.getElementById('storage-info');
     if (el) {
-        el.innerHTML = `Основное хранилище: ${mb} МБ (доступный объём зависит от телефона)`;
-        if (size > 3 * 1024 * 1024) {
+        el.style.color = 'var(--sub)';
+        el.innerHTML = `Основное хранилище: ${mb} МБ из ~10 МБ (${percent}%)`;
+        if (size > 5 * 1024 * 1024) {
             el.style.color = 'var(--yellow)';
-            el.innerHTML += ' Рекомендуется сжать или удалить фото.';
+            el.innerHTML += ' — больше половины, в основном это фото заявок. Стоит сжать фото.';
         }
-        if (size > 4.5 * 1024 * 1024) {
+        if (size > 7.5 * 1024 * 1024) {
             el.style.color = 'var(--red)';
-            el.innerHTML += ' ❌ Критично! Удалите старые фото!';
+            el.innerHTML = `Основное хранилище: ${mb} МБ из ~10 МБ (${percent}%) — ❌ место почти кончилось. Скоро заявки перестанут сохраняться: сделай бэкап и нажми «Сжать фото».`;
         }
     }
 }
@@ -2604,19 +2652,32 @@ function getAppliedMaterialDetails(order){
     return {entries,incompatible};
 }
 
-function syncWarehouseForOrder(previous,next){
+// Что помешает списать материалы: несовместимые единицы или нехватка остатка.
+// Вынесено отдельно, чтобы предупредить мастера ДО диалога «Закрыть заявку?»,
+// а не после того, как он его подтвердил.
+function warehouseSyncIssue(previous,next){
     const beforeState=getAppliedMaterialDetails(previous),afterState=getAppliedMaterialDetails(next);
     const incompatible=afterState.incompatible.length?afterState.incompatible:beforeState.incompatible;
-    if(incompatible.length){const bad=incompatible[0];toast(`❌ Единица «${bad.material.name}» не совместима с единицей склада (${bad.stockUnit})`,true);return false;}
+    if(incompatible.length){const bad=incompatible[0];return `Единица «${bad.material.name}» не совместима с единицей склада (${bad.stockUnit})`;}
     const before=beforeState.entries,after=afterState.entries;
-    const ids=new Set([...before.keys(),...after.keys()]);if(!ids.size)return true;
-    const items=DB.warehouse(),movementAdds=[],reservationMap=getWarehouseReservations(next?.id||previous?.id||'');
+    const ids=new Set([...before.keys(),...after.keys()]);if(!ids.size)return '';
+    const items=DB.warehouse(),reservationMap=getWarehouseReservations(next?.id||previous?.id||'');
     for(const id of ids){
         const beforeEntry=before.get(id)||{qty:0},afterEntry=after.get(id)||{qty:0},delta=(afterEntry.qty||0)-(beforeEntry.qty||0),item=items.find(entry=>entry.id===id);
         if(!item||Math.abs(delta)<0.000001)continue;
         const available=(Number(item.quantity)||0)-(reservationMap.get(id)||0);
-        if(delta>0&&available+0.000001<delta){toast(`❌ На складе недостаточно доступного остатка: ${item.name}. Доступно ${formatQuantity(Math.max(0,available))} ${item.unit||'шт.'}`,true);return false;}
+        if(delta>0&&available+0.000001<delta)return `На складе не хватает материала «${item.name}»: нужно ${formatQuantity(delta)} ${item.unit||'шт.'}, доступно ${formatQuantity(Math.max(0,available))} ${item.unit||'шт.'}`;
     }
+    return '';
+}
+
+function syncWarehouseForOrder(previous,next){
+    const issue=warehouseSyncIssue(previous,next);
+    if(issue){toast('❌ '+issue,true);return false;}
+    const beforeState=getAppliedMaterialDetails(previous),afterState=getAppliedMaterialDetails(next);
+    const before=beforeState.entries,after=afterState.entries;
+    const ids=new Set([...before.keys(),...after.keys()]);if(!ids.size)return true;
+    const items=DB.warehouse(),movementAdds=[];
     for(const id of ids){
         const beforeEntry=before.get(id)||{qty:0},afterEntry=after.get(id)||{qty:0},delta=(afterEntry.qty||0)-(beforeEntry.qty||0),item=items.find(entry=>entry.id===id);
         if(!item||Math.abs(delta)<0.000001)continue;
@@ -3002,12 +3063,23 @@ function saveOrder(){
     if(['Закрыта','Отказ'].includes(order.status))order.materials=snapshotWarehouseMaterialCosts(order.materials,existing);
     if(!validateOpenOrderReservations(order))return;
     if(!validateMaterialUnits(order.materials))return;
+    const shortage=warehouseSyncIssue(existing,order);
+    if(shortage){alert(`❌ ${shortage}\n\nЗаявка не сохранена. Пополни склад или сними у этого материала галочку «Списать со склада».`);return;}
     if(!confirmOrderClosure(order,existing?.status===order.status&&['Закрыта','Отказ'].includes(order.status)))return;
+    const warehouseState=snapshotWarehouseState();
     if(!syncWarehouseForOrder(existing,order))return;
     let orders=DB.orders();
     if(editingId) orders=orders.map(o=>o.id===editingId ? order : o);
     else orders.unshift(order);
-    DB.saveOrders(orders);
+    try{
+        DB.saveOrders(orders);
+    }catch(error){
+        // Склад уже списан, а заявка не сохранилась (например, кончилась
+        // память): возвращаем остаток и журнал назад, чтобы они не разъехались.
+        restoreWarehouseState(warehouseState);
+        console.warn('Заявка не сохранена',error);
+        return;
+    }
     clearForm();toast('✅ Заявка сохранена!');maybeAutoBackup();
     if(document.getElementById('page-orders').classList.contains('active'))renderOrders();
     updateStorageInfo();
@@ -3058,10 +3130,22 @@ function toggleStatus(id){
     if(order.status==='Закрыта')order.nextVisit=null;
     if(order.status==='Закрыта'){
         order.materials=snapshotWarehouseMaterialCosts(order.materials,previous);
-        if(!validateMaterialUnits(order.materials)||!confirmOrderClosure(order,false)){Object.assign(order,previous);return;}
+        if(!validateMaterialUnits(order.materials)){Object.assign(order,previous);return;}
+        const shortage=warehouseSyncIssue(previous,order);
+        if(shortage){Object.assign(order,previous);alert(`❌ ${shortage}\n\nЗаявка не закрыта. Пополни склад или сними у этого материала галочку «Списать со склада».`);return;}
+        if(!confirmOrderClosure(order,false)){Object.assign(order,previous);return;}
     }
+    const warehouseState=snapshotWarehouseState();
     if(!syncWarehouseForOrder(previous,order)){Object.assign(order,previous);return;}
-    DB.saveOrders(orders);renderOrders();maybeAutoBackup();toast(order.status==='Закрыта'?'✅ Заявка закрыта':'🛠️ Заявка снова в работе');
+    try{
+        DB.saveOrders(orders);
+    }catch(error){
+        restoreWarehouseState(warehouseState);
+        Object.assign(order,previous);
+        console.warn('Статус заявки не сохранён',error);
+        return;
+    }
+    renderOrders();maybeAutoBackup();toast(order.status==='Закрыта'?'✅ Заявка закрыта':'🛠️ Заявка снова в работе');
 }
 
 function deleteOrder(id){
@@ -4822,6 +4906,7 @@ async function shareToolText(){const tools=DB.tools().filter(x=>x.status==='have
 function showChangelog(){
     document.getElementById('modal-content').innerHTML=`
         <h3>${iconSvg('list')}История изменений</h3>
+        <div class="data-warning"><b>v19.4.1</b><small>Исправлено «заявка не закрывается». Раньше при переполненной памяти браузера заявка молча не сохранялась — теперь появляется понятное окно с инструкцией, введённые данные остаются в форме, а уже списанный склад возвращается назад, чтобы остаток не разъехался с заявками. Нехватку остатка на складе теперь показывает до вопроса «Закрыть заявку?», а не после него. Индикатор хранилища показывает процент заполнения и предупреждает заранее.</small></div>
         <div class="data-warning"><b>v19.4</b><small>Бэкап можно сохранять в выбранную папку, а не только в «Загрузки» (Chrome на компьютере), и настраивать периодичность автобэкапа: каждый день, раз в 2, 3, 5, 7 или 14 дней. Если доступа к папке нет, копия по-прежнему уходит в «Загрузки», чтобы данные не потерялись. Также исправлено двойное списание денег: материал, взятый с уже оплаченного склада, больше не уменьшает сумму «На руки» второй раз — расход по нему учтён при закупке.</small></div>
         <div class="data-warning"><b>v19.3.3</b><small>Добавлена настройка «Скрыть при выборе материалов в заявке» для складских позиций. Подходит для MAPP-газа, масла и других служебных запасов.</small></div>
         <div class="data-warning"><b>v19.3.2</b><small>Телефон клиента теперь необязателен. Заявки без номера не сливаются в одного клиента, а кнопки звонка и Telegram скрываются.</small></div>
